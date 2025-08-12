@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar"  dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dentister</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <main style="display: flex; width: 100%;">
+        <div class="main-content-area">
+            <h1>TESST</h1>
+            <h1 class="daynum">loading...</h1>
+        </div>
+        <div class="sidebar">
+            <ul>
+                <li><button onclick="changeView('index')">الصفحة الرئيسية</button></li>
+                <li><button onclick="changeView('patients')">الارسال و اللاستقبال</button></li>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+        
+
+        function changeView(view) {
+            window.pywebview.api.navigate(view);
+        }
+
+        let day = "انتظر";
+        function updateDay(newday) {
+            day = newday;
+            document.querySelector('.daynum').textContent = day;
+        }
+        
+
+    </script>
+</body>
+</html>
+
