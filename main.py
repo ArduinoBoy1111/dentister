@@ -1,7 +1,10 @@
 import os
 import webview
 import urllib.parse
+from database import Base, engine
+import models
 
+Base.metadata.create_all(bind=engine)
 
 def get_url(relative_path):
     abs_path = os.path.abspath(relative_path)
