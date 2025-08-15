@@ -1,8 +1,9 @@
 import os
 import webview
 import urllib.parse
-from database import Base, engine
-import models
+from database import Base, engine , SessionLocal
+from models import Patient , Transfer
+from datetime import datetime
 
 Base.metadata.create_all(bind=engine)
 
@@ -24,6 +25,57 @@ class API:
     def navigate(self, page_name):
         url = load_page(page_name)
         window.load_url(url)
+        
+    def submitForm(self,data):
+        
+        data = dict(data)
+        name = data.get("name")
+        phone_num = data.get("phone_num")
+        info = data.get("info")
+        date_str = data.get("date")
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        print(name , phone_num , info , date_obj)
+        
+        db = SessionLocal()
+        patient =  Patient(name=name,phone_num=phone_num,info=info,date=date_obj)
+        db.add(patient)
+        db.commit()
+        db.refresh(patient)
+        
+        db.close()
+    
+    def deletePatient(self,id):
+        id = int(id)
+        db = SessionLocal()
+        db.query(Patient).filter(Patient.id == int(id)).delete()
+        db.commit()
+        db.close()
+        
+    def deletePatients(self,date):
+        print(f"Python deletePatients received date: {date}")
+        date_obj = datetime.strptime(date, "%Y-%m-%d").date()
+        db = SessionLocal()
+        db.query(Patient).filter(Patient.date == date_obj).delete()
+        db.commit()
+        db.close()
+        
+    def get_patients(self):
+        db = SessionLocal()
+        patients = db.query(Patient).all()
+        db.close()
+        
+        result = []
+        for p in patients:
+            result.append({
+                "id": p.id,
+                "name": p.name,
+                "phone_num": p.phone_num,
+                "date": p.date.isoformat(),  # convert date to string
+                "info": p.info
+            })
+        return result
+
+        
       
 api = API()
 window = webview.create_window("Dentister", load_page("index"), js_api=api)

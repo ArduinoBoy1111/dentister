@@ -10,16 +10,21 @@
     <main style="display: flex;width: 100%;">
         <div class="today-list">
            <div class="card">
-                <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                <div style="display: flex;align-items: center;justify-content: center;width: 100%; height: 30px;margin-bottom: 8px;">
                     <div class="flex-line"></div>
                     <h1 id="current_day_header">غير معروف</h1>
                     <div class="flex-line"></div>
                 </div>
-                <div style="width: 100%;display: flex;justify-content: center;align-items: center;">
-                    <button class="add-button" onclick="showform()">+</button>
-
+                <div class="patients-list" id="patients_list_area">
+                    
                 </div>
            </div>
+           <div class="add-button-area">
+                <button class="add-button" onclick="showform()">+</button>
+                <button class="delete-button" onclick="deletePatients()"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
+                
+            </div>
+           
         </div>
         <div class="main-content-area">
             <div style="display: flex;width: 100%;justify-content: space-between;align-items: center;">
@@ -63,12 +68,14 @@
                         <label  for="info">المعلومات</label>
                         <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="4" ></textarea>
                     </div>
+
+                    <input type="date" name="date" id="date" hidden value="" required>
                 </div>
 
 
 
                 <div class="buttons-area">
-                    <button class="ok-button" onclick="submitform()">موافق</button>
+                    <button type="button" class="ok-button" onclick="submitform()">موافق</button>
                     <button class="cancel-button" onclick="closeform()">إلغاء</button>
                 </div>
             </div>
@@ -76,8 +83,12 @@
     </main>
     
     <script>
+
+        let patients = [];
+
         today_header = document.getElementById('current_day_header');
 
+        
         function changeView(view) {
             window.pywebview.api.navigate(view);
         }
@@ -99,9 +110,16 @@
         ];
         let month = now.getMonth() + 1;
         let year = now.getFullYear();
+        let day = now.getDate();
+
+        today_header.textContent = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year;
+        
+
         const daysInMonth = new Date(year, month, 0).getDate();
         document.getElementById('current_month').textContent = " (" + month + ") " + monthNames[now.getMonth()]  + " " + now.getFullYear();
+        
         createCalendar();
+
         function createCalendar() {
             const daysInMonth = new Date(year, month, 0).getDate();
             document.querySelector('.display').innerHTML = ''; // Clear previous content
@@ -110,8 +128,9 @@
                const daySquare = document.createElement('div');
                const addrtag = document.createElement('button');
                addrtag.onclick = () => {
-                   today_header.textContent = "اليوم: " + i + "/" + monthNames[month - 1] + "/" + year;
-                   window.pywebview.api.updateDay(i);
+                   day = i;
+                   today_header.textContent = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year;
+                   update_list(new Date(year, month - 1, day));
                };
                addrtag.style.textDecoration = 'none';
                daySquare.className = 'day-square';
@@ -154,6 +173,109 @@
                 form.removeEventListener('transitionend', handler);
             });
         }
+        document.getElementById('form').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+
+        function submitform(){
+            
+            
+            const dateInput = document.getElementById('date');
+            const monthPadded = String(month).padStart(2, '0');
+            const dayPadded = String(day).padStart(2, '0');
+            dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
+            
+            const form = document.getElementById('form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData)
+            window.pywebview.api.submitForm(data).then(() => {
+                closeform();
+                refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+            });
+            
+        }
+
+        window.addEventListener('pywebviewready',async function() {
+            patients = await window.pywebview.api.get_patients();
+            update_list(new Date(year, month - 1, day));
+        });
+
+        async function refreshPatients(date) {
+            patients = await window.pywebview.api.get_patients(); // fetch latest data
+            update_list(date); // update DOM
+        }
+
+        function update_list(date) {
+            const patient_list_area = document.getElementById('patients_list_area');
+            patient_list_area.innerHTML = ''; // Clear previous content
+            const filteredPatients = patients.filter(patient => {
+                const patientDate = new Date(patient.date);
+                return patientDate.getFullYear() === date.getFullYear() && patientDate.getMonth() + 1 === date.getMonth() + 1 && patientDate.getDate() === date.getDate();
+            });
+            filteredPatients.forEach(patient => {
+                const patientDiv = document.createElement('div');
+                patientDiv.dir = 'rtl';
+                patientDiv.className = 'patient-card';
+                
+                upper_div = document.createElement('div');
+                upper_div.className = 'upper-div';
+                patientDiv.appendChild(upper_div);
+
+                lower_div = document.createElement('div');
+                lower_div.className = 'lower-div';
+                patientDiv.appendChild(lower_div);
+
+                const name = document.createElement('p');
+                name.textContent = patient.name;
+                upper_div.appendChild(name);
+
+                const phone = document.createElement('p');
+                phone.textContent = `${patient.phone_num}`;
+                upper_div.appendChild(phone);
+
+                const info = document.createElement('p');
+                info.textContent = `${patient.info}`;
+                lower_div.appendChild(info);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
+
+                
+                deleteButton.className = 'delete-button';
+                deleteButton.onclick = () => {
+                    window.pywebview.api.deletePatient(patient.id).then(() => {
+                        refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    });
+                };
+                const editButton = document.createElement('button');
+                editButton.innerHTML = '<svg viewBox="0 0 24.00 24.00" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M3.5362 5.29854C3.861 5.23721 4.19511 5.34035 4.42884 5.57407L6.90007 8.0453C7.21718 8.36241 7.73131 8.36241 8.04842 8.0453C8.36553 7.7282 8.36553 7.21406 8.04842 6.89695L5.57841 4.42694C5.34457 4.1931 5.24146 3.85877 5.30297 3.53383C5.36449 3.2089 5.58266 2.93539 5.8858 2.8032C8.06696 1.85206 10.7034 2.26698 12.4903 4.05384C13.9041 5.46765 14.4588 7.41411 14.1581 9.24419L21.0366 16.1227C22.3936 17.4796 22.3936 19.6797 21.0366 21.0367C19.6796 22.3936 17.4796 22.3936 16.1226 21.0367L9.24405 14.1581C7.41401 14.4588 5.46762 13.904 4.05384 12.4903C2.26556 10.702 1.85139 8.06276 2.80548 5.88058C2.93789 5.57772 3.2114 5.35986 3.5362 5.29854ZM4.30644 8.2801C4.30858 9.29283 4.69632 10.3043 5.46805 11.076C6.50688 12.1149 7.97927 12.4581 9.30695 12.1009C9.6523 12.008 10.021 12.1066 10.2739 12.3595L17.5368 19.6225C18.1127 20.1984 19.0465 20.1984 19.6224 19.6225C20.1983 19.0466 20.1983 18.1128 19.6224 17.5369L12.3595 10.274C12.1066 10.0211 12.008 9.65241 12.1009 9.30705C12.4582 7.97934 12.1149 6.50691 11.076 5.46805C10.3059 4.69791 9.29699 4.31018 8.28635 4.30645L9.46264 5.48274C10.5608 6.58089 10.5608 8.36136 9.46264 9.45952C8.36448 10.5577 6.58401 10.5577 5.48586 9.45952L4.30644 8.2801Z" fill="#ffffff"></path> </g></svg>';
+
+                editButton.className = 'edit-button';
+
+                const buttons_area = document.createElement('div');
+                buttons_area.className = 'patient-buttons-area';
+                lower_div.appendChild(buttons_area);
+                buttons_area.appendChild(deleteButton);
+                buttons_area.appendChild(editButton);
+
+                patient_list_area.appendChild(patientDiv);
+            });
+
+            
+            
+        }
+        function deletePatients() {
+
+                const monthPadded = String(month).padStart(2, '0');
+                const dayPadded = String(day).padStart(2, '0');
+                const date = `${year}-${monthPadded}-${dayPadded}`;
+
+                window.pywebview.api.deletePatients(date).then(() => {
+                    refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                });
+            }
     </script>
 </body>
 </html>
