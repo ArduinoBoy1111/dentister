@@ -74,6 +74,32 @@ class API:
                 "info": p.info
             })
         return result
+        
+    def editPatient(self,id,data):
+        data = dict(data)
+        name = data.get("name")
+        phone_num = data.get("phone_num")
+        info = data.get("info")
+        date_str = data.get("date")
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        print(name , phone_num , info , date_obj)
+        
+        db = SessionLocal()
+        patient =  db.query(Patient).filter(Patient.id == id).first()
+        if patient:
+            if name is not None:
+                patient.name = name
+            if phone_num is not None:
+                patient.phone_num = phone_num
+            if info is not None:
+                patient.info = info
+            if date_obj is not None:
+                patient.date = date_obj
+            
+        db.commit()
+        db.refresh(patient)
+        db.close()
+        
 
         
       
