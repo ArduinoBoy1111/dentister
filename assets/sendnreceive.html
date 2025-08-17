@@ -14,7 +14,6 @@
                     <div class="flex-line"></div>
                     <h1 id="current_day_header">غير معروف</h1>
                     <div class="flex-line"></div>
-                    
                 </div>
                 <div class="patients-list" id="patients_list_area">
                     
@@ -23,7 +22,8 @@
            <div class="add-button-area">
                 <button class="add-button" onclick="showform()">+</button>
                 <button class="delete-button" onclick="showWarning()"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
-
+                <button id="send-button" class="send-button" onclick="switchToSend()">الارسال</button>
+                <button id="receive-button" class="receive-button" onclick="switchToReceive()">الاستقبال</button>
             </div>
            
         </div>
@@ -66,17 +66,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label  for="info">المعلومات</label>
-                        <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="4" ></textarea>
+                        <label  for="clinic_name">المعلومات</label>
+                        <textarea name="clinic_name" id="clinic_name" placeholder="ادخل المعلومات" rows="4" ></textarea>
                     </div>
 
                     <input type="date" name="date" id="date" hidden value="" required>
+                    <input type="number" name="transfer_type" id="transfer_type" hidden value="1" required>
                 </div>
 
 
 
                 <div class="buttons-area" style="justify-content: center; align-items: center;">
-                    <button type="button" class="ok-button" onclick="submitform()">موافق</button>
+                    <button type="button" class="ok-button" onclick="submitForm_T()">موافق</button>
                     <button type="button" class="cancel-button" onclick="closeform()">إلغاء</button>
                 </div>
             </div>
@@ -92,11 +93,25 @@
     
     <script>
 
-        let patients = [];
+        let transfers = [];
         let editing = false;
         today_header = document.getElementById('current_day_header');
+        let state = 'send'; 
 
-        
+        function switchToSend() {
+            document.getElementById('send-button').classList.add('active');
+            document.getElementById('receive-button').classList.remove('active');
+            state = 'send';
+            document.getElementById('transfer_type').value = 1;
+        }
+
+        function switchToReceive() {
+            document.getElementById('receive-button').classList.add('active');
+            document.getElementById('send-button').classList.remove('active');
+            state = 'receive';
+            document.getElementById('transfer_type').value = 0;
+        }
+        switchToSend();
         function changeView(view) {
             window.pywebview.api.navigate(view);
         }
@@ -135,26 +150,15 @@
             for (let i = 1; i <= daysInMonth; i++) {
                const daySquare = document.createElement('div');
                const addrtag = document.createElement('button');
-               const patient_num = document.createElement('div');
-               addrtag.className = 'addr-tag';
-
                addrtag.onclick = () => {
                    day = i;
                    today_header.textContent = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year;
                    update_list(new Date(year, month - 1, day));
-                   const allAddrTags = document.querySelectorAll('.addr-tag');
-                    allAddrTags.forEach(square => {
-                        square.classList.remove('active');
-                    });
-                    addrtag.classList.add('active');
                };
                addrtag.style.textDecoration = 'none';
                daySquare.className = 'day-square';
                daySquare.textContent = i;
-               patient_num.className = 'patient-num';
-               patient_num.textContent = 2;
                addrtag.appendChild(daySquare);
-               addrtag.appendChild(patient_num);
                document.querySelector('.main-content-area .display').appendChild(addrtag);
            }
         }
@@ -169,7 +173,6 @@
                 year += 1;
             }
             createCalendar();
-            update_list(new Date(year, month - 1, day));
         }
         function showform(){
             form = document.getElementById('form');
@@ -202,7 +205,7 @@
             }
         });
 
-        function submitform() {
+        function submitForm_T() {
             
             if (!editing){
                 const dateInput = document.getElementById('date');
@@ -213,11 +216,11 @@
                 const form = document.getElementById('form');
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData)
-                window.pywebview.api.submitForm(data).then(() => {
+                window.pywebview.api.submitForm_T(data).then(() => {
                     // Clear form fields
                     form.reset();
                     closeform();
-                    refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                 });
             }
             else {
@@ -231,7 +234,7 @@
                 const data = Object.fromEntries(formData)
                 window.pywebview.api.editPatient(edit_id, data).then(() => {
                     closeform();
-                    refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                     
                 });
             }
@@ -244,8 +247,8 @@
             update_list(new Date(year, month - 1, day));
         });
 
-        async function refreshPatients(date) {
-            patients = await window.pywebview.api.get_patients(); // fetch latest data
+        async function refreshTransfers(date) {
+            transfers = await window.pywebview.api.get_transfers(); // fetch latest data
             update_list(date); // update DOM
         }
 
@@ -289,7 +292,7 @@
                 deleteButton.className = 'delete-button';
                 deleteButton.onclick = () => {
                     window.pywebview.api.deletePatient(patient.id).then(() => {
-                        refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                        refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                     });
                 };
                 const editButton = document.createElement('button');
@@ -300,7 +303,7 @@
                 editButton.onclick = () => {
                     document.getElementById('name').value = patient.name;
                     document.getElementById('phone_num').value = patient.phone_num;
-                    document.getElementById('info').value = patient.info;
+                    document.getElementById('clinic_name').value = patient.clinic_name;
                     document.getElementById('date').value = patient.date;
                     edit_id = patient.id;
                     editing = true;
@@ -314,32 +317,9 @@
 
                 patient_list_area.appendChild(patientDiv);
             });
-            if (patient_list_area.children.length === 0) {
-                const noPatientsMessage = document.createElement('div');
-                noPatientsMessage.style.marginTop = '8px';
-                noPatientsMessage.innerText = 'لا يوجد مرضى لهذا اليوم.';
-                patient_list_area.appendChild(noPatientsMessage);
-            }
-            const patients_nums = document.querySelectorAll('.addr-tag > .patient-num');
-            patients_nums.forEach((num, index) => {
-                const filteredPatients = patients.filter(patient => {
-                    const patientDate = new Date(patient.date);
-                    return patientDate.getFullYear() === date.getFullYear() && patientDate.getMonth() + 1 === date.getMonth() + 1 && patientDate.getDate() === index + 1;
-                });
-                num.textContent = `${filteredPatients.length}`;
-                if (filteredPatients.length > 0) {
-                    num.style.color = '#1a1a1a';
-                    num.style.display = 'flex';
-                } else {
-                    num.style.display = 'none';
-                }
-                if (filteredPatients.length >= 4) {
-                    num.style.color = '#fcc203';
-                }
-                if (filteredPatients.length >= 7) {
-                    num.style.color = '#ff3d3d';
-                }
-            });
+
+            
+            
         }
         function deletePatients() {
 
@@ -348,7 +328,7 @@
                 const date = `${year}-${monthPadded}-${dayPadded}`;
 
                 window.pywebview.api.deletePatients(date).then(() => {
-                    refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                 });
                 hideWarning()
             }

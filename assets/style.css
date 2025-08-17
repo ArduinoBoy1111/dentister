@@ -10,6 +10,7 @@ body, html {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
     overflow: hidden; /* Prevent body scrollbar */
+    
 }
 
 main {
@@ -129,6 +130,7 @@ ul li button {
     border: 2px solid #272727;
     margin: 10px !important;
     margin-bottom: 5px !important;
+    margin-top: 30px !important;
 
     
 }
@@ -163,6 +165,7 @@ form .form-card {
     align-items: center;
     justify-content: space-between;
     direction: rtl;
+
     
 }
 .today-list{
@@ -174,6 +177,7 @@ form .form-card {
     justify-content: space-between;
     width: 90%;
     margin: 8px auto;
+   
 }
 .form-group input, .form-group textarea , .form-group select , .switch-input {
     border: 1px solid #ccc;
@@ -181,6 +185,7 @@ form .form-card {
     border-radius: 4px;
     resize: none;
     padding: 0 6px;
+    font-size: 20px;
     
 }
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus, .switch-input:focus {
@@ -188,12 +193,13 @@ form .form-card {
     outline: none;
 }
 .form-group input {
-    height: 20px;
+    height: 30px;
+
 }
 .form-group label {
     width: 20%;
     text-align: right;
-    font-size: 20px;
+    font-size: 22px;
     color: #333;
 }
 .cancel-button {
@@ -248,7 +254,7 @@ form .form-card {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 20px;
+    font-size: 24px;
     flex-direction: column;
 }
 .upper-div {
@@ -263,7 +269,7 @@ form .form-card {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    font-size: 16px;
+    font-size: 20px;
     color: #4b4b4b;
     height: 50%;
 }
@@ -293,7 +299,7 @@ form .form-card {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 5px;
     border: 2px solid #272727;
-    margin-bottom: 5px;
+    margin-bottom: 5%;
     gap: 10px;
 
 }
@@ -365,5 +371,56 @@ form .form-card {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+}
+.send-button {
+    background-color: rgb(231, 231, 231);
+    border-radius: 12px;
+    transition: 0.2s ease-in-out;
+    border: 2px solid #474747;
+}
+.receive-button {
+    background-color: rgb(231, 231, 231);
+    border-radius: 12px;
+    transition: 0.2s ease-in-out;
+    border: 2px solid #474747;
+}
+.send-button:hover,
+.receive-button:hover {
+    background-color: var(--light-teal);
+    transition: 0.2s ease-in-out;
+}
+.active{
+    background-color: var(--teal) !important;
+    color: #ffffff !important;
+    transition: 0.2s ease-in-out !important;
+}
+.day-square{
+    font-size: 30px;
+    padding: 10px;
+    width: 90%;
+    height: 100%;
+}
+.patient-num{
+    width: 10%;
+    height: 100% !important;
+    font-size: 18px !important;
+    color: #1a1a1a;
+    position: relative;
+    top: -16px;
+    font-weight: bold;
+    border-radius: 25%;
+
+}
+.circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: #bebebe 2px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #bebebe;
 
 }
