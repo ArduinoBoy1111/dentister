@@ -3,12 +3,14 @@ import sys
 import urllib.parse
 import webview
 from datetime import datetime
-
+import subprocess
 from database import Base, engine, SessionLocal
 from models import Patient, Transfer
 
 # --- Database setup ---
 Base.metadata.create_all(bind=engine)
+
+
 
 
 # --- Path helpers ---
@@ -40,6 +42,13 @@ class API:
         url = load_page(page_name)
         window.load_url(url)
 
+    def call_number(self,phone_number):
+        
+        if phone_number :
+            num = "+964"
+            phone_number = phone_number[1:]
+            num += phone_number
+            subprocess.run(["adb", "shell", "am", "start", "-a", "android.intent.action.CALL", "-d", f"tel:{num}"])
     # --- Patients ---
     def submitForm(self, data):
         data = dict(data)
@@ -174,5 +183,5 @@ def on_loaded():
 
 # --- Start app ---
 api = API()
-window = webview.create_window("Dentister", load_page("index"), js_api=api)
-webview.start()
+window = webview.create_window("Dentister", load_page("index"), js_api=api,resizable=False)
+webview.start(on_loaded)
