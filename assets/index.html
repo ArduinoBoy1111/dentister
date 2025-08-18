@@ -127,7 +127,14 @@
         document.getElementById('current_month').textContent = " (" + month + ") " + monthNames[now.getMonth()]  + " " + now.getFullYear();
         
         createCalendar();
+        const day_squares = document.querySelectorAll('.day-square');
+        <!-- Highlight the current day -->
+        day_squares.forEach(square => {
+            if (parseInt(square.textContent) === day) {
 
+                square.parentElement.classList.add('active');
+            }
+        });
         function createCalendar() {
             const daysInMonth = new Date(year, month, 0).getDate();
             document.querySelector('.display').innerHTML = ''; // Clear previous content
@@ -152,7 +159,7 @@
                daySquare.className = 'day-square';
                daySquare.textContent = i;
                patient_num.className = 'patient-num';
-               patient_num.textContent = 2;
+               patient_num.textContent = '';
                addrtag.appendChild(daySquare);
                addrtag.appendChild(patient_num);
                document.querySelector('.main-content-area .display').appendChild(addrtag);

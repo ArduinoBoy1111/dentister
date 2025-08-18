@@ -51,6 +51,7 @@
                 <div style="width: 100%;">
                     <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
                         <div class="flex-line"></div>
+                        <!-- TO DO-->
                         <h1 >اضافة مريض</h1>
                         <div class="flex-line"></div>
                     </div>
@@ -66,8 +67,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label  for="clinic_name">المعلومات</label>
-                        <textarea name="clinic_name" id="clinic_name" placeholder="ادخل المعلومات" rows="4" ></textarea>
+                        <label  for="clinic_name">اسم العيادة</label>
+                        <textarea name="clinic_name" id="clinic_name" placeholder="ادخل اسم العيادة" rows="4" ></textarea>
                     </div>
 
                     <input type="date" name="date" id="date" hidden value="" required>
@@ -85,7 +86,7 @@
         <div class="warning-card">
             <p style="font-size: 20px;">هل انت متأكد من القيام بحذف جميع المرضى لتاريخ <span id="warning-date"></span> ؟</p>
             <div class="buttons-area" style="justify-content: center; align-items: center;">
-                <button class="ok-button" onclick="deletePatients()">نعم</button>
+                <button class="ok-button" onclick="deleteTransfers()">نعم</button>
                 <button class="cancel-button" onclick="hideWarning()">لا</button>
             </div>
         </div>
@@ -103,6 +104,7 @@
             document.getElementById('receive-button').classList.remove('active');
             state = 'send';
             document.getElementById('transfer_type').value = 1;
+            update_list(new Date(year, month - 1, day)); // update list without reloading
         }
 
         function switchToReceive() {
@@ -110,8 +112,9 @@
             document.getElementById('send-button').classList.remove('active');
             state = 'receive';
             document.getElementById('transfer_type').value = 0;
+            update_list(new Date(year, month - 1, day)); // update list without reloading
         }
-        switchToSend();
+        
         function changeView(view) {
             window.pywebview.api.navigate(view);
         }
@@ -140,9 +143,16 @@
 
         const daysInMonth = new Date(year, month, 0).getDate();
         document.getElementById('current_month').textContent = " (" + month + ") " + monthNames[now.getMonth()]  + " " + now.getFullYear();
-        
+        switchToSend();
         createCalendar();
+        const day_squares = document.querySelectorAll('.day-square');
+        <!-- Highlight the current day -->
+        day_squares.forEach(square => {
+            if (parseInt(square.textContent) === day) {
 
+                square.parentElement.classList.add('active');
+            }
+        });
         function createCalendar() {
             const daysInMonth = new Date(year, month, 0).getDate();
             document.querySelector('.display').innerHTML = ''; // Clear previous content
@@ -150,15 +160,26 @@
             for (let i = 1; i <= daysInMonth; i++) {
                const daySquare = document.createElement('div');
                const addrtag = document.createElement('button');
+               const patient_num = document.createElement('div');
+               addrtag.className = 'addr-tag';
+
                addrtag.onclick = () => {
                    day = i;
                    today_header.textContent = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year;
                    update_list(new Date(year, month - 1, day));
+                   const allAddrTags = document.querySelectorAll('.addr-tag');
+                    allAddrTags.forEach(square => {
+                        square.classList.remove('active');
+                    });
+                    addrtag.classList.add('active');
                };
                addrtag.style.textDecoration = 'none';
                daySquare.className = 'day-square';
                daySquare.textContent = i;
+               patient_num.className = 'patient-num';
+               patient_num.textContent = '';
                addrtag.appendChild(daySquare);
+               addrtag.appendChild(patient_num);
                document.querySelector('.main-content-area .display').appendChild(addrtag);
            }
         }
@@ -218,8 +239,10 @@
                 const data = Object.fromEntries(formData)
                 window.pywebview.api.submitForm_T(data).then(() => {
                     // Clear form fields
+                    const value = document.getElementById('transfer_type').value
                     form.reset();
                     closeform();
+                    document.getElementById('transfer_type').value = value;
                     refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                 });
             }
@@ -243,7 +266,7 @@
         }
 
         window.addEventListener('pywebviewready',async function() {
-            patients = await window.pywebview.api.get_patients();
+            transfers = await window.pywebview.api.get_transfers();
             update_list(new Date(year, month - 1, day));
         });
 
@@ -253,36 +276,44 @@
         }
 
         function update_list(date) {
+
             const patient_list_area = document.getElementById('patients_list_area');
             patient_list_area.innerHTML = ''; // Clear previous content
-            const filteredPatients = patients.filter(patient => {
-                const patientDate = new Date(patient.date);
-                return patientDate.getFullYear() === date.getFullYear() && patientDate.getMonth() + 1 === date.getMonth() + 1 && patientDate.getDate() === date.getDate();
+            const isSend = state === 'send';
+            const filteredTransfers = transfers.filter(transfer => {
+                const transferDate = new Date(transfer.date);
+                return (
+                    transferDate.getFullYear() === date.getFullYear() &&
+                    transferDate.getMonth() === date.getMonth() &&
+                    transferDate.getDate() === date.getDate() &&
+                    Boolean(transfer.transfer_type) === isSend   // force number → bool
+                );
             });
+
             document.getElementById('warning-date').textContent = day + "/" + monthNames[month - 1] + "/" + year;
-            filteredPatients.forEach(patient => {
-                const patientDiv = document.createElement('div');
-                patientDiv.dir = 'rtl';
-                patientDiv.className = 'patient-card';
-                
+            filteredTransfers.forEach(transfer => {
+                const transferDiv = document.createElement('div');
+                transferDiv.dir = 'rtl';
+                transferDiv.className = 'patient-card';
+
                 upper_div = document.createElement('div');
                 upper_div.className = 'upper-div';
-                patientDiv.appendChild(upper_div);
+                transferDiv.appendChild(upper_div);
 
                 lower_div = document.createElement('div');
                 lower_div.className = 'lower-div';
-                patientDiv.appendChild(lower_div);
+                transferDiv.appendChild(lower_div);
 
                 const name = document.createElement('p');
-                name.textContent = patient.name;
+                name.textContent = transfer.name;
                 upper_div.appendChild(name);
 
                 const phone = document.createElement('p');
-                phone.textContent = `${patient.phone_num}`;
+                phone.textContent = `${transfer.phone_num}`;
                 upper_div.appendChild(phone);
 
                 const info = document.createElement('p');
-                info.textContent = `${patient.info}`;
+                info.textContent = `${transfer.clinic_name}`;
                 lower_div.appendChild(info);
 
                 const deleteButton = document.createElement('button');
@@ -291,7 +322,7 @@
                 
                 deleteButton.className = 'delete-button';
                 deleteButton.onclick = () => {
-                    window.pywebview.api.deletePatient(patient.id).then(() => {
+                    window.pywebview.api.deleteTransfer(transfer.id).then(() => {
                         refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                     });
                 };
@@ -301,11 +332,11 @@
                 editButton.className = 'edit-button';
 
                 editButton.onclick = () => {
-                    document.getElementById('name').value = patient.name;
-                    document.getElementById('phone_num').value = patient.phone_num;
-                    document.getElementById('clinic_name').value = patient.clinic_name;
-                    document.getElementById('date').value = patient.date;
-                    edit_id = patient.id;
+                    document.getElementById('name').value = transfer.name;
+                    document.getElementById('phone_num').value = transfer.phone_num;
+                    document.getElementById('clinic_name').value = transfer.clinic_name;
+                    document.getElementById('date').value = transfer.date;
+                    edit_id = transfer.id;
                     editing = true;
                     showform();
                 };
@@ -315,19 +346,45 @@
                 buttons_area.appendChild(deleteButton);
                 buttons_area.appendChild(editButton);
 
-                patient_list_area.appendChild(patientDiv);
+                patient_list_area.appendChild(transferDiv);
+            });
+            if (patient_list_area.children.length === 0) {
+                const noPatientsMessage = document.createElement('div');
+                noPatientsMessage.style.marginTop = '8px';
+                noPatientsMessage.innerText = 'لا يوجد مرضى لهذا اليوم.';
+                patient_list_area.appendChild(noPatientsMessage);
+            }
+            const patients_nums = document.querySelectorAll('.addr-tag > .patient-num');
+            patients_nums.forEach((num, index) => {
+                const filteredTransfers = transfers.filter(transfer => {
+                    const transferDate = new Date(transfer.date);
+                    return transferDate.getFullYear() === date.getFullYear() && transferDate.getMonth() + 1 === date.getMonth() + 1 && transferDate.getDate() === index + 1;
+                });
+                num.textContent = `${filteredTransfers.length}`;
+                if (filteredTransfers.length > 0) {
+                    num.style.color = '#1a1a1a';
+                    num.style.display = 'flex';
+                } else {
+                    num.style.display = 'none';
+                }
+                if (filteredTransfers.length >= 4) {
+                    num.style.color = '#fcc203';
+                }
+                if (filteredTransfers.length >= 7) {
+                    num.style.color = '#ff3d3d';
+                }
             });
 
             
             
         }
-        function deletePatients() {
+        function deleteTransfers() {
 
                 const monthPadded = String(month).padStart(2, '0');
                 const dayPadded = String(day).padStart(2, '0');
                 const date = `${year}-${monthPadded}-${dayPadded}`;
 
-                window.pywebview.api.deletePatients(date).then(() => {
+                window.pywebview.api.deleteTransfers(date,(state==='send'? 1:0)).then(() => {
                     refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                 });
                 hideWarning()
