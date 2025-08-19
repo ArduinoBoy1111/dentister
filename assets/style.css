@@ -1,6 +1,6 @@
 :root {
     --teal: #20b2aa;
-    --light-teal: hsl(177, 57%, 58%);
+    --light-teal: rgb(87, 209, 203);
 }
 
 body, html {
@@ -19,15 +19,25 @@ main {
 }
 
 .sidebar {
-    flex: 1.2;
+    flex: 3.2;
+    
     background-color: var(--teal);
     color: white;
-    padding: 4px;
+    padding: 0px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    align-items: center;
 }
-
+.water_mark{
+    position: absolute;
+    top: 50%;
+    left: 22.5%;
+    transform: translate(-50%, -50%);
+    opacity: 0.12;
+    height: 90vh;
+    pointer-events: none;
+}
 .main-content-area {
     flex: 10;
     overflow-y: auto;
@@ -245,8 +255,8 @@ form .form-card {
 }
 .patient-card{
     width: 90%;
-    height: 100px !important;
-    background-color: #fffffc;
+    height: 70px !important;
+    background-color: #fffffca7;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 10px;
@@ -256,6 +266,14 @@ form .form-card {
     align-items: center;
     font-size: 24px;
     flex-direction: column;
+    z-index: 5;
+    transition: 0.2s ease-in-out;
+
+
+}
+.patient-card:hover {
+    background-color: #fdfdfd;
+    transition: 0.2s ease-in-out;
 }
 .upper-div {
     display: flex;

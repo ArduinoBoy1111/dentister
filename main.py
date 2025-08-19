@@ -42,13 +42,20 @@ class API:
         url = load_page(page_name)
         window.load_url(url)
 
-    def call_number(self,phone_number):
-        
-        if phone_number :
-            num = "+964"
-            phone_number = phone_number[1:]
-            num += phone_number
-            subprocess.run(["adb", "shell", "am", "start", "-a", "android.intent.action.CALL", "-d", f"tel:{num}"])
+    def call_number(self, phone_number):
+        if phone_number:
+            num = "+964" + phone_number[1:]
+
+            # Run ADB without opening a console window
+            startupinfo = None
+            if os.name == "nt":  # Windows
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+            subprocess.run(
+                ["adb", "shell", "am", "start", "-a", "android.intent.action.CALL", "-d", f"tel:{num}"],
+                startupinfo=startupinfo
+            )
     # --- Patients ---
     def submitForm(self, data):
         data = dict(data)
@@ -171,7 +178,7 @@ class API:
         if transfer:
             transfer.name = data.get("name", transfer.name)
             transfer.phone_num = data.get("phone_num", transfer.phone_num)
-            transfer.info = data.get("info", transfer.info)
+            transfer.clinic_name = data.get("clinic_name", transfer.clinic_name)
             transfer.date = date_obj
             db.commit()
             db.refresh(transfer)

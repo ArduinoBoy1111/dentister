@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="water_mark">
+        <img src="logo.png" alt="Watermark" style="width: 100%; height: 100%;">
+    </div>
     <main style="display: flex;width: 100%;">
         <div class="today-list">
            <div class="card">
@@ -38,10 +41,10 @@
             </div>
         </div>
         <div class="sidebar">
-            
+            <img src="logo.png" style="width: 70%;margin-top: 5%;" alt="">
             <ul>
-                <li><button onclick="changeView('index')">الصفحة الرئيسية</button></li>
-                <li><button onclick="changeView('second')">الارسال و اللاستقبال</button></li>
+                <li><button style=" text-align: center;width: 100%;"  onclick="changeView('index')">الصفحة الرئيسية</button></li>
+                <li ><button style="font-size: 20px; text-align: center;width: 100%;" onclick="changeView('second')">الارسال و اللاستقبال</button></li>
             </ul>
 
         </div>
@@ -255,7 +258,7 @@
                 const form = document.getElementById('form');
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData)
-                window.pywebview.api.editPatient(edit_id, data).then(() => {
+                window.pywebview.api.editTransfer(edit_id, data).then(() => {
                     closeform();
                     refreshTransfers(new Date(year, month - 1, day)); // update list without reloading
                     
