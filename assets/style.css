@@ -132,7 +132,7 @@ ul li button {
     flex-direction: column;
     align-items: center;
     width: 85%;
-    height: 96vh !important;
+    height: 98vh !important;
     background-color: #fffffc;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -140,7 +140,7 @@ ul li button {
     border: 2px solid #272727;
     margin: 10px !important;
     margin-bottom: 5px !important;
-    margin-top: 30px !important;
+    margin-top: 35px !important;
 
     
 }
@@ -159,7 +159,7 @@ form {
     transform: translate(-50%, -55%);
     width: 35%;
     height: 55%;
-
+    z-index: 66;
     transition: 0.2s ease-in-out;
 }
 form .form-card {
@@ -250,7 +250,7 @@ form .form-card {
     align-items: center;
     flex-direction: column;
     gap: 10px;
-    height: 80vh !important;
+    height: 70vh !important;
     overflow-y: auto;
 }
 .patient-card{
@@ -317,7 +317,7 @@ form .form-card {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 5px;
     border: 2px solid #272727;
-    margin-bottom: 5%;
+    margin-bottom: 5.5%;
     gap: 10px;
 
 }
@@ -458,4 +458,8 @@ form .form-card {
     font-size: 24px;
     color: #bebebe;
 
+}
+#current_day_header{
+    text-align: center;
+    margin-top: 8%;
 }
