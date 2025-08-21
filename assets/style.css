@@ -58,8 +58,17 @@ ul li {
     font-size: 18px;
     text-align: end;
     cursor: pointer;
-    padding: 6px ;
-    width: 100%;
+    padding: 3px ;
+    width:85%;
+    background-color: hsl(177, 85%, 45%);
+    border-bottom: hsl(177, 100%,48%) 4px solid;
+    border-radius: 15px;
+    transition: 0.2s ease-in-out;
+    scale: 100%;
+}
+ul li:hover {
+    scale: 108%;
+    transition: 0.2s ease-in-out;
 }
 .main-content-area::-webkit-scrollbar {
     width: 15px;              /* Width of the scrollbar */
@@ -500,4 +509,9 @@ input:focus {
     flex-direction: column;
     align-items: center;
     overflow: auto;
+}
+.sidebar img{
+    border: hsl(177, 100%,48%)  7px outset;
+    border-radius: 50%;
+    
 }
