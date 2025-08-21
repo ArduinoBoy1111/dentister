@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dentister</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="logo.png">
+</head>
+<body>
+    
+    <main style="display: flex;width: 100%;height: 100vh;">
+        
+        <div class="main-content-area" style="align-items: center;display: flex;flex-direction: column;">
+            <div style="width: 100%;display: flex;justify-content: center; gap: 20px;align-items: center;height: 6%;">
+                <button id="meeting" onclick="switchToMeeting()" class="type_button">الجلسات</button>
+                <button id="send" onclick="switchToSend()" class="type_button">الارسال</button>
+                <button id="receive" onclick="switchToReceive()" class="type_button">الاستقبال</button>
+            </div>
+
+            <div class="search_area">
+                
+                <input id="search" type="number" oninput="refreshData()" placeholder="ادخل رقم الهاتف" name="search" class="search_bar"></input>
+            </div>
+            <div id="search_list" class="search_list"></div>
+        </div>
+
+        <div class="sidebar">
+            <img src="logo.png" style="width: 70%;margin-top: 5%;" alt="">
+            <ul>
+                <li><button style=" text-align: center;width: 100%;"  onclick="changeView('index')">الصفحة الرئيسية</button></li>
+                <li ><button style="font-size: 22px; text-align: center;width: 100%;" onclick="changeView('second')">الارسال و اللاستقبال</button></li>
+                <li><button style=" font-size: 22px;text-align: center;width: 100%;"  onclick="changeView('search')">البحث</button></li>
+                
+            </ul>
+
+        </div>
+
+        
+        
+    </main>
+    
+    <script>
+
+        function changeView(view) {
+            window.pywebview.api.navigate(view);
+        }
+
+        let current_type = 0;
+        let patients = []
+        let transfers = []
+
+        let search_result = ""
+
+        meeting_button = document.getElementById("meeting");
+        send_button = document.getElementById("send");
+        receive_button = document.getElementById("receive");
+        
+        function switchToMeeting(){
+            current_type = 0;
+            meeting_button.classList.add("active");
+            send_button.classList.remove("active");
+            receive_button.classList.remove("active");
+            refreshData();
+        }
+        function switchToSend(){
+            current_type = 1;
+            meeting_button.classList.remove("active");
+            send_button.classList.add("active");
+            receive_button.classList.remove("active");
+            refreshData();
+        }
+        function switchToReceive(){
+            current_type = 2;
+            meeting_button.classList.remove("active");
+            send_button.classList.remove("active");
+            receive_button.classList.add("active");
+            refreshData();
+        }
+
+        
+        window.addEventListener('pywebviewready',async function() {
+            patients = await window.pywebview.api.get_patients();
+            transfers = await window.pywebview.api.get_transfers();
+            switchToMeeting();    
+        });
+
+        
+        
+        function refreshData(){
+            let results = [];
+            let search_list = document.getElementById('search_list');
+            let search_result = document.getElementById('search').value.trim(); // <-- get input
+            search_list.innerHTML = "";
+            if(current_type===0){
+                const filteredPatients = []
+                patients.forEach(patient => {
+                    if(patient.phone_num.includes(search_result)){
+                        filteredPatients.push(patient);
+                    }
+                });
+                results = filteredPatients;
+            }
+            else if(current_type===1){
+                const filteredTransfers = []
+                transfers.forEach(transfer => {
+                    if(transfer.phone_num.includes(search_result)&&Boolean(transfer.transfer_type)){
+                        filteredTransfers.push(transfer);
+                    }
+                });
+                results = filteredTransfers;
+            }
+            else{
+                const filteredTransfers = []
+                transfers.forEach(transfer => {
+                    if(transfer.phone_num.includes(search_result)&& !Boolean(transfer.transfer_type)){
+                        filteredTransfers.push(transfer);
+                    }
+                });
+                results = filteredTransfers;
+            }
+            
+            results.forEach(result => {
+                const patientDiv = document.createElement('div');
+                patientDiv.dir = 'rtl';
+                patientDiv.className = 'patient-card';
+                patientDiv.style.margin = '0'
+                patientDiv.style.marginTop = "10px";
+                patientDiv.style.marginBottom = "10px";
+                
+                upper_div = document.createElement('div');
+                upper_div.className = 'upper-div';
+                patientDiv.appendChild(upper_div);
+
+                lower_div = document.createElement('div');
+                lower_div.className = 'lower-div';
+                patientDiv.appendChild(lower_div);
+
+                const name = document.createElement('p');
+                name.textContent = result.name;
+                upper_div.appendChild(name);
+
+                const phone = document.createElement('p');
+                phone.textContent = `${result.phone_num}`;
+                phone.style.fontSize = '16px';
+                upper_div.appendChild(phone);
+
+                const info = document.createElement('p');
+                if (result.info !== undefined) {
+                    info.textContent = result.info; // patient
+                } else if (result.clinic_name !== undefined) {
+                    info.textContent = result.clinic_name; // transfer
+                } else {
+                    info.textContent = "ERROR"; // fallback
+                }
+
+                const date = document.createElement('p');
+                date.textContent = result.date.replaceAll("-","/");
+                lower_div.appendChild(info);
+                lower_div.appendChild(date);
+                search_list.appendChild(patientDiv);
+
+            });
+            
+            
+        }
+    </script>
+</body>
+</html>

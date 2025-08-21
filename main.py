@@ -31,8 +31,8 @@ def load_page(name):
         return get_url("assets/index.html")
     elif name == "second":
         return get_url("assets/sendnreceive.html")
-    elif name == "settings":
-        return get_url("assets/settings.html")
+    elif name == "search":
+        return get_url("assets/search.html")
     return get_url("assets/404.html")
 
 
@@ -183,7 +183,9 @@ class API:
             db.commit()
             db.refresh(transfer)
         db.close()
-
+    
+    
+    
 def on_loaded():
     # This will maximize the window after creation
     webview.windows[0].maximize()

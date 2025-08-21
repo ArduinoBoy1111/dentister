@@ -9,7 +9,7 @@ body, html {
     height: 100%;
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
-    overflow: hidden; /* Prevent body scrollbar */
+    overflow: hidden !important;  /* Prevent body scrollbar */
     
 }
 
@@ -19,7 +19,7 @@ main {
 }
 
 .sidebar {
-    flex: 3.2;
+    width: 15vw;
     
     background-color: var(--teal);
     color: white;
@@ -54,7 +54,7 @@ ul {
     margin-top: 50px;
 }
 ul li {
-    margin: 20px 0;
+    margin: 15px 0;
     font-size: 18px;
     text-align: end;
     cursor: pointer;
@@ -199,6 +199,10 @@ form .form-card {
     
 }
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus, .switch-input:focus {
+    border-color: var(--teal);
+    outline: none;
+}
+input:focus {
     border-color: var(--teal);
     outline: none;
 }
@@ -437,7 +441,7 @@ form .form-card {
     height: 100%;
 }
 .patient-num{
-    width: 10%;
+    width: 11%;
     height: 100% !important;
     font-size: 18px !important;
     color: #1a1a1a;
@@ -462,4 +466,38 @@ form .form-card {
 #current_day_header{
     text-align: center;
     margin-top: 8%;
+}
+.type_button{
+    height: 100% !important;
+    font-size: 20px !important;
+}
+.search_area{
+    display: flex;
+    justify-content: center;
+    width:100% ;
+    align-items: center;
+}
+.search_bar{
+    width: 60%;
+    margin-top: 20px;
+    border: #1a1a1a 1px solid;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 24px;
+    border-radius: 15px;
+    background-color: #fafafa;
+    padding-right: 10px;
+
+}
+.search_list {
+    width: 55%;
+    margin-top: 20px;
+    border: #1a1a1a 1px solid;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 99%;
+    border-radius: 15px;
+    background-color: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
 }
