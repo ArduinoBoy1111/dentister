@@ -68,13 +68,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="phone_num">الرقم</label>
-                        <input type="text" name="phone_num" id="phone_num" placeholder="ادخل الرقم" required>
+                        <label for="phone_num">عدد الاسنان</label>
+                        <input type="text" name="phone_num" id="phone_num" placeholder="ادخل عدد الاسنان" required>
                     </div>
 
                     <div class="form-group">
-                        <label  for="clinic_name">اسم العيادة</label>
-                        <textarea name="clinic_name" id="clinic_name" placeholder="ادخل اسم العيادة" rows="4" ></textarea>
+                        <label  for="clinic_name">اسم المختبر</label>
+                        <textarea name="clinic_name" id="clinic_name" placeholder="ادخل اسم المختبر" rows="4" ></textarea>
                     </div>
 
                     <input type="date" name="date" id="date" hidden value="" required>
@@ -323,7 +323,7 @@
                 upper_div.appendChild(name);
 
                 const phone = document.createElement('p');
-                phone.textContent = `${transfer.phone_num}`;
+                phone.textContent = `عدد الاسنان : ${transfer.phone_num}`;
                 upper_div.appendChild(phone);
 
                 const info = document.createElement('p');

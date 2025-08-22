@@ -20,7 +20,7 @@
 
             <div class="search_area">
                 
-                <input id="search" type="number" oninput="refreshData()" placeholder="ادخل رقم الهاتف" name="search" class="search_bar"></input>
+                <input id="search" type="text" oninput="refreshData()" placeholder="ادخل رقم الهاتف" name="search" class="search_bar"></input>
             </div>
             <div id="search_list" class="search_list"></div>
         </div>
@@ -95,7 +95,7 @@
             if(current_type===0){
                 const filteredPatients = []
                 patients.forEach(patient => {
-                    if(patient.phone_num.includes(search_result)){
+                    if(patient.name.replaceAll(" ","").includes(search_result.replaceAll(" ",""))){
                         filteredPatients.push(patient);
                     }
                 });
@@ -104,7 +104,7 @@
             else if(current_type===1){
                 const filteredTransfers = []
                 transfers.forEach(transfer => {
-                    if(transfer.phone_num.includes(search_result)&&Boolean(transfer.transfer_type)){
+                    if(transfer.name.replaceAll(" ","").includes(search_result.replaceAll(" ",""))&&Boolean(transfer.transfer_type)){
                         filteredTransfers.push(transfer);
                     }
                 });
@@ -113,7 +113,7 @@
             else{
                 const filteredTransfers = []
                 transfers.forEach(transfer => {
-                    if(transfer.phone_num.includes(search_result)&& !Boolean(transfer.transfer_type)){
+                    if(transfer.name.replaceAll(" ","").includes(search_result.replaceAll(" ",""))&& !Boolean(transfer.transfer_type)){
                         filteredTransfers.push(transfer);
                     }
                 });
