@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="water_mark">
-        <!--<img src="logo.png" alt="Watermark" style="width: 100%; height: 100%;">-->
+        <img src="logo.png" alt="Watermark" style="width: 100%; height: 100%;">
     </div>
     <main style="display: flex;width: 100%;height: 100vh;">
         <div class="today-list">
@@ -42,7 +42,7 @@
             </div>
         </div>
         <div class="sidebar">
-            <img src="logo2.png" style="width: 70%;margin-top: 5%;" alt="">
+            <img src="logo.png" style="width: 70%;margin-top: 5%;" alt="">
             <ul>
                 <li><button  style=" text-align: center;width: 100%;"  onclick="changeView('index')">الصفحة الرئيسية</button></li>
                 <li ><button style="font-size: 22px; text-align: center;width: 100%;" onclick="changeView('second')">الارسال و اللاستقبال</button></li>
@@ -76,6 +76,15 @@
                         <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="4" ></textarea>
                     </div>
 
+                    <div class="form-group" style="margin-top:4%;width: 50%;">
+                        <label  for="info">الوقت</label>
+                        
+                        <div style="margin-left:4%;">
+                            <button type="button" id="day_button" onclick="switchToDay()" class="time-button active">صباحاً</button>
+                            <button type="button" id="night_button" onclick="switchToNight()" class="time-button">مساءً</button>
+                        </div>
+                    </div>
+
                     <input type="date" name="date" id="date" hidden value="" required>
                 </div>
 
@@ -94,12 +103,54 @@
                 <button class="cancel-button" onclick="hideWarning()">لا</button>
             </div>
         </div>
+
+        <form hidden action=""  class="form" style="height: 45%;" id="mini-form">
+            <div class="form-card">
+                <div style="width: 100%;">
+                    <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                        <div class="flex-line"></div>
+                        <h1 >اضافة مريض</h1>
+                        <div class="flex-line"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label  for="info">المعلومات</label>
+                        <textarea name="info" id="info2" placeholder="ادخل المعلومات" rows="4" ></textarea>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top:4%;width: 50%;">
+                        <label>الوقت</label>
+                        
+                        <div style="margin-left:4%;">
+                            <button id="mini_day_button" onclick="switchToDay()" class="time-button active">صباحاً</button>
+                            <button id="mini_night_button" onclick="switchToNight()" class="time-button">مساءً</button>
+                        </div>
+                    </div>
+                    
+
+                    <input type="date" name="date" id="date" hidden value="" required>
+                </div>
+
+
+
+                <div class="buttons-area" style="justify-content: center; align-items: center;">
+                    <button type="button" class="ok-button" onclick="completeTransfer()">موافق</button>
+                    <button type="button" class="cancel-button" onclick="closeform(true)">إلغاء</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="flash_card">
+            <h1 id="context"></h1>
+        </div>
     </main>
     
     <script>
 
         let patients = [];
         let editing = false;
+        let adding_meeting = false;
+        let time = 1;
         today_header = document.getElementById('current_day_header');
 
         
@@ -127,6 +178,7 @@
         let day = now.getDate();
         let edit_id = null;
 
+
         let options = { weekday: 'long' };
         const dayNameArabic = now.toLocaleDateString('ar-EG', options);
         today_header.innerHTML = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year + "<br>" + "(" + dayNameArabic + ")";
@@ -137,13 +189,10 @@
         
         createCalendar();
         const day_squares = document.querySelectorAll('.day-square');
-        <!-- Highlight the current day -->
-        day_squares.forEach(square => {
-            if (parseInt(square.textContent) === day) {
+        
+        <!--Highlight the current day-->
 
-                square.parentElement.classList.add('active');
-            }
-        });
+        
         function createCalendar() {
             const daysInMonth = new Date(year, month, 0).getDate();
             document.querySelector('.display').innerHTML = ''; // Clear previous content
@@ -153,21 +202,36 @@
                const addrtag = document.createElement('button');
                const patient_num = document.createElement('div');
                addrtag.className = 'addr-tag';
-
+                
                addrtag.onclick = () => {
-                   day = i;
+                    if (adding_meeting) {
+                        day = i;
+                        const monthPadded = String(month).padStart(2, '0');
+                        const dayPadded = String(day).padStart(2, '0');
+                        const now_date = new Date(`${year}-${monthPadded}-${dayPadded}`);
+
+                        const date = document.getElementById('date');
+
+                        date.value = now_date; //date is being set 
+
+                        document.getElementById('mini-form').hidden = false;
+                        document.getElementById('info2').value  = document.getElementById('info').value;
+                        switchToNonAdding();
+                    }
+                    day = i;
                     const monthPadded = String(month).padStart(2, '0');
                     const dayPadded = String(day).padStart(2, '0');
                     
                     const now_date = new Date(`${year}-${monthPadded}-${dayPadded}`);
                     const dayNameArabic = now_date.toLocaleDateString('ar-EG', options);
-                   today_header.innerHTML = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year + "<br>" + "(" + dayNameArabic + ")";
-                   update_list(new Date(year, month - 1, day));
-                   const allAddrTags = document.querySelectorAll('.addr-tag');
+                    today_header.innerHTML = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year + "<br>" + "(" + dayNameArabic + ")";
+                    update_list(new Date(year, month - 1, day));
+                    const allAddrTags = document.querySelectorAll('.addr-tag');
                     allAddrTags.forEach(square => {
                         square.classList.remove('active');
                     });
                     addrtag.classList.add('active');
+
                };
                addrtag.style.textDecoration = 'none';
                daySquare.className = 'day-square';
@@ -177,7 +241,12 @@
                addrtag.appendChild(daySquare);
                addrtag.appendChild(patient_num);
                document.querySelector('.main-content-area .display').appendChild(addrtag);
+               
            }
+           if(adding_meeting){
+            switchToAdding();
+           }
+            
         }
 
         function changeMonth(direction) {
@@ -202,20 +271,21 @@
             });
         }
         
-        function closeform(){
-            const form = document.getElementById('form');
-            form.style.opacity = 1;
-            form.style.transition = 'opacity 0.15s ease-in-out';
-            requestAnimationFrame(() => {
-                form.style.opacity = 0;
-            });
+        function closeform(mini = false){
+            const form = mini ? document.getElementById('mini-form') : document.getElementById('form');
+            form.hidden  = true;
+            //form.style.opacity = 1;
+            //form.style.transition = 'opacity 0.15s ease-in-out';
+           //requestAnimationFrame(() => {
+           //    form.style.opacity = 0;
+           //});
 
-            form.addEventListener('transitionend', function handler() {
-                form.hidden = true;
-                form.removeEventListener('transitionend', handler);
-            });
-            editing = false; // Reset editing state
-            edit_id = null; // Reset edit ID
+           //form.addEventListener('transitionend', function handler() {
+           //    form.hidden = true;
+           //    form.removeEventListener('transitionend', handler);
+           //});
+           //editing = false; // Reset editing state
+           //edit_id = null; // Reset edit ID
         }
         document.getElementById('form').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
@@ -223,7 +293,7 @@
             }
         });
 
-        function submitform() {
+        function submitform(ismini = false) {
             
             if (!editing){
                 const dateInput = document.getElementById('date');
@@ -234,10 +304,10 @@
                 const form = document.getElementById('form');
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData)
-                window.pywebview.api.submitForm(data).then(() => {
+                window.pywebview.api.submitForm(data,time).then(() => {
                     // Clear form fields
                     form.reset();
-                    closeform();
+                    closeform(ismini);
                     refreshPatients(new Date(year, month - 1, day)); // update list without reloading
                 });
             }
@@ -336,12 +406,30 @@
                     const phoneNumber = patient.phone_num;
                     window.pywebview.api.call_number(phoneNumber);
                 };
+
+                const add_meeting_button = document.createElement('button');
+                add_meeting_button.innerHTML = '+';
+                add_meeting_button.className = 'meeting-button';
+                
+                add_meeting_button.onclick = () => {
+                    
+                    const name = document.getElementById('name');
+                    const phone_num = document.getElementById('phone_num');
+                    const info = document.getElementById('info');
+
+                    name.value = patient.name;
+                    phone_num.value = patient.phone_num;
+                    info.value = patient.info;
+                    switchToAdding();
+                }
+
                 const buttons_area = document.createElement('div');
                 buttons_area.className = 'patient-buttons-area';
                 lower_div.appendChild(buttons_area);
                 buttons_area.appendChild(deleteButton);
                 buttons_area.appendChild(editButton);
                 buttons_area.appendChild(call_button);
+                buttons_area.appendChild(add_meeting_button);
 
                 patient_list_area.appendChild(patientDiv);
             });
@@ -364,10 +452,10 @@
                 } else {
                     num.style.display = 'none';
                 }
-                if (filteredPatients.length >= 4) {
+                if (filteredPatients.length >= 10) {
                     num.style.color = '#fcc203';
                 }
-                if (filteredPatients.length >= 7) {
+                if (filteredPatients.length >= 15) {
                     num.style.color = '#ff3d3d';
                 }
             });
@@ -391,6 +479,49 @@
             const warningCard = document.querySelector('.warning-card');
             warningCard.style.display = 'none';
         }
+        
+        function switchToAdding(){
+            adding_meeting = true;
+
+            document.querySelectorAll('.addr-tag').forEach(el => {
+                el.classList.add('wiggle');
+            });
+
+            document.querySelectorAll('.wiggle').forEach(el => {
+                el.style.animationDelay = `${Math.random() * 0.5}s`;
+            });
+        }
+        
+        function switchToNonAdding(){
+            adding_meeting = false;
+
+            document.querySelectorAll('.wiggle').forEach(el => {
+                el.classList.remove('wiggle');
+            });
+
+        }
+
+        function switchToDay(){
+            time = 1;
+            document.getElementById("day_button").classList.add('active');
+            document.getElementById("night_button").classList.remove('active');
+            document.getElementById("mini_day_button").classList.add('active');
+            document.getElementById("mini_night_button").classList.remove('active');
+            
+        }
+        function switchToNight(){
+            time = 0;
+            document.getElementById("day_button").classList.remove('active');
+            document.getElementById("night_button").classList.add('active');
+            document.getElementById("mini_day_button").classList.remove('active');
+            document.getElementById("mini_night_button").classList.add('active');
+            
+        }
+        function completeTransfer(){
+            document.getElementById("info").value  = document.getElementById("info2").value;
+            submitform(true);
+        }
+    
     </script>
 </body>
 </html>

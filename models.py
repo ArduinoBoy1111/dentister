@@ -9,6 +9,7 @@ class Patient(Base):
     phone_num = Column(String, nullable=False)
     date = Column(Date,nullable=False)
     info = Column(String)
+    time = Column(Boolean,nullable=False)
     
 class Transfer(Base):
     __tablename__ = "transfers"

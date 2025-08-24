@@ -284,6 +284,9 @@ input:focus {
 
 
 }
+.patient-card:has(.delete-button:hover){
+    animation: nudge_low 0.5s ease-in-out infinite;
+}
 .patient-card:hover {
     background-color: #fdfdfd;
     transition: 0.2s ease-in-out;
@@ -403,6 +406,23 @@ input:focus {
     background-color: rgb(54, 204, 0);
     transition: 0.2s ease-in-out;
 }
+.meeting-button {
+    width: 30px;
+    height: 30px;
+    background-color: rgb(96, 202, 82);
+    border-radius: 25%;
+    border: none;
+    font-size: 26px;
+    text-align: center;
+    color: aliceblue;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+.meeting-button:hover {
+    background-color: rgb(54, 204, 0);
+    transition: 0.2s ease-in-out;
+}
 .warning-card {
     position: absolute;
     top: 50%;
@@ -514,4 +534,44 @@ input:focus {
     border: hsl(177, 100%,48%)  7px outset;
     border-radius: 50%;
     
+}
+.wiggle{
+    animation: wiggle 0.5s ease-in-out infinite;
+}
+
+
+@keyframes wiggle {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(-1.5deg); }
+  40%  { transform: rotate(.51deg); }
+  60%  { transform: rotate(-1.5deg); }
+  80%  { transform:  rotate(1.5deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes nudge_low {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  20%  { transform: translate(-1.5px, 1.5px) rotate(-0.1deg); }
+  40%  { transform: translate(1.5px, -1px) rotate(0.2deg); }
+  60%  { transform: translate(-1px, 1px) rotate(-0.2deg); }
+  80%  { transform: translate(1px, -1px) rotate(0.1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+
+.time-button{
+
+    border: #272727 1px solid;
+    border-radius: 12px;
+    background-color: #fffffb;
+    font-size: 22px;
+    transition: 0.2s ease-in-out;
+    cursor: pointer;
+    color: #272727;
+    padding: 4px 6px;
+}
+.time-button:hover{
+    background-color: var(--light-teal);
+    color: white;
+    transition: 0.2s ease-in-out;
+    scale: 1.05;
 }

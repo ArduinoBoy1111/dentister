@@ -1,0 +1,13 @@
+1. adding day/night option for the meetings page 
+2. changing colors threshold from 4,7 -> 10,15 (Done)
+3. add a quick-book button , explaination : a button that appeas in each patient card of the first page that when pressed it will prompt the user to choose a date either by a flat date input or by pressing one of the days that will add a patient to that date with the same original info.
+4. adding a today log printing or something like that
+5. doing a major overhaul for the SendnReceive page by making 'patient-cards' which involves resturtuing the way the db works
+6. adding categories to the SendnReceive 
+7. adding a "button focus" for the 3 buttons
+8. edit some divs sizes
+9. add 'about us' page
+10. add multi-doctors to the db
+11. add multi-surgery-type ..? MST ? idk 
+12. fix month swtiching visual bugs 
+13. sort search results by date

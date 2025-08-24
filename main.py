@@ -57,15 +57,16 @@ class API:
                 startupinfo=startupinfo
             )
     # --- Patients ---
-    def submitForm(self, data):
+    def submitForm(self, data,time):
         data = dict(data)
         name = data.get("name")
         phone_num = data.get("phone_num")
         info = data.get("info")
         date_obj = datetime.strptime(data.get("date"), "%Y-%m-%d").date()
 
+        
         db = SessionLocal()
-        patient = Patient(name=name, phone_num=phone_num, info=info, date=date_obj)
+        patient = Patient(name=name, phone_num=phone_num, info=info, date=date_obj,time=time)
         db.add(patient)
         db.commit()
         db.refresh(patient)
@@ -121,9 +122,9 @@ class API:
         name = data.get("name")
         phone_num = data.get("phone_num")
         clinic_name = data.get("clinic_name")
-        transfer_type = data.get("transfer_type") == "1"
+        transfer_type = data.get("transfer_type") == 1
         date_obj = datetime.strptime(data.get("date"), "%Y-%m-%d").date()
-
+        
         db = SessionLocal()
         transfer = Transfer(
             name=name,
@@ -131,6 +132,7 @@ class API:
             clinic_name=clinic_name,
             date=date_obj,
             transfer_type=transfer_type,
+            
         )
         db.add(transfer)
         db.commit()
