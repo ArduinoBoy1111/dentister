@@ -4,8 +4,9 @@ import urllib.parse
 import webview
 from datetime import datetime
 import subprocess
-from database import Base, engine, SessionLocal
-from models import Patient, Transfer
+from database import Base, engine, SessionLocal 
+from models import Patient, Transfer 
+from sqlalchemy import desc
 
 # --- Database setup ---
 Base.metadata.create_all(bind=engine)
@@ -87,7 +88,7 @@ class API:
 
     def get_patients(self):
         db = SessionLocal()
-        patients = db.query(Patient).all()
+        patients = db.query(Patient).order_by(desc(Patient.time))
         db.close()
 
         return [

@@ -37,6 +37,7 @@ main {
     opacity: 0.12;
     height: 90vh;
     pointer-events: none;
+    transition: all 0.4s ease-in-out;
 }
 .main-content-area {
     flex: 10;
@@ -131,6 +132,8 @@ ul li button {
     width: 45%;
     height: 100%;
     display: flex;
+    opacity: 1;
+    transition: all 0.4s ease-in-out;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -170,6 +173,7 @@ form {
     height: 55%;
     z-index: 66;
     transition: 0.2s ease-in-out;
+    z-index: 12;
 }
 form .form-card {
     width: 100%;
@@ -310,7 +314,7 @@ input:focus {
 .patient-buttons-area {
     display: flex;
     gap: 5px;
-    width: 25%;
+    width: 35%;
     justify-content: space-evenly;
 }
 .patient-buttons-area button {
@@ -536,26 +540,29 @@ input:focus {
     
 }
 .wiggle{
-    animation: wiggle 0.5s ease-in-out infinite;
+    /*animation: wiggle 0.5s ease-in-out infinite;*/
+    border: rgb(87, 209, 203) 1px solid !important;
 }
 
 
 @keyframes wiggle {
   0%   { transform: rotate(0deg); }
-  20%  { transform: rotate(-1.5deg); }
-  40%  { transform: rotate(.51deg); }
-  60%  { transform: rotate(-1.5deg); }
-  80%  { transform:  rotate(1.5deg); }
+  20%  { transform: rotate(-0.5deg); }
+  40%  { transform: rotate(0.5deg); }
+  60%  { transform: rotate(-0.5deg); }
+  80%  { transform:  rotate(0.5deg); }
   100% { transform: rotate(0deg); }
 }
 @keyframes nudge_low {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  20%  { transform: translate(-1.5px, 1.5px) rotate(-0.1deg); }
-  40%  { transform: translate(1.5px, -1px) rotate(0.2deg); }
-  60%  { transform: translate(-1px, 1px) rotate(-0.2deg); }
-  80%  { transform: translate(1px, -1px) rotate(0.1deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-1px, 0.5px); }
+  40%  { transform: translate(1px, -0.5px); }
+  60%  { transform: translate(-1px, -0.5px); }
+  80%  { transform: translate(1px, 0.5px); }
+  100% { transform: translate(0, 0); }
 }
+
+
 
 
 .time-button{
@@ -574,4 +581,72 @@ input:focus {
     color: white;
     transition: 0.2s ease-in-out;
     scale: 1.05;
+}
+.flash_card{
+    margin: 0 auto;
+    width: 40%;
+    height: 0;
+    background-color: rgb(250, 255, 255);
+    border-radius: 15px;
+    border: rgb(87, 209, 203) 3px solid;
+    box-shadow: 0 0 14px 1px rgba(87, 209, 203, 0.361);
+    align-items: center;   /* vertical */
+    justify-content: space-evenly;
+    display: flex;
+    z-index: 8;
+    opacity: 0;
+    transition: all 0.4s ease-in-out;
+    padding-left: 5px;
+    padding-right: 5px;
+    gap: 5px;
+}
+#context{
+    color: rgb(0, 0, 0);
+    font-size: 22px;
+    text-align: center;
+    
+}
+#month_bar{
+    transition: 0.4s ease-in-out;
+    margin-top: 0px;
+}
+.flash_button{
+    height: 28px!important;
+    width:  28px!important;
+    color: white!important;
+    background-color: rgb(252, 39, 39) !important;
+    border-radius: 25%!important;
+    border: none!important;
+    font-size: 18px!important;
+    text-align: center!important;
+    font-weight: bold!important;
+    transition: 0.2s ease-in-out!important;
+    scale: 1;
+ 
+    
+}
+.flash_button:hover{
+    scale: 1.09;
+    transition: 0.2s ease-in-out;
+}
+.success_card{
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    translate: -50% -50%;
+    width: 25%;
+    height: 12%;
+    background-color: rgb(152, 255, 152) ;
+    border-radius: 15px;
+    opacity: 0;
+    color: rgb(0, 85, 0);
+    text-align: center;
+    transition: opacity 0.5s ease-in-out;
+    font-size: 22px;
+    font-weight: bold;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    
 }
