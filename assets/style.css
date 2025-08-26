@@ -269,6 +269,7 @@ input:focus {
     gap: 10px;
     height: 70vh !important;
     overflow-y: auto;
+    padding-top: 3%;
 }
 .patient-card{
     width: 90%;
@@ -285,7 +286,8 @@ input:focus {
     flex-direction: column;
     z-index: 5;
     transition: 0.2s ease-in-out;
-
+    position: relative;
+    margin-bottom: 10px;
 
 }
 .patient-card:has(.delete-button:hover){
@@ -443,6 +445,7 @@ input:focus {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    z-index: 11;
 
 }
 .send-button {
@@ -649,4 +652,19 @@ input:focus {
     align-items: center;
     z-index: 10;
     
+}
+.time_circle{
+    border-radius: 8px;
+    height: 22px;
+    width: 64px;
+    background-color: #5BC0EB;
+    position: absolute !important;
+    top: 0 !important;
+    right: 12% !important;
+    translate: 50% -50%;
+    font-size: 18px !important;
+    text-align: center;
+    z-index: 9;
+    border: 2px solid #272727;
+    padding-top: 2px;
 }

@@ -84,8 +84,8 @@
                         <label  for="info">الوقت</label>
                         
                         <div style="margin-left:4%;">
-                            <button type="button" id="day_button" onclick="switchToDay()" class="time-button active">صباحاً</button>
-                            <button type="button" id="night_button" onclick="switchToNight()" class="time-button">مساءً</button>
+                            <button type="button" id="day_button" onclick="switchToDay()" class="time-button ">صباحاً</button>
+                            <button type="button" id="night_button" onclick="switchToNight()" class="time-button active">مساءً</button>
                         </div>
                     </div>
 
@@ -96,7 +96,7 @@
 
                 <div class="buttons-area" style="justify-content: center; align-items: center;">
                     <button type="button" class="ok-button" onclick="submitform()">موافق</button>
-                    <button type="button" class="cancel-button" onclick="closeform()">إلغاء</button>
+                    <button type="button" class="cancel-button" onclick="closeform(false,false)">إلغاء</button>
                 </div>
             </div>
         </form>
@@ -126,8 +126,8 @@
                         <label>الوقت</label>
                         
                         <div style="margin-left:4%;">
-                            <button id="mini_day_button" onclick="switchToDay()" class="time-button active">صباحاً</button>
-                            <button id="mini_night_button" onclick="switchToNight()" class="time-button">مساءً</button>
+                            <button id="mini_day_button" onclick="switchToDay()" class="time-button ">صباحاً</button>
+                            <button id="mini_night_button" onclick="switchToNight()" class="time-button active">مساءً</button>
                         </div>
                     </div>
                     
@@ -139,7 +139,7 @@
 
                 <div class="buttons-area" style="justify-content: center; align-items: center;">
                     <button type="button" class="ok-button" onclick="completeTransfer()">موافق</button>
-                    <button type="button" class="cancel-button" onclick="closeform(true)">إلغاء</button>
+                    <button type="button" class="cancel-button" onclick="closeform(true,false)">إلغاء</button>
                 </div>
             </div>
         </form>
@@ -153,7 +153,7 @@
         let patients = [];
         let editing = false;
         let adding_meeting = false;
-        let time = 1;
+        let time = 0;
         today_header = document.getElementById('current_day_header');
 
         
@@ -219,6 +219,7 @@
 
                         document.getElementById('mini-form').hidden = false;
                         document.getElementById('info2').value  = document.getElementById('info').value;
+                        document.getElementById('info2').value  = document.getElementById('info').value;
                         
                     }
                     day = i;
@@ -274,16 +275,22 @@
             });
         }
         
-        function closeform(mini = false){
+        function closeform(mini = false,success = true){
             const form = mini ? document.getElementById('mini-form') : document.getElementById('form');
             form.hidden  = true;
-            if (mini){
+            if (success && mini){
                 setTimeout(() => {
                     switchToNonAdding();
                 }, 1200);
 
             }
-            flashOnce(document.getElementById("success_card"))
+            else if(!success){
+                switchToNonAdding();
+            }
+            if(success){
+                flashOnce(document.getElementById("success_card"));    
+            }
+            
             
             //form.style.opacity = 1;
             //form.style.transition = 'opacity 0.15s ease-in-out';
@@ -469,6 +476,19 @@
                 buttons_area.appendChild(call_button);
                 buttons_area.appendChild(add_meeting_button);
 
+                time_circle = document.createElement("div");
+                time_circle.className = "time_circle"
+                if(patient.time){
+                    time_circle.innerText= "صباحاً";
+                    time_circle.style.background = "#63ddff";
+                    time_circle.style.color = "black";
+                }
+                else{
+                    time_circle.innerText= "مساءً";
+                    time_circle.style.background = "#205fc9";
+                    time_circle.style.color = "white";
+                }
+                patientDiv.appendChild(time_circle);
                 patient_list_area.appendChild(patientDiv);
             });
             if (patient_list_area.children.length === 0) {

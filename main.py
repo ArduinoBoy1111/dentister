@@ -98,6 +98,7 @@ class API:
                 "phone_num": p.phone_num,
                 "date": p.date.isoformat(),
                 "info": p.info,
+                "time":p.time
             }
             for p in patients
         ]
