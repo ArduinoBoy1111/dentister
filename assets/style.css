@@ -59,16 +59,22 @@ ul li {
     font-size: 18px;
     text-align: end;
     cursor: pointer;
+    
     padding: 3px ;
-    width:85%;
-    background-color: hsl(177, 85%, 45%);
-    border-bottom: hsl(177, 100%,48%) 4px solid;
+    width:84%;
+    background-color: hsl(177, 87%, 45%);
+    border-bottom: hsl(177, 100%, 47%) 4px solid;
     border-radius: 15px;
     transition: 0.2s ease-in-out;
     scale: 100%;
 }
+ul li button{
+    height: 110% !important;
+    width: 100% !important;
+}
 ul li:hover {
     scale: 108%;
+    width:87%;
     transition: 0.2s ease-in-out;
 }
 .main-content-area::-webkit-scrollbar {
@@ -668,3 +674,24 @@ input:focus {
     border: 2px solid #272727;
     padding-top: 2px;
 }
+.current_page{
+    width:86%;
+    background-color: hsl(177, 82%, 50%);
+    color: #ffffff;
+    border-bottom: hsl(177, 100%, 71%) 4px solid;
+    box-shadow: 0 4px 4px 3px #1a908ab7;
+    scale: 106%;
+    transition: 0.2s ease-in-out;
+    
+}
+/* margin: 15px 0;
+    font-size: 18px;
+    text-align: end;
+    cursor: pointer;
+    padding: 3px ;
+    width:85%;
+    background-color: hsl(177, 85%, 45%);
+    border-bottom: hsl(177, 100%,48%) 4px solid;
+    border-radius: 15px;
+    transition: 0.2s ease-in-out;
+    scale: 100%;*/
