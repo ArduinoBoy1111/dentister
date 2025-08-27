@@ -1,0 +1,54 @@
+
+html,body{
+    overflow: hidden !important;
+}
+.main-content-area{
+    overflow: hidden !important;
+}
+.cards_area{
+    margin-top: 2%;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding-top: 1%;
+    overflow-y: auto;
+    height: fit-content;
+    max-height: 85.5vh;
+    align-items: start;
+}
+.user_card{
+    width: 31%;
+    height: 19.1vh;
+    border-radius: 15px;
+    border: 1px solid #272727;
+    background-color: rgb(255, 255, 255);
+    margin-bottom: 1%;
+    transition: 0.2s ease-in-out;
+}
+.user_card:hover{
+    border-color: var(--teal);
+    outline: none;
+    transition: 0.2s ease-in-out;
+    /*height: 25vh;*/
+    scale: 103%;
+}
+.custom-add-button{
+    position: absolute;
+    top: 1.5%;
+    right: 16%;
+    translate: -50% 50%;
+    height: 40px !important;
+    width:  40px !important;
+    color: white !important;
+    background-color: rgb(46, 255, 46) !important;
+    border: none !important;
+}
+select{
+    border: 1px solid #ccc;
+    width: 75%;
+    border-radius: 4px;
+    resize: none;
+    padding: 0 6px;
+    font-size: 20px;
+}

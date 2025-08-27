@@ -19,7 +19,7 @@ class User(Base):
     
     name = Column(String, nullable=False)
     phone_num = Column(String, nullable=False)
-    done = Column(Boolean, nullable=False)
+    done = Column(Boolean, nullable=False,default=False)
     treat_type = Column(String, nullable=False)
     
     transfers = relationship(

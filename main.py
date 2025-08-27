@@ -7,6 +7,7 @@ import subprocess
 from database import Base, engine, SessionLocal 
 from models import Patient, Transfer ,User
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 
 # --- Database setup ---
 Base.metadata.create_all(bind=engine)
@@ -123,11 +124,10 @@ class API:
         data = dict(data)
         name = data.get("name")
         phone_num = data.get("phone_num")
-        done = data.get("done")
         treat_type = data.get("treat_type")
         
         db = SessionLocal()
-        new_user = User(name=name, phone_num=phone_num, done=done, treat_type=treat_type)
+        new_user = User(name=name, phone_num=phone_num, treat_type=treat_type)
 
         
         db.add(new_user)
@@ -158,6 +158,31 @@ class API:
         db.commit()
         db.refresh(new_transfer)
         db.close()
+        
+    def getUsers(self):
+        db = SessionLocal()
+        users = db.query(User).options(joinedload(User.transfers)).all()
+        db.close()
+
+        return [
+            {
+                "id": p.id,
+                "name": p.name,
+                "phone_num": p.phone_num,
+                "done": p.done,
+                "treat_type": p.treat_type,
+                "transfers": [
+                    {
+                        "id": t.id,
+                        "transfer_type": t.transfer_type,
+                        "teeth_num": t.teeth_num,
+                        "date": t.date.isoformat(),
+                        "clinic_name": t.clinic_name
+                    } for t in p.transfers
+                ]
+            }
+            for p in users
+        ]
         
         
     

@@ -225,7 +225,7 @@ input:focus {
     border-color: var(--teal);
     outline: none;
 }
-.form-group input {
+.form-group input,select {
     height: 30px;
 
 }
@@ -520,11 +520,11 @@ input:focus {
     align-items: center;
 }
 .search_bar{
-    width: 60%;
+    width: 50%;
     margin-top: 20px;
     border: #1a1a1a 1px solid;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    height: 24px;
+    height: 28px;
     border-radius: 15px;
     background-color: #fafafa;
     padding-right: 10px;

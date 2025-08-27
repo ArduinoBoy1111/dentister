@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dentister</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sendnreceive.css">
 </head>
 <body>
     <main style="display: flex;width: 100%;">
@@ -19,12 +20,159 @@
             </ul>
 
         </div>
-        
+
+        <div class="main-content-area">
+            <button class="custom-add-button" onclick="showform()">+</button>
+            <div class="search_area">
+                <input id="search" type="text" oninput="refreshData()" placeholder="ادخل اسم المريض" name="search" class="search_bar"></input>
+            </div>
+            <div id="cards_area" class="cards_area">
+
+                <div class="user_card">
+                </div>
+                <div class="user_card">
+                </div>
+                <div class="user_card">
+                </div>
+                <div class="user_card">
+                </div>
+                <div class="user_card">
+                </div>
+                <div class="user_card">
+                </div>
+                
+                
+            </div>
+        </div>
+
+        <form action="" hidden class="form" id="form">
+            <div class="form-card">
+                <div style="width: 100%;">
+                    <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                        <div class="flex-line"></div>
+                        <h1 >اضافة مريض</h1>
+                        <div class="flex-line"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">الاسم</label>
+                        <input type="text" name="name" id="name" placeholder="ادخل الاسم" >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone_num">الرقم</label>
+                        <input type="text" name="phone_num" id="phone_num" placeholder="ادخل الرقم" >
+                    </div>
+
+                    <div class="form-group">
+                        <label  for="info">نوع الحالة</label>
+                        <select name="treat_type" id="treat_type">
+                            <option value="تغليف">تغليف</option>
+                            <option value="ابتسامة">ابتسامة</option>
+                            <option value="زراعة">زراعة</option>
+                            <option value="متحرك">متحرك</option>
+                            <option value="اخرى">اخرى</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div class="buttons-area" style="justify-content: center; align-items: center;">
+                    <button type="button" class="ok-button" onclick="submitform()">موافق</button>
+                    <button type="button" class="cancel-button" onclick="closeform()">إلغاء</button>
+                </div>
+            </div>
+        </form>
+
     </main>
     
     <script>
+        let users = [];
 
+        function changeView(view) {
+            window.pywebview.api.navigate(view);
+        }
         
+        function showform() {
+            const form = document.getElementById('form');
+            form.hidden = false;
+            form.style.opacity = 0;
+            form.style.transition = 'opacity 0.15s ease-in-out';
+
+            requestAnimationFrame(() => {
+                form.style.opacity = 1; // fade in
+            });
+        }
+
+        function closeform(mini = false, success = true) {
+            const form = mini ? document.getElementById('mini-form') : document.getElementById('form');
+
+            form.style.opacity = 1; // ensure starting at full opacity
+            form.style.transition = 'opacity 0.15s ease-in-out';
+
+            requestAnimationFrame(() => {
+                form.style.opacity = 0; // fade out
+            });
+
+            form.addEventListener('transitionend', function handler() {
+                form.hidden = true;              // only hide after fade-out
+                form.removeEventListener('transitionend', handler);
+            });
+
+            editing = false;
+            edit_id = null;
+        }
+
+        function submitform(editing=false) {
+            
+            if (!editing){
+            
+                const form = document.getElementById('form');
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData)
+                window.pywebview.api.createUser(data).then(() => {
+                    // Clear form fields
+                    form.reset();
+                    closeform();
+                    refreshUsers();
+                });
+            }
+            else {
+                //TODO
+            }
+            
+            
+        }
+
+        window.addEventListener('pywebviewready',async function() {
+            refreshUsers();
+        });
+
+        async function refreshUsers() {
+            users = await window.pywebview.api.getUsers(); // fetch latest data
+
+            
+            const cards_area = document.getElementById("cards_area");
+
+            cards_area.innerHTML = "";
+            users.forEach(user => {
+                const user_card = document.createElement("div");
+                user_card.className = "user_card";
+                
+                const lower_div = document.createElement("div");
+                lower_div.className = "upper-div";
+                
+                const upper_div = document.createElement("div");
+                upper_div.className = "lower-div";
+
+                user_card.appendChild(upper_div);
+                user_card.appendChild(lower_div);
+
+                cards_area.appendChild(user_card);
+            });
+            
+        }
     </script>
 </body>
 </html>
