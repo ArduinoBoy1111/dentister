@@ -5,7 +5,7 @@ import webview
 from datetime import datetime
 import subprocess
 from database import Base, engine, SessionLocal 
-from models import Patient, Transfer 
+from models import Patient, Transfer ,User
 from sqlalchemy import desc
 
 # --- Database setup ---
@@ -118,77 +118,48 @@ class API:
             db.refresh(patient)
         db.close()
 
-    # --- Transfers ---
-    def submitForm_T(self, data):
+
+    def createUser(self, data):
         data = dict(data)
         name = data.get("name")
         phone_num = data.get("phone_num")
-        clinic_name = data.get("clinic_name")
-        transfer_type = data.get("transfer_type") == 1
-        date_obj = datetime.strptime(data.get("date"), "%Y-%m-%d").date()
+        done = data.get("done")
+        treat_type = data.get("treat_type")
         
         db = SessionLocal()
-        transfer = Transfer(
-            name=name,
-            phone_num=phone_num,
-            clinic_name=clinic_name,
-            date=date_obj,
-            transfer_type=transfer_type,
-            
-        )
-        db.add(transfer)
+        new_user = User(name=name, phone_num=phone_num, done=done, treat_type=treat_type)
+
+        
+        db.add(new_user)
         db.commit()
-        db.refresh(transfer)
+        db.refresh(new_user)
+        
+        print(f"user created: {new_user.id} {new_user.name}")
         db.close()
-
-    def get_transfers(self):
-        db = SessionLocal()
-        transfers = db.query(Transfer).all()
-        db.close()
-
-        return [
-            {
-                "id": t.id,
-                "name": t.name,
-                "phone_num": t.phone_num,
-                "date": t.date.isoformat(),
-                "clinic_name": t.clinic_name,
-                "transfer_type": t.transfer_type,
-            }
-            for t in transfers
-        ]
-
-    def deleteTransfer(self, id):
-        db = SessionLocal()
-        db.query(Transfer).filter(Transfer.id == int(id)).delete()
-        db.commit()
-        db.close()
-
-    def deleteTransfers(self, date, type):
-        date_obj = datetime.strptime(date, "%Y-%m-%d").date()
-        db = SessionLocal()
-        db.query(Transfer).filter(
-            Transfer.date == date_obj, Transfer.transfer_type == (type == 1)
-        ).delete()
-        db.commit()
-        db.close()
-
-    def editTransfer(self, id, data):
+        
+    def createTransfer(self, data, id):
         data = dict(data)
-        date_obj = datetime.strptime(data.get("date"), "%Y-%m-%d").date()
-
+        transfer_type = data.get("transfer_type")
+        teeth_num = data.get("teeth_num")
+        date = data.get("date")
+        clinic_name = data.get("clinic_name")
+        
         db = SessionLocal()
-        transfer = db.query(Transfer).filter(Transfer.id == id).first()
-        if transfer:
-            transfer.name = data.get("name", transfer.name)
-            transfer.phone_num = data.get("phone_num", transfer.phone_num)
-            transfer.clinic_name = data.get("clinic_name", transfer.clinic_name)
-            transfer.date = date_obj
-            db.commit()
-            db.refresh(transfer)
+        new_transfer = Transfer(
+            transfer_type=transfer_type,
+            teeth_num=teeth_num,
+            date=datetime.strptime(data.get("date"), "%Y-%m-%d").date(),
+            clinic_name=clinic_name
+        )
+
+        user = db.query(User).filter_by(id=id).first()
+        user.transfers.append(new_transfer)
+        
+        db.commit()
+        db.refresh(new_transfer)
         db.close()
-    
-    
+        
+        
     
 def on_loaded():
     # This will maximize the window after creation
