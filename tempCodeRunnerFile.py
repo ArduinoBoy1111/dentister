@@ -1,2 +1,1 @@
-
-        data = dict(data)
+clinic_name

@@ -137,18 +137,16 @@ class API:
         print(f"user created: {new_user.id} {new_user.name}")
         db.close()
         
-    def createTransfer(self, data, id):
+    def createTransfer(self,transfer_type, data, id):
         data = dict(data)
-        transfer_type = data.get("transfer_type")
-        teeth_num = data.get("teeth_num")
-        date = data.get("date")
+        transfer_type = transfer_type=="1"
+        date_obj = data.get("date")
         clinic_name = data.get("clinic_name")
         
         db = SessionLocal()
         new_transfer = Transfer(
             transfer_type=transfer_type,
-            teeth_num=teeth_num,
-            date=datetime.strptime(data.get("date"), "%Y-%m-%d").date(),
+            date=datetime.strptime(date_obj, "%Y-%m-%d").date(),
             clinic_name=clinic_name
         )
 

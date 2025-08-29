@@ -27,21 +27,29 @@
                 <input id="search" type="text" oninput="refreshData()" placeholder="ادخل اسم المريض" name="search" class="search_bar"></input>
             </div>
             <div id="cards_area" class="cards_area">
-
                 <div class="user_card">
+                    <div class="upper-div">
+                        <p>سجاد صفاء سعدون</p>
+                        <p class="phone_num">07740629002</p>
+                        <p>ابتسامة</p>
+                    </div>
+                    <div class="hidden-div">
+                        <p>اخر عملية : Todo </p>
+                    </div>
+                    <div class="lower-div">
+                        <div class="info-div">
+                            <p>الارسال : Todo</p>
+                            <p>الاستقبال : Todo</p>
+                        </div>
+                        <div class="buttons-space">
+                            <button class="edit-button">اضافة استقبال</button>
+                            <button class="edit-button">اضافة ارسال</button>
+                        </div>
+                        
+                        
+                    </div>
+                    
                 </div>
-                <div class="user_card">
-                </div>
-                <div class="user_card">
-                </div>
-                <div class="user_card">
-                </div>
-                <div class="user_card">
-                </div>
-                <div class="user_card">
-                </div>
-                
-                
             </div>
         </div>
 
@@ -65,7 +73,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label  for="info">نوع الحالة</label>
+                        <label  for="treat_type">نوع الحالة</label>
                         <select name="treat_type" id="treat_type">
                             <option value="تغليف">تغليف</option>
                             <option value="ابتسامة">ابتسامة</option>
@@ -84,6 +92,66 @@
                 </div>
             </div>
         </form>
+        
+        <form action="" hidden class="form" id="send-form">
+            <div class="form-card">
+                <div style="width: 100%;">
+                    <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                        <div class="flex-line"></div>
+                        <h1 >اضافة ارسال</h1>
+                        <div class="flex-line"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clinic_name">اسم العيادة</label>
+                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم العيادة" >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">التاريخ</label>
+                        <input type="date" name="date" id="date" placeholder="ادخل التاريخ" >
+                    </div>
+
+                </div>
+
+
+
+                <div class="buttons-area" style="justify-content: center; align-items: center;">
+                    <button type="button" class="ok-button" onclick="submitform(id='send-form')">موافق</button>
+                    <button type="button" class="cancel-button" onclick="closeform(id='send-form')">إلغاء</button>
+                </div>
+            </div>
+        </form>
+        
+        <form action="" hidden class="form" id="receive-form">
+            <div class="form-card">
+                <div style="width: 100%;">
+                    <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                        <div class="flex-line"></div>
+                        <h1>اضافة استقبال</h1>
+                        <div class="flex-line"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="clinic_name">اسم العيادة</label>
+                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم العيادة" >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">التاريخ</label>
+                        <input type="date" name="date" id="date" placeholder="ادخل التاريخ" >
+                    </div>
+
+                </div>
+
+
+
+                <div class="buttons-area" style="justify-content: center; align-items: center;">
+                    <button type="button" class="ok-button" onclick="submitform(id='receive-form')">موافق</button>
+                    <button type="button" class="cancel-button" onclick="closeform(id='receive-form')">إلغاء</button>
+                </div>
+            </div>
+        </form>
 
     </main>
     
@@ -94,8 +162,8 @@
             window.pywebview.api.navigate(view);
         }
         
-        function showform() {
-            const form = document.getElementById('form');
+        function showform(id = "form") {
+            const form = document.getElementById(id);
             form.hidden = false;
             form.style.opacity = 0;
             form.style.transition = 'opacity 0.15s ease-in-out';
@@ -105,8 +173,8 @@
             });
         }
 
-        function closeform(mini = false, success = true) {
-            const form = mini ? document.getElementById('mini-form') : document.getElementById('form');
+        function closeform(id = "form") {
+            const form = document.getElementById(id);
 
             form.style.opacity = 1; // ensure starting at full opacity
             form.style.transition = 'opacity 0.15s ease-in-out';
@@ -124,22 +192,41 @@
             edit_id = null;
         }
 
-        function submitform(editing=false) {
+        function submitform(id = "form",editing=false,user_id) {
             
             if (!editing){
-            
-                const form = document.getElementById('form');
+                const form = document.getElementById(id);
                 const formData = new FormData(form);
-                const data = Object.fromEntries(formData)
-                window.pywebview.api.createUser(data).then(() => {
-                    // Clear form fields
-                    form.reset();
-                    closeform();
-                    refreshUsers();
-                });
+                const data = Object.fromEntries(formData);
+
+                if(id=="form"){
+
+                    window.pywebview.api.createUser(data).then(() => {
+                        // Clear form fields
+                        form.reset();
+                        closeform();
+                        refreshUsers();
+                    });
+                }
+                else if(id=="send-form"){
+                    window.pywebview.api.createTransfer("1",data,).then(() => {
+                        // Clear form fields
+                        form.reset();
+                        closeform(id);
+                        refreshUsers();
+                    });
+                }
+                else{
+                    window.pywebview.api.createTransfer("0",data).then(() => {
+                        // Clear form fields
+                        form.reset();
+                        closeform(id);
+                        refreshUsers();
+                    });
+                }
             }
             else {
-                //TODO
+                //Todo
             }
             
             
@@ -150,29 +237,72 @@
         });
 
         async function refreshUsers() {
-            users = await window.pywebview.api.getUsers(); // fetch latest data
-
-            
+            const users = await window.pywebview.api.getUsers();
             const cards_area = document.getElementById("cards_area");
-
             cards_area.innerHTML = "";
-            users.forEach(user => {
+
+            users.forEach(u => {
                 const user_card = document.createElement("div");
                 user_card.className = "user_card";
-                
-                const lower_div = document.createElement("div");
-                lower_div.className = "upper-div";
-                
+
                 const upper_div = document.createElement("div");
-                upper_div.className = "lower-div";
+                upper_div.className = "upper-div";
+
+                const name = document.createElement("p");
+                name.textContent = u.name ?? "—";
+                upper_div.appendChild(name);
+
+                const phone_num = document.createElement("p");
+                phone_num.className = "phone_num";
+                phone_num.textContent = u.phone_num ?? "—";
+                upper_div.appendChild(phone_num);
+
+                const treat_type= document.createElement("p");
+                treat_type.textContent = u.treat_type  ?? "—";
+                upper_div.appendChild(treat_type);
+
+                const hidden_div = document.createElement("div");
+                hidden_div.className = "hidden-div";
+                const last_op = document.createElement("p");
+                last_op.textContent = `اخر عملية : ${"—"}`;
+                hidden_div.appendChild(last_op);
+
+                const lower_div = document.createElement("div");
+                lower_div.className = "lower-div";
+
+                const info_div = document.createElement("div");
+                info_div.className = "info-div";
+                const send_p = document.createElement("p");
+                send_p.textContent = `الارسال : Todo`;
+                const recv_p = document.createElement("p");
+                recv_p.textContent = `الاستقبال : Todo`;
+                info_div.appendChild(send_p);
+                info_div.appendChild(recv_p);
+
+                const buttons_space = document.createElement("div");
+                buttons_space.className = "buttons-space";
+                const btn_recv = document.createElement("button");
+                btn_recv.className = "edit-button";
+                btn_recv.textContent = "اضافة استقبال";
+                btn_recv.addEventListener("click", () => showform("receive-form"));
+                const btn_send = document.createElement("button");
+                btn_send.className = "edit-button";
+                btn_send.textContent = "اضافة ارسال";
+                btn_send.addEventListener("click", () => showform("send-form"));
+                buttons_space.appendChild(btn_recv);
+                buttons_space.appendChild(btn_send);
+
+                lower_div.appendChild(info_div);
+                lower_div.appendChild(buttons_space);
 
                 user_card.appendChild(upper_div);
+                user_card.appendChild(hidden_div);
                 user_card.appendChild(lower_div);
 
                 cards_area.appendChild(user_card);
             });
-            
         }
+
     </script>
 </body>
 </html>

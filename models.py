@@ -6,6 +6,7 @@ class Patient(Base):
     __tablename__ = "patients"
     
     id = Column(Integer, primary_key=True, index=True)
+    
     name = Column(String, nullable=False)
     phone_num = Column(String, nullable=False)
     date = Column(Date,nullable=False)
@@ -35,7 +36,6 @@ class Transfer(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     transfer_type = Column(Boolean,nullable=False)
-    teeth_num = Column(Integer, nullable=False)
     date = Column(Date,nullable=False)
     clinic_name = Column(String)
     
