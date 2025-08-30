@@ -5,31 +5,50 @@ from database import Base
 class Patient(Base):
     __tablename__ = "patients"
     
+    # general features
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    doctor = Column(String, nullable=False,default="all")
+    phone_num = Column(String, nullable=False)
+    
+    # meetings features
+    meetings = relationship(
+        "Meeting",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    
+    # transfers features
+    transfers = relationship(
+        "Transfer",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    treat_type = Column(String, nullable=False,default="none")
+    transfer_state = Column(Boolean, nullable=False,default=False) # is it done ?
+    
+    # implant features 
+    implant_total = Column(Integer,default=0)
+    implant_current = Column(Integer,default=0)
+    implant_state = Column(Boolean, nullable=False,default=False)
+   
+   
+   
+   
+    
+class Meeting(Base):
+    __tablename__ = "meetings"
     id = Column(Integer, primary_key=True, index=True)
     
-    name = Column(String, nullable=False)
-    phone_num = Column(String, nullable=False)
+    meeting_type = Column(String,nullable=False,default="general")
+    info = Column(String,nullable=True)
     date = Column(Date,nullable=False)
-    info = Column(String)
-    time = Column(Boolean,nullable=False)
+    time = Column(Boolean, nullable=False,default=False)
     
-    
-class User(Base):
-    __tablename__ = "users"    
-    id = Column(Integer, primary_key=True)
-    
-    name = Column(String, nullable=False)
-    phone_num = Column(String, nullable=False)
-    done = Column(Boolean, nullable=False,default=False)
-    treat_type = Column(String, nullable=False)
-    
-    transfers = relationship(
-    "Transfer",
-    back_populates="user",
-    cascade="all, delete-orphan",
-    passive_deletes=True
-)
-
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
+    patient = relationship("Patient", back_populates="meetings")
     
 class Transfer(Base):
     __tablename__ = "transfers"
@@ -39,5 +58,6 @@ class Transfer(Base):
     date = Column(Date,nullable=False)
     clinic_name = Column(String)
     
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    user = relationship("User", back_populates="transfers")
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
+    patient = relationship("Patient", back_populates="transfers")
+

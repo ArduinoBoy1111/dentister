@@ -5,7 +5,7 @@ import webview
 from datetime import datetime
 import subprocess
 from database import Base, engine, SessionLocal 
-from models import Patient, Transfer ,User
+from models import Patient, Transfer,Meeting
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
@@ -59,16 +59,14 @@ class API:
                 startupinfo=startupinfo
             )
     # --- Patients ---
-    def submitForm(self, data,time):
+    def createPatient(self, data):
         data = dict(data)
         name = data.get("name")
         phone_num = data.get("phone_num")
-        info = data.get("info")
-        date_obj = datetime.strptime(data.get("date"), "%Y-%m-%d").date()
+        doctor = data.get("doctor")
 
-        
         db = SessionLocal()
-        patient = Patient(name=name, phone_num=phone_num, info=info, date=date_obj,time=time)
+        patient = Patient(name=name, phone_num=phone_num, doctor=doctor)
         db.add(patient)
         db.commit()
         db.refresh(patient)
@@ -87,54 +85,22 @@ class API:
         db.commit()
         db.close()
 
-    def get_patients(self):
-        db = SessionLocal()
-        patients = db.query(Patient).order_by(desc(Patient.time))
-        db.close()
 
-        return [
-            {
-                "id": p.id,
-                "name": p.name,
-                "phone_num": p.phone_num,
-                "date": p.date.isoformat(),
-                "info": p.info,
-                "time":p.time
-            }
-            for p in patients
-        ]
-
-    def editPatient(self, id, data):
+    def createMeeting(self,data,id):
         data = dict(data)
-        date_obj = datetime.strptime(data.get("date"), "%Y-%m-%d").date()
-
-        db = SessionLocal()
-        patient = db.query(Patient).filter(Patient.id == id).first()
-        if patient:
-            patient.name = data.get("name", patient.name)
-            patient.phone_num = data.get("phone_num", patient.phone_num)
-            patient.info = data.get("info", patient.info)
-            patient.date = date_obj
-            db.commit()
-            db.refresh(patient)
-        db.close()
-
-
-    def createUser(self, data):
-        data = dict(data)
-        name = data.get("name")
-        phone_num = data.get("phone_num")
-        treat_type = data.get("treat_type")
+        #meeting_type = meeting_type
+        info = data.get("info")
+        date_obj = data.get("date")
+        time = data.get("time")
         
         db = SessionLocal()
-        new_user = User(name=name, phone_num=phone_num, treat_type=treat_type)
+        new_meeting = Meeting(info=info, date=datetime.strptime(date_obj, "%Y-%m-%d").date(), time=time)
 
+        patient = db.query(Patient).filter_by(id=id).first()
+        patient.meetings.append(new_meeting)
         
-        db.add(new_user)
         db.commit()
-        db.refresh(new_user)
-        
-        print(f"user created: {new_user.id} {new_user.name}")
+        db.refresh(new_meeting)
         db.close()
         
     def createTransfer(self,transfer_type, data, id):
@@ -150,38 +116,41 @@ class API:
             clinic_name=clinic_name
         )
 
-        user = db.query(User).filter_by(id=id).first()
-        user.transfers.append(new_transfer)
+        patient = db.query(Patient).filter_by(id=id).first()
+        patient.transfers.append(new_transfer)
         
         db.commit()
         db.refresh(new_transfer)
         db.close()
         
-    def getUsers(self):
-        db = SessionLocal()
-        users = db.query(User).options(joinedload(User.transfers)).all()
-        db.close()
 
-        return [
-            {
-                "id": p.id,
-                "name": p.name,
-                "phone_num": p.phone_num,
-                "done": p.done,
-                "treat_type": p.treat_type,
-                "transfers": [
-                    {
-                        "id": t.id,
-                        "transfer_type": t.transfer_type,
-                        "teeth_num": t.teeth_num,
-                        "date": t.date.isoformat(),
-                        "clinic_name": t.clinic_name
-                    } for t in p.transfers
+    def get_meetings(self):
+            db = SessionLocal()
+            rows = (db.query(Meeting).options(joinedload(Meeting.patient)).all())
+            db.close()
+            return [
+                {
+                    "id": m.id,
+                    "meeting_type": m.meeting_type,
+                    "info": m.info,
+                    "date": m.date.isoformat(),
+                    "time": m.time,
+                    "patient": {
+                        "id": m.patient.id,
+                        "name": m.patient.name,
+                        "doctor": m.patient.doctor,
+                        "phone_num": m.patient.phone_num,
+                        "treat_type": m.patient.treat_type,
+                        "transfer_state": m.patient.transfer_state,
+                        "implant_total": m.patient.implant_total or 0,
+                        "implant_current": m.patient.implant_current or 0,
+                        "implant_state": m.patient.implant_state,
+                    },
+                }
+                for m in rows
                 ]
-            }
-            for p in users
-        ]
         
+    
         
     
 def on_loaded():
@@ -189,6 +158,7 @@ def on_loaded():
     webview.windows[0].maximize()
 
 # --- Start app ---
+
 api = API()
 window = webview.create_window("Dentister", load_page("index"), js_api=api,resizable=False)
 webview.start(on_loaded)

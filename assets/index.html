@@ -25,7 +25,7 @@
                 </div>
            </div>
            <div class="add-button-area">
-                <button class="add-button" onclick="showform()">+</button>
+                <button class="add-button" onclick="showform('meeting-form')">+</button>
                 <button class="delete-button" onclick="showWarning()"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
 
             </div>
@@ -65,6 +65,10 @@
                         <div class="flex-line"></div>
                     </div>
 
+                    <div style="display: flex;width: 100%;justify-content: center;gap: 10%;margin-bottom: 3%;">
+                        <button type="button"  class="option_button active">اضافة مريض جديد</button>
+                        <button type="button" onclick="switchToMeeting()" class="option_button">اضافة جلسة جديدة</button>
+                    </div>
                     <div class="form-group">
                         <label for="name">الاسم</label>
                         <input type="text" name="name" id="name" placeholder="ادخل الاسم" required>
@@ -75,6 +79,39 @@
                         <input type="text" name="phone_num" id="phone_num" placeholder="ادخل الرقم" required>
                     </div>
 
+                    <div class="form-group">
+                        <label  for="doctor">الطبيب</label>
+                        <select name="doctor" id="doctor">
+                            <option value="0">د.احمد رؤوف</option>
+                            <option value="1">د.مصطفى</option>
+                            <option value="2">د.مرتضى</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+                <div class="buttons-area" style="justify-content: center; align-items: center;">
+                    <button type="button" class="ok-button" onclick="submitform('create_patient')">موافق</button>
+                    <button type="button" class="cancel-button" onclick="closeform('form',false)">إلغاء</button>
+                </div>
+            </div>
+        </form>
+
+        <form action="" hidden class="form" id="meeting-form">
+            <div class="form-card">
+                <div style="width: 100%;">
+                    <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                        <div class="flex-line"></div>
+                        <h1 >اضافة جلسة</h1>
+                        <div class="flex-line"></div>
+                    </div>
+
+                    <div style="display: flex;width: 100%;justify-content: center;gap: 10%;margin-bottom: 3%;">
+                        <button type="button" onclick="switchToPatient()"  class="option_button ">اضافة مريض جديد</button>
+                        <button type="button" class="option_button active">اضافة جلسة جديدة</button>
+                    </div>
+                    
                     <div class="form-group">
                         <label  for="info">المعلومات</label>
                         <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="4" ></textarea>
@@ -95,11 +132,12 @@
 
 
                 <div class="buttons-area" style="justify-content: center; align-items: center;">
-                    <button type="button" class="ok-button" onclick="submitform()">موافق</button>
-                    <button type="button" class="cancel-button" onclick="closeform(false,false)">إلغاء</button>
+                    <button type="button" class="ok-button" onclick="submitform('create_meeting')">موافق</button>
+                    <button type="button" class="cancel-button" onclick="closeform('meeting-form',false)">إلغاء</button>
                 </div>
             </div>
         </form>
+
         <div class="warning-card">
             <p style="font-size: 20px;">هل انت متأكد من القيام بحذف جميع المرضى لتاريخ <span id="warning-date"></span> ؟</p>
             <div class="buttons-area" style="justify-content: center; align-items: center;">
@@ -150,7 +188,7 @@
     
     <script>
 
-        let patients = [];
+        let meetings = [];
         let editing = false;
         let adding_meeting = false;
         let time = 0;
@@ -265,45 +303,29 @@
             createCalendar();
             update_list(new Date(year, month - 1, day));
         }
-        function showform(){
-            form = document.getElementById('form');
+        function showform(form_id,instant = false){
+            form = document.getElementById(form_id);
             form.hidden = false;
-            form.style.opacity = 0;
-            form.style.transition = '0.15s ease-in-out';
-            requestAnimationFrame(() => {
-             form.style.opacity = 1;
-            });
+            if (!instant) {
+                form.style.opacity = 0;
+                form.style.transition = '0.15s ease-in-out';
+                requestAnimationFrame(() => {
+                form.style.opacity = 1;
+                });
+            }
+            else{
+                opacity = 1;
+            }
         }
         
-        function closeform(mini = false,success = true){
-            const form = mini ? document.getElementById('mini-form') : document.getElementById('form');
+        function closeform(form_id,success = true){
+            const form = document.getElementById(form_id);
             form.hidden  = true;
-            if (success && mini){
-                setTimeout(() => {
-                    switchToNonAdding();
-                }, 1200);
-
-            }
-            else if(!success){
-                switchToNonAdding();
-            }
             if(success){
                 flashOnce(document.getElementById("success_card"));    
             }
             
-            
-            //form.style.opacity = 1;
-            //form.style.transition = 'opacity 0.15s ease-in-out';
-           //requestAnimationFrame(() => {
-           //    form.style.opacity = 0;
-           //});
-
-           //form.addEventListener('transitionend', function handler() {
-           //    form.hidden = true;
-           //    form.removeEventListener('transitionend', handler);
-           //});
-           //editing = false; // Reset editing state
-           //edit_id = null; // Reset edit ID
+        
         }
         document.getElementById('form').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
@@ -336,23 +358,38 @@
         }, 900);
         }
 
-        function submitform(ismini = false) {
+        function submitform(type) {
             
             if (!editing){
-                const dateInput = document.getElementById('date');
-                const monthPadded = String(month).padStart(2, '0');
-                const dayPadded = String(day).padStart(2, '0');
-                dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
-                
-                const form = document.getElementById('form');
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData)
-                window.pywebview.api.submitForm(data,time).then(() => {
-                    // Clear form fields
-                    form.reset();
-                    closeform(ismini);
-                    refreshPatients(new Date(year, month - 1, day)); // update list without reloading
-                });
+
+                if (type=="create_patient") {
+
+                    const form = document.getElementById('form');
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData)
+                    window.pywebview.api.createPatient(data).then(() => {
+                        // Clear form fields
+                        form.reset();
+                        closeform('form');
+                        refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    });
+                }
+                else if (type=="create_meeting"){
+                    const dateInput = document.getElementById('date');
+                    const monthPadded = String(month).padStart(2, '0');
+                    const dayPadded = String(day).padStart(2, '0');
+                    dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
+
+                    const form = document.getElementById('meeting-form');
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData)
+
+                    window.pywebview.api.createMeeting(data,1).then(() => {
+                        form.reset();
+                        closeform('meeting-form');
+                        refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    });
+                }
             }
             else {
                 const dateInput = document.getElementById('date');
@@ -364,7 +401,7 @@
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData)
                 window.pywebview.api.editPatient(edit_id, data).then(() => {
-                    closeform();
+                    closeform('form');
                     refreshPatients(new Date(year, month - 1, day)); // update list without reloading
                     
                 });
@@ -374,12 +411,12 @@
         }
 
         window.addEventListener('pywebviewready',async function() {
-            patients = await window.pywebview.api.get_patients();
+            patients = await window.pywebview.api.get_meetings();
             update_list(new Date(year, month - 1, day));
         });
 
         async function refreshPatients(date) {
-            patients = await window.pywebview.api.get_patients(); // fetch latest data
+            patients = await window.pywebview.api.get_meetings(); // fetch latest data
             update_list(date); // update DOM
         }
 
@@ -441,7 +478,7 @@
                     document.getElementById('date').value = patient.date;
                     edit_id = patient.id;
                     editing = true;
-                    showform();
+                    showform('meeting-form');
                 };
 
                 const call_button = document.createElement('button');
@@ -588,7 +625,15 @@
             document.getElementById("info").value  = document.getElementById("info2").value;
             submitform(true);
         }
-    
+        
+        function switchToPatient(){
+            showform('form',instant=true);
+            closeform('meeting-form');
+        }
+        function switchToMeeting(){
+            showform('meeting-form',instant=true);
+            closeform('form');
+        }
     </script>
 </body>
 </html>

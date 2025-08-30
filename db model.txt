@@ -1,0 +1,20 @@
+name ✅
+phone_num ✅
+doctor ✅
+meetings -> type, info , date , time ✅
+
+transfers -> type , date , clinic_name ✅
+treatment_type ✅
+transfer_state (isdone) ✅
+
+implant_total_amount ✅
+implant_current_amount ✅
+implant_state (isdone) ✅
+
+### mettings types : 
+1. ??
+2. ??
+3. ??
+
+
+

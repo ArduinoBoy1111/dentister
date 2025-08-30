@@ -227,7 +227,10 @@ input:focus {
 }
 .form-group input,select {
     height: 30px;
-
+    width: 80% !important;
+}
+.form-group select{
+    width: 81.5% !important;
 }
 .form-group label {
     width: 20%;
@@ -684,14 +687,10 @@ input:focus {
     transition: 0.2s ease-in-out;
     
 }
-/* margin: 15px 0;
-    font-size: 18px;
-    text-align: end;
-    cursor: pointer;
-    padding: 3px ;
-    width:85%;
-    background-color: hsl(177, 85%, 45%);
-    border-bottom: hsl(177, 100%,48%) 4px solid;
-    border-radius: 15px;
-    transition: 0.2s ease-in-out;
-    scale: 100%;*/
+.option_button{
+    height: 30px;
+    width: 26%;
+    border: 1px solid rgb(23, 23, 23);
+    border-radius: 12px;
+    font-size: 16px;
+}
