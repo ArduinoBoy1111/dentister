@@ -2,6 +2,7 @@
     --teal: #20b2aa;
     --light-teal: rgb(87, 209, 203);
 }
+input, textarea, button, select{ font: inherit; }
 
 body, html {
     margin: 0;
@@ -206,6 +207,7 @@ form .form-card {
     justify-content: space-between;
     width: 90%;
     margin: 8px auto;
+    position: relative;
    
 }
 .form-group input, .form-group textarea , .form-group select , .switch-input {
@@ -280,7 +282,7 @@ input:focus {
     overflow-y: auto;
     padding-top: 3%;
 }
-.patient-card{
+.meeting-card{
     width: 90%;
     height: 70px !important;
     background-color: #fffffca7;
@@ -693,4 +695,73 @@ input:focus {
     border: 1px solid rgb(23, 23, 23);
     border-radius: 12px;
     font-size: 16px;
+}
+.suggestions_list{
+    background-color: #fcfcfc;
+    border: 1px solid #bfbfbf;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    width: 75% !important;
+    max-height: 24.5vh;
+    height: fit-content ;
+    position: absolute;
+    padding: 0 6px;
+    top : 30px;
+    left: 0%;
+    translate: 0% 0%;
+    z-index: 9;
+    transition: 0.2s ease-in-out;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.suggestions_list::-webkit-scrollbar { display: none; }
+.form-group .suggestions_list {
+  height: 0;
+  opacity: 0;
+  transition: 0.2s ease-in-out;
+}
+
+.form-group:focus-within .suggestions_list {
+  height: fit-content;
+  opacity: 1;
+  transition: 0.2s ease-in-out;
+}
+#search:focus{
+    transition: 0.2s ease-in-out;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.patient_div{
+    display: flex;
+    width: 99%;
+    height: 4vh;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #bfbfbf;
+    transition: 0.2s ease-in-out;
+}
+.patient_div:last-of-type{
+    border-bottom:none;
+}
+.patient_div:hover{
+    height: 5vh;
+    background-color: #ffffff;
+    transition: 0.2s ease-in-out;
+}
+.patient-btn{
+    height: 26px !important;
+    width: fit-content !important;
+    padding: 0 4px;
+    font-size: 14px;
+    border-radius: 8px;
+    background-color: #20b2aa;
+}
+.patient-btn:hover{
+    background-color:#1a908a !important;
+}
+.custom{
+    height: 7vh;
+}
+.custom:hover{
+    height: 7vh !important;
 }

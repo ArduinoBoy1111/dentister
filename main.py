@@ -2,7 +2,7 @@ import os
 import sys
 import urllib.parse
 import webview
-from datetime import datetime
+from datetime import datetime ,date
 import subprocess
 from database import Base, engine, SessionLocal 
 from models import Patient, Transfer,Meeting
@@ -66,12 +66,33 @@ class API:
         doctor = data.get("doctor")
 
         db = SessionLocal()
-        patient = Patient(name=name, phone_num=phone_num, doctor=doctor)
+        patient = Patient(name=name, phone_num=phone_num, doctor=doctor,creation_date=date.today())
         db.add(patient)
         db.commit()
         db.refresh(patient)
         db.close()
-
+    
+    def get_patients(self):
+        db = SessionLocal()
+        try:
+            rows = db.query(Patient).all()
+            return [
+                {
+                    "id": p.id,
+                    "name": p.name,
+                    "doctor": p.doctor,
+                    "phone_num": p.phone_num,
+                    "treat_type": p.treat_type,
+                    "transfer_state": p.transfer_state,
+                    "implant_total": p.implant_total or 0,
+                    "implant_current": p.implant_current or 0,
+                    "implant_state": p.implant_state,
+                }
+                for p in rows
+            ]
+        finally:
+            db.close()
+    
     def deletePatient(self, id):
         db = SessionLocal()
         db.query(Patient).filter(Patient.id == int(id)).delete()
@@ -86,12 +107,12 @@ class API:
         db.close()
 
 
-    def createMeeting(self,data,id):
+    def createMeeting(self,data,time,id):
         data = dict(data)
         #meeting_type = meeting_type
         info = data.get("info")
         date_obj = data.get("date")
-        time = data.get("time")
+        time = time
         
         db = SessionLocal()
         new_meeting = Meeting(info=info, date=datetime.strptime(date_obj, "%Y-%m-%d").date(), time=time)

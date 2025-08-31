@@ -10,6 +10,7 @@ class Patient(Base):
     name = Column(String, nullable=False)
     doctor = Column(String, nullable=False,default="all")
     phone_num = Column(String, nullable=False)
+    creation_date = Column(Date,nullable=False)
     
     # meetings features
     meetings = relationship(

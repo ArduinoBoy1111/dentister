@@ -65,10 +65,6 @@
                         <div class="flex-line"></div>
                     </div>
 
-                    <div style="display: flex;width: 100%;justify-content: center;gap: 10%;margin-bottom: 3%;">
-                        <button type="button"  class="option_button active">اضافة مريض جديد</button>
-                        <button type="button" onclick="switchToMeeting()" class="option_button">اضافة جلسة جديدة</button>
-                    </div>
                     <div class="form-group">
                         <label for="name">الاسم</label>
                         <input type="text" name="name" id="name" placeholder="ادخل الاسم" required>
@@ -108,13 +104,27 @@
                     </div>
 
                     <div style="display: flex;width: 100%;justify-content: center;gap: 10%;margin-bottom: 3%;">
-                        <button type="button" onclick="switchToPatient()"  class="option_button ">اضافة مريض جديد</button>
-                        <button type="button" class="option_button active">اضافة جلسة جديدة</button>
+                        <button id="name_button" type="button" onclick="switchToName()"  class="option_button active"> استخدام الاسم</button>
+                        <button id="number_button" type="button" onclick="switchToNumber()" class="option_button ">استخدام الرقم</button>
+                    </div>
+
+                    <!--##########################-->
+                    <!-- The dynamic search area  -->
+                    <!--##########################-->
+                    <div class="form-group">
+                        <label  for="search ">المريض</label>
+                        <input  style="width: 75% !important;" oninput="listPatients()" id="search" name="search" type="text">
+                        <div style="display: none;" id="current_patient" class="patient_div">
+                            <p id="current_patient_name"></p>
+                            <p id="current_patient_number"></p>
+                        </div>
+                        <div class="suggestions_list" id="suggestions_list"></div>
                     </div>
                     
+
                     <div class="form-group">
                         <label  for="info">المعلومات</label>
-                        <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="4" ></textarea>
+                        <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="2" ></textarea>
                     </div>
 
                     <div class="form-group" style="margin-top:4%;width: 50%;">
@@ -141,7 +151,7 @@
         <div class="warning-card">
             <p style="font-size: 20px;">هل انت متأكد من القيام بحذف جميع المرضى لتاريخ <span id="warning-date"></span> ؟</p>
             <div class="buttons-area" style="justify-content: center; align-items: center;">
-                <button class="ok-button" onclick="deletePatients()">نعم</button>
+                <button class="ok-button" onclick="deleteMeetings()">نعم</button>
                 <button class="cancel-button" onclick="hideWarning()">لا</button>
             </div>
         </div>
@@ -189,9 +199,13 @@
     <script>
 
         let meetings = [];
+        let patients = [];
+        let search_mode = "name";
+        let list_state = 0;
         let editing = false;
         let adding_meeting = false;
         let time = 0;
+        let selected_patient = null;
         today_header = document.getElementById('current_day_header');
 
         
@@ -371,7 +385,8 @@
                         // Clear form fields
                         form.reset();
                         closeform('form');
-                        refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                        
+                        refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
                     });
                 }
                 else if (type=="create_meeting"){
@@ -384,10 +399,10 @@
                     const formData = new FormData(form);
                     const data = Object.fromEntries(formData)
 
-                    window.pywebview.api.createMeeting(data,1).then(() => {
+                    window.pywebview.api.createMeeting(data,time,1).then(() => {
                         form.reset();
                         closeform('meeting-form');
-                        refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                        refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
                     });
                 }
             }
@@ -402,7 +417,7 @@
                 const data = Object.fromEntries(formData)
                 window.pywebview.api.editPatient(edit_id, data).then(() => {
                     closeform('form');
-                    refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
                     
                 });
             }
@@ -411,12 +426,16 @@
         }
 
         window.addEventListener('pywebviewready',async function() {
-            patients = await window.pywebview.api.get_meetings();
+            meetings = await window.pywebview.api.get_meetings();
+            patients = await window.pywebview.api.get_patients();
+            listPatients();
             update_list(new Date(year, month - 1, day));
         });
 
-        async function refreshPatients(date) {
-            patients = await window.pywebview.api.get_meetings(); // fetch latest data
+        async function refreshMeetings(date) {
+            meetings = await window.pywebview.api.get_meetings(); // fetch latest data
+            patients = await window.pywebview.api.get_patients();
+            listPatients();
             update_list(date); // update DOM
         }
 
@@ -424,36 +443,35 @@
             const patient_list_area = document.getElementById('patients_list_area');
             patient_list_area.innerHTML = ''; // Clear previous content
             
-            
-            const filteredPatients = patients.filter(patient => {
-                const patientDate = new Date(patient.date);
-                return patientDate.getFullYear() === date.getFullYear() && patientDate.getMonth() + 1 === date.getMonth() + 1 && patientDate.getDate() === date.getDate();
+            const filteredMeetings = meetings.filter(meeting => {
+                const meetingsDate = new Date(meeting.date);
+                return meetingsDate.getFullYear() === date.getFullYear() && meetingsDate.getMonth() + 1 === date.getMonth() + 1 && meetingsDate.getDate() === date.getDate();
             });
             document.getElementById('warning-date').textContent = day + "/" + monthNames[month - 1] + "/" + year;
-            filteredPatients.forEach(patient => {
-                const patientDiv = document.createElement('div');
-                patientDiv.dir = 'rtl';
-                patientDiv.className = 'patient-card';
+            filteredMeetings.forEach(meeting => {
+                const meetingDiv = document.createElement('div');
+                meetingDiv.dir = 'rtl';
+                meetingDiv.className = 'meeting-card';
                 
                 upper_div = document.createElement('div');
                 upper_div.className = 'upper-div';
-                patientDiv.appendChild(upper_div);
+                meetingDiv.appendChild(upper_div);
 
                 lower_div = document.createElement('div');
                 lower_div.className = 'lower-div';
-                patientDiv.appendChild(lower_div);
+                meetingDiv.appendChild(lower_div);
 
                 const name = document.createElement('p');
-                name.textContent = patient.name;
+                name.textContent = meeting.patient.name;
                 upper_div.appendChild(name);
 
                 const phone = document.createElement('p');
-                phone.textContent = `${patient.phone_num}`;
+                phone.textContent = `${meeting.patient.phone_num}`;
                 phone.style.fontSize = '16px';
                 upper_div.appendChild(phone);
 
                 const info = document.createElement('p');
-                info.textContent = `${patient.info}`;
+                info.textContent = `${meeting.info}`;
                 lower_div.appendChild(info);
 
                 const deleteButton = document.createElement('button');
@@ -462,8 +480,8 @@
                 
                 deleteButton.className = 'delete-button';
                 deleteButton.onclick = () => {
-                    window.pywebview.api.deletePatient(patient.id).then(() => {
-                        refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                    window.pywebview.api.deleteMeeting(meeting.id).then(() => {
+                        refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
                     });
                 };
                 const editButton = document.createElement('button');
@@ -472,11 +490,9 @@
                 editButton.className = 'edit-button';
 
                 editButton.onclick = () => {
-                    document.getElementById('name').value = patient.name;
-                    document.getElementById('phone_num').value = patient.phone_num;
                     document.getElementById('info').value = patient.info;
                     document.getElementById('date').value = patient.date;
-                    edit_id = patient.id;
+                    edit_id = meeting.id;
                     editing = true;
                     showform('meeting-form');
                 };
@@ -485,7 +501,7 @@
                 call_button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path fill="#ffffff" d="M160.2 25C152.3 6.1 131.7-3.9 112.1 1.4l-5.5 1.5c-64.6 17.6-119.8 80.2-103.7 156.4 37.1 175 174.8 312.7 349.8 349.8 76.3 16.2 138.8-39.1 156.4-103.7l1.5-5.5c5.4-19.7-4.7-40.3-23.5-48.1l-97.3-40.5c-16.5-6.9-35.6-2.1-47 11.8l-38.6 47.2C233.9 335.4 177.3 277 144.8 205.3L189 169.3c13.9-11.3 18.6-30.4 11.8-47L160.2 25z"/></svg>'
                 call_button.className = 'call-button';
                 call_button.onclick = () => {
-                    const phoneNumber = patient.phone_num;
+                    const phoneNumber = meeting.patient.phone_num;
                     window.pywebview.api.call_number(phoneNumber);
                 };
 
@@ -493,17 +509,17 @@
                 add_meeting_button.innerHTML = '+';
                 add_meeting_button.className = 'meeting-button';
                 
-                add_meeting_button.onclick = () => {
-                    
-                    const name = document.getElementById('name');
-                    const phone_num = document.getElementById('phone_num');
-                    const info = document.getElementById('info');
+                //add_meeting_button.onclick = () => {
+                //    
+                //    const name = document.getElementById('name');
+                //    const phone_num = document.getElementById('phone_num');
+                //    const info = document.getElementById('info');
 
-                    name.value = patient.name;
-                    phone_num.value = patient.phone_num;
-                    info.value = patient.info;
-                    switchToAdding();
-                }
+                //    name.value = patient.name;
+                //    phone_num.value = patient.phone_num;
+                //    info.value = patient.info;
+                //    switchToAdding();
+                //}
 
                 const buttons_area = document.createElement('div');
                 buttons_area.className = 'patient-buttons-area';
@@ -511,11 +527,11 @@
                 buttons_area.appendChild(deleteButton);
                 buttons_area.appendChild(editButton);
                 buttons_area.appendChild(call_button);
-                buttons_area.appendChild(add_meeting_button);
+                //buttons_area.appendChild(add_meeting_button);
 
                 time_circle = document.createElement("div");
                 time_circle.className = "time_circle"
-                if(patient.time){
+                if(meeting.time){
                     time_circle.innerText= "صباحاً";
                     time_circle.style.background = "#63ddff";
                     time_circle.style.color = "black";
@@ -525,8 +541,8 @@
                     time_circle.style.background = "#205fc9";
                     time_circle.style.color = "white";
                 }
-                patientDiv.appendChild(time_circle);
-                patient_list_area.appendChild(patientDiv);
+                meetingDiv.appendChild(time_circle);
+                patient_list_area.appendChild(meetingDiv);
             });
             if (patient_list_area.children.length === 0) {
                 const noPatientsMessage = document.createElement('div');
@@ -536,33 +552,33 @@
             }
             const patients_nums = document.querySelectorAll('.addr-tag > .patient-num');
             patients_nums.forEach((num, index) => {
-                const filteredPatients = patients.filter(patient => {
-                    const patientDate = new Date(patient.date);
-                    return patientDate.getFullYear() === date.getFullYear() && patientDate.getMonth() + 1 === date.getMonth() + 1 && patientDate.getDate() === index + 1;
+                const filteredMeetings = meetings.filter(meeting => {
+                    const meetingDate = new Date(meeting.date);
+                    return meetingDate.getFullYear() === date.getFullYear() && meetingDate.getMonth() + 1 === date.getMonth() + 1 && meetingDate.getDate() === index + 1;
                 });
-                num.textContent = `${filteredPatients.length}`;
-                if (filteredPatients.length > 0) {
+                num.textContent = `${filteredMeetings.length}`;
+                if (filteredMeetings.length > 0) {
                     num.style.color = '#1a1a1a';
                     num.style.display = 'flex';
                 } else {
                     num.style.display = 'none';
                 }
-                if (filteredPatients.length >= 10) {
+                if (filteredMeetings.length >= 10) {
                     num.style.color = '#fcc203';
                 }
-                if (filteredPatients.length >= 15) {
+                if (filteredMeetings.length >= 15) {
                     num.style.color = '#ff3d3d';
                 }
             });
         }
-        function deletePatients() {
+        function deleteMeetings() {
 
                 const monthPadded = String(month).padStart(2, '0');
                 const dayPadded = String(day).padStart(2, '0');
                 const date = `${year}-${monthPadded}-${dayPadded}`;
 
-                window.pywebview.api.deletePatients(date).then(() => {
-                    refreshPatients(new Date(year, month - 1, day)); // update list without reloading
+                window.pywebview.api.deleteMeetings(date).then(() => {
+                    refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
                 });
                 hideWarning()
             }
@@ -628,12 +644,174 @@
         
         function switchToPatient(){
             showform('form',instant=true);
-            closeform('meeting-form');
+            closeform('meeting-form',success=false);
         }
         function switchToMeeting(){
             showform('meeting-form',instant=true);
-            closeform('form');
+            closeform('form',success=false);
+        }   
+
+        function switchToName(){
+            search_mode = "name";
+            document.getElementById("search").value = '';
+            document.getElementById("name_button").classList.add("active");
+            document.getElementById("number_button").classList.remove("active");
+            listPatients();
         }
+        function switchToNumber(){
+            search_mode = "num";
+            document.getElementById("search").value = '';
+            document.getElementById("name_button").classList.remove("active");
+            document.getElementById("number_button").classList.add("active");
+            listPatients();
+        }
+        function showList(){
+            list_state = 1;
+        }
+        function hideist(){
+            list_state = 0;
+        }
+
+        function select_patient(patient){
+            selected_patient = patient;
+            const row = document.getElementById("current_patient");
+            row.style.display = "flex";
+            row.onclick = unselect_patient;
+            document.getElementById("current_patient_name").textContent = patient.name;
+            document.getElementById("current_patient_number").textContent = patient.phone_num;
+            document.getElementById("search").style.display = "none";
+            document.getElementById("suggestions_list").innerHTML = "";
+        }
+
+        function unselect_patient(){
+            selected_patient = null;
+            const row = document.getElementById("current_patient");
+            row.style.display = "none";
+            row.onclick = null;
+            document.getElementById("current_patient_name").textContent = "";
+            document.getElementById("current_patient_number").textContent = "";
+            const input = document.getElementById("search");
+            input.style.display = "block";
+            input.focus();
+        }
+
+
+        function normalizeArabic(s){
+            if(!s) return "";
+            const mapDigits = t => t.replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
+            return mapDigits(s)
+                .toLowerCase()
+                .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,"")
+                .replace(/\u0640/g,"")
+                .replace(/[\u200C-\u200F]/g,"")
+                .replace(/[إأٱآ]/g,"ا")
+                .replace(/ى/g,"ي")
+                .replace(/ة/g,"ه")
+                .replace(/ؤ/g,"و")
+                .replace(/ئ/g,"ي")
+                .replace(/ء/g,"")
+                .trim()
+                .replace(/\s+/g," ");
+        }
+
+            function arabicIncludes(haystack, needle){
+            const h = normalizeArabic(haystack);
+            const n = normalizeArabic(needle);
+            if(n=="") return true;
+            if(!n) return false;
+            return h.includes(n);
+        }
+
+        function listPatients(){
+            search_area = document.getElementById("suggestions_list");
+            search_result = document.getElementById("search").value;
+            search_area.innerHTML = "";
+            
+            if (search_mode=="name") {
+                patients.forEach((patient, i) => {
+                    if (arabicIncludes(patient.name, search_result)) {
+                        const patientDiv = document.createElement("div");
+                        patientDiv.className = "patient_div";
+                        patientDiv.dataset.idx = i;        // <-- add
+
+                        const patient_name = document.createElement('p');
+                        const patient_number = document.createElement('p');
+                        patient_name.innerText = patient.name;
+                        patient_number.innerText = patient.phone_num;
+
+                        patientDiv.appendChild(patient_name);
+                        patientDiv.appendChild(patient_number);
+                        search_area.appendChild(patientDiv);
+                    }
+                });
+
+                if (search_area.innerHTML=="") {
+                    const patientDiv = document.createElement("div");
+                    patientDiv.className = "patient_div custom";
+                    // make the whole card behave like a selection to open the create form
+                    patientDiv.dataset.idx = -1;
+
+                    const patient_name = document.createElement('p');
+                    const button = document.createElement('button');
+                    button.type = "button";                // <-- prevent submit
+                    patient_name.innerText = "لم يتم العثور على مريض بهذا الاسم";
+                    button.innerText = "اضافة مريض جديد";
+                    button.className = "add-button patient-btn";
+
+                    patientDiv.onclick = () => switchToPatient();
+                    patientDiv.appendChild(patient_name);
+                    patientDiv.appendChild(button);
+                    search_area.appendChild(patientDiv);
+                }
+
+            } else if (search_mode=="num") {
+                patients.forEach((patient, i) => {
+                    if ((patient.phone_num || "").trim().includes(search_result.trim())) {
+                        const patientDiv = document.createElement("div");
+                        patientDiv.className = "patient_div";
+                        patientDiv.dataset.idx = i;        // <-- add
+
+                        const patient_name = document.createElement('p');
+                        const patient_number = document.createElement('p');
+                        patient_name.innerText = patient.name;
+                        patient_number.innerText = patient.phone_num;
+
+                        patientDiv.appendChild(patient_name);
+                        patientDiv.appendChild(patient_number);
+                        search_area.appendChild(patientDiv);
+                    }
+                });
+
+                if (search_area.innerHTML=="") {
+                    const patientDiv = document.createElement("div");
+                    patientDiv.className = "patient_div custom";
+                    patientDiv.dataset.idx = -1;
+
+                    const patient_name = document.createElement('p');
+                    const button = document.createElement('button');
+                    button.type = "button";                // <-- prevent submit
+                    patient_name.innerText = "لم يتم العثور على مريض بهذا الرقم";
+                    button.innerText = "اضافة مريض جديد";
+                    button.className = "add-button patient-btn";
+
+                    patientDiv.onclick = () => switchToPatient();
+                    patientDiv.appendChild(patient_name);
+                    patientDiv.appendChild(button);
+                    search_area.appendChild(patientDiv);
+                }
+            }
+
+
+            
+        }
+        const suggestions = document.getElementById('suggestions_list');
+
+        suggestions.addEventListener('mousedown', (e) => {
+            const card = e.target.closest('.patient_div[data-idx]');
+            if (!card) return;
+            e.preventDefault();
+            select_patient(patients[+card.dataset.idx]);
+        });
     </script>
 </body>
 </html>
