@@ -93,16 +93,16 @@ class API:
         finally:
             db.close()
     
-    def deletePatient(self, id):
+    def deleteMeeting(self, id):
         db = SessionLocal()
-        db.query(Patient).filter(Patient.id == int(id)).delete()
+        db.query(Meeting).filter(Meeting.id == int(id)).delete()
         db.commit()
         db.close()
 
-    def deletePatients(self, date):
+    def deleteMeetings(self, date):
         date_obj = datetime.strptime(date, "%Y-%m-%d").date()
         db = SessionLocal()
-        db.query(Patient).filter(Patient.date == date_obj).delete()
+        db.query(Meeting).filter(Meeting.date == date_obj).delete()
         db.commit()
         db.close()
 

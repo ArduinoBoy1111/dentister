@@ -113,8 +113,8 @@
                     <!--##########################-->
                     <div class="form-group">
                         <label  for="search ">المريض</label>
-                        <input  style="width: 75% !important;" oninput="listPatients()" id="search" name="search" type="text">
-                        <div style="display: none;" id="current_patient" class="patient_div">
+                        <input  style="width: 75% !important;" oninput="listPatients()" onfocus="listPatients()" id="search" name="search" type="text">
+                        <div style="display: none;" id="current_patient" class="selected_patient">
                             <p id="current_patient_name"></p>
                             <p id="current_patient_number"></p>
                         </div>
@@ -193,6 +193,7 @@
         </form>
 
         <div id="success_card" class="success_card"> ! تمت إضافة الجلسة بنجاح </div>
+        <div id="no_patient_card" class="no_patient_card">يرجى ادخال المريض اولاً </div>
         
     </main>
     
@@ -334,9 +335,18 @@
         
         function closeform(form_id,success = true){
             const form = document.getElementById(form_id);
+            form.reset();
             form.hidden  = true;
+            unselect_patient();
             if(success){
-                flashOnce(document.getElementById("success_card"));    
+                const card = document.getElementById("success_card");
+                if(form_id=="meeting-form"){
+                    card.innerText = " ! تمت إضافة الجلسة بنجاح ";
+                }
+                else{
+                    card.innerText = " ! تمت إضافة المريض بنجاح ";
+                }
+                flashOnce();    
             }
             
         
@@ -383,27 +393,33 @@
                     const data = Object.fromEntries(formData)
                     window.pywebview.api.createPatient(data).then(() => {
                         // Clear form fields
-                        form.reset();
+                        
                         closeform('form');
                         
                         refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
                     });
                 }
                 else if (type=="create_meeting"){
-                    const dateInput = document.getElementById('date');
-                    const monthPadded = String(month).padStart(2, '0');
-                    const dayPadded = String(day).padStart(2, '0');
-                    dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
+                    if(selected_patient==null){
+                        flashOnce(no_patient_card);
+                    }
+                    else{
+                        const dateInput = document.getElementById('date');
+                        const monthPadded = String(month).padStart(2, '0');
+                        const dayPadded = String(day).padStart(2, '0');
+                        dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
 
-                    const form = document.getElementById('meeting-form');
-                    const formData = new FormData(form);
-                    const data = Object.fromEntries(formData)
+                        const form = document.getElementById('meeting-form');
+                        const formData = new FormData(form);
+                        const data = Object.fromEntries(formData)
 
-                    window.pywebview.api.createMeeting(data,time,1).then(() => {
-                        form.reset();
-                        closeform('meeting-form');
-                        refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
-                    });
+                        window.pywebview.api.createMeeting(data,time,selected_patient.id).then(() => {
+                            form.reset();
+                            closeform('meeting-form');
+                            refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
+                        });
+                    }
+                    
                 }
             }
             else {
@@ -643,6 +659,7 @@
         }
         
         function switchToPatient(){
+            unselect_patient();
             showform('form',instant=true);
             closeform('meeting-form',success=false);
         }

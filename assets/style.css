@@ -765,3 +765,36 @@ input:focus {
 .custom:hover{
     height: 7vh !important;
 }
+.selected_patient{
+    height: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #ccc;
+    width: 75%;
+    border-radius: 4px;
+    resize: none;
+    padding: 0 6px;
+    font-size: 20px;
+    background-color: #fffff9;
+}
+.no_patient_card{
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    translate: -50% -50%;
+    width: 25%;
+    height: 12%;
+    background-color: rgb(255, 152, 152) ;
+    border-radius: 15px;
+    opacity: 0;
+    color: rgb(85, 0, 0);
+    text-align: center;
+    transition: opacity 0.5s ease-in-out;
+    font-size: 22px;
+    font-weight: bold;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 15;
+}
