@@ -72,6 +72,19 @@ class API:
         db.refresh(patient)
         db.close()
         
+    def createTransferPatient(self,data):
+        data = dict(data)
+        name = data.get("name")
+        phone_num = data.get("phone_num")
+        doctor = data.get("doctor")
+        treat_type = data.get("treat_type")
+
+        db = SessionLocal()
+        patient = Patient(name=name, phone_num=phone_num, doctor=doctor,creation_date=date.today(),treat_type=treat_type)
+        db.add(patient)
+        db.commit()
+        db.refresh(patient)
+        db.close()
 
     
     def get_patients(self):
