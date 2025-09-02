@@ -71,6 +71,8 @@ class API:
         db.commit()
         db.refresh(patient)
         db.close()
+        
+
     
     def get_patients(self):
         db = SessionLocal()
@@ -92,6 +94,20 @@ class API:
             ]
         finally:
             db.close()
+    
+    def get_patient(self, pid):
+        db = SessionLocal()
+        patient = db.query(Patient).filter(Patient.id == pid).first()
+        db.close()
+        if not patient:
+            return None
+        return {
+            "id": patient.id,
+            "name": patient.name,
+            "phone_num": patient.phone_num,
+            "doctor": patient.doctor,
+            "creation_date": patient.creation_date.isoformat()
+        }
     
     def deleteMeeting(self, id):
         db = SessionLocal()

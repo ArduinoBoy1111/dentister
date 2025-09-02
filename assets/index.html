@@ -246,7 +246,6 @@
         createCalendar();
         const day_squares = document.querySelectorAll('.day-square');
         
-        <!--Highlight the current day-->
 
         
         function createCalendar() {
@@ -382,7 +381,7 @@
         }, 900);
         }
 
-        function submitform(type) {
+        async function submitform(type) {
             
             if (!editing){
 
@@ -390,14 +389,19 @@
 
                     const form = document.getElementById('form');
                     const formData = new FormData(form);
-                    const data = Object.fromEntries(formData)
-                    window.pywebview.api.createPatient(data).then(() => {
-                        // Clear form fields
-                        
-                        closeform('form');
-                        
-                        refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
-                    });
+                    const data = Object.fromEntries(formData);
+                    await window.pywebview.api.createPatient(data);
+
+                    await refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
+
+                    const maxId = Math.max(...patients.map(p => p.id));
+
+                    // get the patient object with that max id
+                    const highestIdPatient = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
+                    switchToMeeting();
+                    select_patient(highestIdPatient);
+                    
+                    
                 }
                 else if (type=="create_meeting"){
                     if(selected_patient==null){
@@ -414,9 +418,8 @@
                         const data = Object.fromEntries(formData)
 
                         window.pywebview.api.createMeeting(data,time,selected_patient.id).then(() => {
-                            form.reset();
-                            closeform('meeting-form');
                             refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
+                            closeform('meeting-form');
                         });
                     }
                     
@@ -723,7 +726,7 @@
                 .replace(/[\u200C-\u200F]/g,"")
                 .replace(/[إأٱآ]/g,"ا")
                 .replace(/ى/g,"ي")
-                .replace(/ة/g,"ه")
+                .replace(/[ةى]/g,"ه")
                 .replace(/ؤ/g,"و")
                 .replace(/ئ/g,"ي")
                 .replace(/ء/g,"")
@@ -739,88 +742,87 @@
             return h.includes(n);
         }
 
-        function listPatients(){
-            search_area = document.getElementById("suggestions_list");
-            search_result = document.getElementById("search").value;
+        function listPatients() {
+            const search_area = document.getElementById("suggestions_list");
+            const search_result = document.getElementById("search").value;
             search_area.innerHTML = "";
-            
-            if (search_mode=="name") {
-                patients.forEach((patient, i) => {
-                    if (arabicIncludes(patient.name, search_result)) {
-                        const patientDiv = document.createElement("div");
-                        patientDiv.className = "patient_div";
-                        patientDiv.dataset.idx = i;        // <-- add
 
-                        const patient_name = document.createElement('p');
-                        const patient_number = document.createElement('p');
-                        patient_name.innerText = patient.name;
-                        patient_number.innerText = patient.phone_num;
-
-                        patientDiv.appendChild(patient_name);
-                        patientDiv.appendChild(patient_number);
-                        search_area.appendChild(patientDiv);
-                    }
-                });
-
-                if (search_area.innerHTML=="") {
+            if (search_mode === "name") {
+                for (let i = patients.length - 1; i >= 0; i--) {
+                const patient = patients[i];
+                if (arabicIncludes(patient.name, search_result)) {
                     const patientDiv = document.createElement("div");
-                    patientDiv.className = "patient_div custom";
-                    // make the whole card behave like a selection to open the create form
-                    patientDiv.dataset.idx = -1;
+                    patientDiv.className = "patient_div";
+                    patientDiv.dataset.idx = i; // keep pointing to the original array index
 
-                    const patient_name = document.createElement('p');
-                    const button = document.createElement('button');
-                    button.type = "button";                // <-- prevent submit
-                    patient_name.innerText = "لم يتم العثور على مريض بهذا الاسم";
-                    button.innerText = "اضافة مريض جديد";
-                    button.className = "add-button patient-btn";
+                    const patient_name = document.createElement("p");
+                    const patient_number = document.createElement("p");
+                    patient_name.innerText = patient.name;
+                    patient_number.innerText = patient.phone_num;
 
-                    patientDiv.onclick = () => switchToPatient();
                     patientDiv.appendChild(patient_name);
-                    patientDiv.appendChild(button);
+                    patientDiv.appendChild(patient_number);
                     search_area.appendChild(patientDiv);
                 }
+                }
 
-            } else if (search_mode=="num") {
-                patients.forEach((patient, i) => {
-                    if ((patient.phone_num || "").trim().includes(search_result.trim())) {
-                        const patientDiv = document.createElement("div");
-                        patientDiv.className = "patient_div";
-                        patientDiv.dataset.idx = i;        // <-- add
+                if (search_area.childElementCount === 0) {
+                const patientDiv = document.createElement("div");
+                patientDiv.className = "patient_div custom";
+                patientDiv.dataset.idx = -1;
 
-                        const patient_name = document.createElement('p');
-                        const patient_number = document.createElement('p');
-                        patient_name.innerText = patient.name;
-                        patient_number.innerText = patient.phone_num;
+                const patient_name = document.createElement("p");
+                const button = document.createElement("button");
+                button.type = "button";
+                patient_name.innerText = "لم يتم العثور على مريض بهذا الاسم";
+                button.innerText = "اضافة مريض جديد";
+                button.className = "add-button patient-btn";
 
-                        patientDiv.appendChild(patient_name);
-                        patientDiv.appendChild(patient_number);
-                        search_area.appendChild(patientDiv);
-                    }
-                });
+                patientDiv.onclick = () => switchToPatient();
+                patientDiv.appendChild(patient_name);
+                patientDiv.appendChild(button);
+                search_area.appendChild(patientDiv);
+                }
 
-                if (search_area.innerHTML=="") {
+            } else if (search_mode === "num") {
+                for (let i = patients.length - 1; i >= 0; i--) {
+                const patient = patients[i];
+                if ((patient.phone_num || "").trim().includes((search_result || "").trim())) {
                     const patientDiv = document.createElement("div");
-                    patientDiv.className = "patient_div custom";
-                    patientDiv.dataset.idx = -1;
+                    patientDiv.className = "patient_div";
+                    patientDiv.dataset.idx = i;
 
-                    const patient_name = document.createElement('p');
-                    const button = document.createElement('button');
-                    button.type = "button";                // <-- prevent submit
-                    patient_name.innerText = "لم يتم العثور على مريض بهذا الرقم";
-                    button.innerText = "اضافة مريض جديد";
-                    button.className = "add-button patient-btn";
+                    const patient_name = document.createElement("p");
+                    const patient_number = document.createElement("p");
+                    patient_name.innerText = patient.name;
+                    patient_number.innerText = patient.phone_num;
 
-                    patientDiv.onclick = () => switchToPatient();
                     patientDiv.appendChild(patient_name);
-                    patientDiv.appendChild(button);
+                    patientDiv.appendChild(patient_number);
                     search_area.appendChild(patientDiv);
+                }
+                }
+
+                if (search_area.childElementCount === 0) {
+                const patientDiv = document.createElement("div");
+                patientDiv.className = "patient_div custom";
+                patientDiv.dataset.idx = -1;
+
+                const patient_name = document.createElement("p");
+                const button = document.createElement("button");
+                button.type = "button";
+                patient_name.innerText = "لم يتم العثور على مريض بهذا الرقم";
+                button.innerText = "اضافة مريض جديد";
+                button.className = "add-button patient-btn";
+
+                patientDiv.onclick = () => switchToPatient();
+                patientDiv.appendChild(patient_name);
+                patientDiv.appendChild(button);
+                search_area.appendChild(patientDiv);
                 }
             }
-
-
-            
         }
+
         const suggestions = document.getElementById('suggestions_list');
 
         suggestions.addEventListener('mousedown', (e) => {
@@ -829,6 +831,7 @@
             e.preventDefault();
             select_patient(patients[+card.dataset.idx]);
         });
+
     </script>
 </body>
 </html>
