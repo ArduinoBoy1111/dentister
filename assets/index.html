@@ -75,14 +75,7 @@
                         <input type="text" name="phone_num" id="phone_num" placeholder="ادخل الرقم" required>
                     </div>
 
-                    <div class="form-group">
-                        <label  for="doctor">الطبيب</label>
-                        <select name="doctor" id="doctor">
-                            <option value="0">د.احمد رؤوف</option>
-                            <option value="1">د.مصطفى</option>
-                            <option value="2">د.مرتضى</option>
-                        </select>
-                    </div>
+                    
                 </div>
 
 
@@ -204,6 +197,7 @@
         let search_mode = "name";
         let list_state = 0;
         let editing = false;
+        let editing_patient = null;
         let adding_meeting = false;
         let time = 0;
         let selected_patient = null;
@@ -247,7 +241,19 @@
         const day_squares = document.querySelectorAll('.day-square');
         
 
-        
+        function markTodayOnce() {
+        // only when viewing the real current month/year
+        if (year !== now.getFullYear() || month !== (now.getMonth() + 1)) return;
+
+        // wait a tick so the calendar DOM exists
+        requestAnimationFrame(() => {
+            const tags = document.querySelectorAll('.addr-tag');
+            const el = tags[day - 1]; // 0-based index
+            if (el) el.classList.add('active');
+        });
+        }
+
+        markTodayOnce();
         function createCalendar() {
             const daysInMonth = new Date(year, month, 0).getDate();
             document.querySelector('.display').innerHTML = ''; // Clear previous content
@@ -431,12 +437,12 @@
                 const dayPadded = String(day).padStart(2, '0');
                 dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
                 
-                const form = document.getElementById('form');
+                const form = document.getElementById('meeting-form');
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData)
-                window.pywebview.api.editPatient(edit_id, data).then(() => {
-                    closeform('form');
+                window.pywebview.api.editMeeting(edit_id, data,time,selected_patient.id).then(() => {
                     refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
+                    closeform('meeting-form');
                     
                 });
             }
@@ -509,11 +515,17 @@
                 editButton.className = 'edit-button';
 
                 editButton.onclick = () => {
-                    document.getElementById('info').value = patient.info;
-                    document.getElementById('date').value = patient.date;
+                    document.getElementById('info').value = meeting.info;
+                    if (meeting.time==1){
+                        switchToDay();
+                    }
+                    else{
+                        switchToNight();
+                    }
                     edit_id = meeting.id;
                     editing = true;
                     showform('meeting-form');
+                    select_patient(meeting.patient)
                 };
 
                 const call_button = document.createElement('button');
@@ -716,23 +728,23 @@
         }
 
 
-        function normalizeArabic(s){
-            if(!s) return "";
+        function normalizeArabic(s) {
+            if (!s) return "";
             const mapDigits = t => t.replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
             return mapDigits(s)
                 .toLowerCase()
-                .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,"")
-                .replace(/\u0640/g,"")
-                .replace(/[\u200C-\u200F]/g,"")
+                .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,"") // remove diacritics
+                .replace(/\u0640/g,"")  // tatweel
+                .replace(/[\u200C-\u200F]/g,"") // zero-width marks
                 .replace(/[إأٱآ]/g,"ا")
-                .replace(/ى/g,"ي")
-                .replace(/[ةى]/g,"ه")
+                .replace(/[ىةه]/g,"ه")  // << unify ى / ة / ه into ه
                 .replace(/ؤ/g,"و")
                 .replace(/ئ/g,"ي")
                 .replace(/ء/g,"")
                 .trim()
                 .replace(/\s+/g," ");
         }
+
 
             function arabicIncludes(haystack, needle){
             const h = normalizeArabic(haystack);

@@ -89,11 +89,22 @@ class API:
                     "implant_total": p.implant_total or 0,
                     "implant_current": p.implant_current or 0,
                     "implant_state": p.implant_state,
+                    "transfers": [
+                        {
+                            "id": t.id,
+                            "type": t.type,
+                            "amount": t.amount,
+                            "date": t.date.isoformat() if t.date else None,
+                            "note": t.note,
+                        }
+                        for t in p.transfers
+                    ],
                 }
                 for p in rows
             ]
         finally:
             db.close()
+
     
     def get_patient(self, pid):
         db = SessionLocal()
@@ -140,17 +151,47 @@ class API:
         db.refresh(new_meeting)
         db.close()
         
+    def editMeeting(self, meeting_id, data, time, patient_id):
+        data = dict(data)
+        info = data.get("info")
+        date_str = data.get("date")
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+
+        db = SessionLocal()
+        meeting = db.query(Meeting).filter_by(id=meeting_id).first()
+        if not meeting:
+            db.close()
+            return None  # or raise an exception
+
+        # Update fields
+        meeting.info = info
+        meeting.date = date_obj
+        meeting.time = time
+
+        # (Optional) Re-assign to a different patient
+        if patient_id:
+            patient = db.query(Patient).filter_by(id=patient_id).first()
+            if patient:
+                meeting.patient = patient
+
+        db.commit()
+        db.refresh(meeting)
+        db.close()
+
+
     def createTransfer(self,transfer_type, data, id):
         data = dict(data)
+        
         transfer_type = transfer_type=="1"
         date_obj = data.get("date")
         clinic_name = data.get("clinic_name")
+
         
         db = SessionLocal()
         new_transfer = Transfer(
             transfer_type=transfer_type,
             date=datetime.strptime(date_obj, "%Y-%m-%d").date(),
-            clinic_name=clinic_name
+            clinic_name=clinic_name,
         )
 
         patient = db.query(Patient).filter_by(id=id).first()
