@@ -43,6 +43,7 @@ class API:
     def navigate(self, page_name):
         url = load_page(page_name)
         window.load_url(url)
+        print(f"Navigated to {page_name}")
 
     def call_number(self, phone_number):
         if phone_number:
@@ -75,6 +76,7 @@ class API:
     def createTransferPatient(self,data):
         data = dict(data)
         name = data.get("name")
+       
         phone_num = data.get("phone_num")
         doctor = data.get("doctor")
         treat_type = data.get("treat_type")
@@ -86,7 +88,8 @@ class API:
         db.refresh(patient)
         db.close()
 
-    
+        print("Created Transfer patient:", patient.id, patient.name)
+
     def get_patients(self):
         db = SessionLocal()
         try:
@@ -105,10 +108,9 @@ class API:
                     "transfers": [
                         {
                             "id": t.id,
-                            "type": t.type,
-                            "amount": t.amount,
+                            "transfer_type": t.transfer_type,
                             "date": t.date.isoformat() if t.date else None,
-                            "note": t.note,
+                            "clinic_name": t.clinic_name,
                         }
                         for t in p.transfers
                     ],
@@ -206,12 +208,21 @@ class API:
             date=datetime.strptime(date_obj, "%Y-%m-%d").date(),
             clinic_name=clinic_name,
         )
-
-        patient = db.query(Patient).filter_by(id=id).first()
-        patient.transfers.append(new_transfer)
+        
+        # change the pat treat_type if it's none
+        if id:
+            patient = db.query(Patient).filter_by(id=id).first()
+            patient.transfers.append(new_transfer)
+            if patient.treat_type == "none":
+                treat_type = data.get("treat_type")
+                if treat_type:
+                    patient.treat_type = treat_type
+            
+        
         
         db.commit()
         db.refresh(new_transfer)
+        db.refresh(patient)
         db.close()
         
 

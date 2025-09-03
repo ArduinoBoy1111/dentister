@@ -19,7 +19,7 @@ html,body{
 }
 .user_card{
     width: 30%;
-    height: 19.1vh;
+    height: 25vh;
     border-radius: 15px;
     border: 1px solid #272727;
     background-color: rgb(255, 255, 255);
@@ -48,7 +48,6 @@ html,body{
 }
 select{
     border: 1px solid #ccc;
-    width: 75%;
     border-radius: 4px;
     resize: none;
     padding: 0 6px;
@@ -65,19 +64,19 @@ select{
     display: flex;
     align-items: end;
 }
-.user_card:hover .hidden-div {
+/*.user_card:hover .hidden-div {
     height: 5.9vh;
     overflow: hidden;
     transition: 0.2s ease-in-out;
     border-bottom: #f0f0f0 2px solid;
     
-}
+}*/
 .hidden-div{
-    height: 0;
+    height: 5.9vh;
     width: 100%;
     overflow: hidden;
     transition: 0.2s ease-in-out;
-    border-bottom: #f0f0f000 2px solid;
+    border-bottom: #f0f0f0 2px solid;
     display: flex;
     align-items: center;
     

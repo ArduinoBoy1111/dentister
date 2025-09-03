@@ -114,8 +114,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="clinic_name">اسم العيادة</label>
-                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم العيادة" >
+                        <label for="clinic_name">اسم المختبر</label>
+                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم المختبر" >
                     </div>
 
                     <div class="form-group">
@@ -139,7 +139,7 @@
 
 
                 <div class="buttons-area" style="justify-content: center; align-items: center;">
-                    <button type="button" class="ok-button" onclick="submitform()">موافق</button>
+                    <button type="button" class="ok-button" onclick="submitform('transfer-form')">موافق</button>
                     <button type="button" class="cancel-button" onclick="closeform('transfer-form')">إلغاء</button>
                 </div>
             </div>
@@ -155,8 +155,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="clinic_name">اسم العيادة</label>
-                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم العيادة" >
+                        <label for="clinic_name">اسم المختبر</label>
+                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم المختبر" >
                     </div>
 
                     <div class="form-group">
@@ -185,8 +185,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="clinic_name">اسم العيادة</label>
-                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم العيادة" >
+                        <label for="clinic_name">اسم المختبر</label>
+                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم المختبر" >
                     </div>
 
                     <div class="form-group">
@@ -251,7 +251,7 @@
         
         }
 
-        function submitform(id = "form",user_id) {
+         function submitform(id) {
             
             const form = document.getElementById(id);
                 const formData = new FormData(form);
@@ -262,6 +262,14 @@
                     window.pywebview.api.createTransferPatient(data).then(() => {
                         // Clear form fields
                         refreshPatients();
+
+
+                        const maxId = Math.max(...patients.map(p => p.id));
+
+                        // get the patient object with that max id
+                        const highestIdPatient = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
+                        switchToMeeting();
+                        select_patient(highestIdPatient);
                         form.reset();
                         closeform(id);
                     });
@@ -270,25 +278,25 @@
                     const state = document.getElementById("transfer_type").value;
                     window.pywebview.api.createTransfer(state,data,selected_patient.id).then(() => {
                         // Clear form fields
+                        refreshPatients();
                         form.reset();
                         closeform(id);
-                        refreshPatients();
                     });
                 }
                 else if(id=="send-form"){
                     window.pywebview.api.createTransfer("1",data,).then(() => {
                         // Clear form fields
+                        refreshPatients();
                         form.reset();
                         closeform(id);
-                        refreshPatients();
                     });
                 }
                 else{
                     window.pywebview.api.createTransfer("0",data).then(() => {
                         // Clear form fields
+                        refreshPatients();
                         form.reset();
                         closeform(id);
-                        refreshPatients();
                     });
                 }
             
@@ -321,6 +329,7 @@
                     phone_num.textContent = u.phone_num ?? "—";
                     upper_div.appendChild(phone_num);
 
+
                     const treat_type= document.createElement("p");
                     treat_type.textContent = u.treat_type  ?? "—";
                     upper_div.appendChild(treat_type);
@@ -328,7 +337,15 @@
                     const hidden_div = document.createElement("div");
                     hidden_div.className = "hidden-div";
                     const last_op = document.createElement("p");
-                    last_op.textContent = `اخر عملية : ${u.transfers[u.transfers.length-1]  ?? "—"}`;
+                    const last_transfer = u.transfers && u.transfers.length > 0 ? u.transfers[u.transfers.length-1] : null;
+                    if (last_transfer) {
+                        let last_transfer_type = last_transfer.transfer_type == 1 ? " ارسال الى" : " استقبال من ";
+                        let last_transfer_clinic = last_transfer.clinic_name ?? "—";
+                        let last_transfer_date = last_transfer.date ? last_transfer.date.replace(/-/g, "/") : "—";
+                        last_op.innerHTML = `اخر عملية : ${last_transfer_type} مختبر ${last_transfer_clinic}<br> التاريخ :  ${last_transfer_date}`;
+                    } else {
+                        last_op.innerHTML = "لا يوجد أي عمليات ارسال و استقبال سابقة";
+                    }
                     hidden_div.appendChild(last_op);
 
                     const lower_div = document.createElement("div");
