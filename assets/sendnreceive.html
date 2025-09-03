@@ -432,6 +432,7 @@
 
             if(selected_patient.treat_type=="none"){
                 document.getElementById("treat_type").disabled=false;
+                document.getElementById("treat_type").value  = "";
             }
             else{
                 document.getElementById("treat_type").value  = selected_patient.treat_type;

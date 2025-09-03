@@ -167,9 +167,20 @@ class API:
         patient = db.query(Patient).filter_by(id=id).first()
         patient.meetings.append(new_meeting)
         
+        if id:
+            patient = db.query(Patient).filter_by(id=id).first()
+            patient.meetings.append(new_meeting)
+            if patient.implant_total == 0:
+                implant_total = data.get("implant_total")
+                if implant_total and implant_total > 0:
+                    patient.implant_total = implant_total
+
         db.commit()
         db.refresh(new_meeting)
         db.close()
+        
+        
+        
         
     def editMeeting(self, meeting_id, data, time, patient_id):
         data = dict(data)

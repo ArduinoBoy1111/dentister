@@ -128,6 +128,12 @@
                         <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="2" ></textarea>
                     </div>
 
+                    
+                    <div class="form-group">
+                        <label for="implant_total_2">مبلغ الزراعة</label>
+                        <input style="width: 75% !important;" type="number" name="implant_total" id="implant_total_2" placeholder="ادخل مبلغ الزراعة" required>
+                    </div>
+                    
                     <div class="form-group" style="margin-top:4%;width: 50%;">
                         <label  for="info">الوقت</label>
                         
@@ -721,6 +727,16 @@
             document.getElementById("current_patient_number").textContent = patient.phone_num;
             document.getElementById("search").style.display = "none";
             document.getElementById("suggestions_list").innerHTML = "";
+
+
+            if(selected_patient.implant_total==0){
+                document.getElementById("implant_total_2").disabled=false;
+                document.getElementById("implant_total_2").value  = "";
+            }
+            else{
+                document.getElementById("implant_total_2").value  = selected_patient.implant_total;
+                document.getElementById("implant_total_2").disabled = true;
+            }
         }
 
         function unselect_patient(){
