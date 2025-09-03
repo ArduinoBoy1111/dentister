@@ -24,7 +24,7 @@
         <div class="main-content-area">
             <button class="custom-add-button" onclick="showform('transfer-form')">+</button>
             <div class="search_area">
-                <input id="search_bar" type="text" oninput="refreshData()" placeholder="ادخل اسم المريض" name="search" class="search_bar"></input>
+                <input id="search_bar" type="text" oninput="refreshPatients()" placeholder="ادخل اسم المريض" name="search" class="search_bar"></input>
             </div>
             <div id="cards_area" class="cards_area">
                 
@@ -97,7 +97,7 @@
                     <div class="form-group">
                 
                         <label  for="search ">المريض</label>
-                        <input  style="width: 75% !important;" oninput="listPatients()" onfocus="listPatients()" id="search" name="search" type="text">
+                        <input  style="width: 80% !important;" oninput="listPatients()" onfocus="listPatients()" id="search" name="search" type="text">
                         <div style="display: none;" id="current_patient" class="selected_patient">
                             <p id="current_patient_name"></p>
                             <p id="current_patient_number"></p>
@@ -212,12 +212,12 @@
         let search_mode = "name";
         let list_state = 0;
         let selected_patient = null;
-
+        let BTS_patient_id  = null;
         function changeView(view) {
             window.pywebview.api.navigate(view);
         }
         
-        function showform(form_id,instant = false){
+        function showform(form_id,patient_id = null,instant = false){
             form = document.getElementById(form_id);
             form.hidden = false;
             if (!instant) {
@@ -230,6 +230,7 @@
             else{
                 opacity = 1;
             }
+            BTS_patient_id = patient_id;
         }
         
         function closeform(form_id,success = true){
@@ -268,10 +269,9 @@
 
                         // get the patient object with that max id
                         const highestIdPatient = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
+                        form.reset();
                         switchToMeeting();
                         select_patient(highestIdPatient);
-                        form.reset();
-                        closeform(id);
                     });
                 }
                 else if(id=="transfer-form"){
@@ -284,7 +284,7 @@
                     });
                 }
                 else if(id=="send-form"){
-                    window.pywebview.api.createTransfer("1",data,).then(() => {
+                    window.pywebview.api.createTransfer("1",data,BTS_patient_id).then(() => {
                         // Clear form fields
                         refreshPatients();
                         form.reset();
@@ -292,7 +292,7 @@
                     });
                 }
                 else{
-                    window.pywebview.api.createTransfer("0",data).then(() => {
+                    window.pywebview.api.createTransfer("0",data,BTS_patient_id).then(() => {
                         // Clear form fields
                         refreshPatients();
                         form.reset();
@@ -311,9 +311,10 @@
             patients = await window.pywebview.api.get_patients();
             const cards_area = document.getElementById("cards_area");
             cards_area.innerHTML = "";
-
+            search_bar = document.getElementById("search_bar");
+            search_bar_value = search_bar.value
             patients.forEach(u => {
-                if(u.treat_type!="none"){
+                if(u.treat_type!="none" && arabicIncludes(u.name, search_bar_value)){
                     const user_card = document.createElement("div");
                     user_card.className = "user_card";
 
@@ -365,11 +366,11 @@
                     const btn_recv = document.createElement("button");
                     btn_recv.className = "edit-button";
                     btn_recv.textContent = "اضافة استقبال";
-                    btn_recv.addEventListener("click", () => showform("receive-form"));
+                    btn_recv.addEventListener("click", () => showform("receive-form",patient_id =  u.id));
                     const btn_send = document.createElement("button");
                     btn_send.className = "edit-button";
                     btn_send.textContent = "اضافة ارسال";
-                    btn_send.addEventListener("click", () => showform("send-form"));
+                    btn_send.addEventListener("click", () => showform("send-form",patient_id = u.id));
                     buttons_space.appendChild(btn_recv);
                     buttons_space.appendChild(btn_send);
 
@@ -461,6 +462,7 @@
                 .replace(/ؤ/g,"و")
                 .replace(/ئ/g,"ي")
                 .replace(/ء/g,"")
+                .replace(" ","")
                 .trim()
                 .replace(/\s+/g," ");
         }
