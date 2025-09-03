@@ -31,6 +31,10 @@ def get_url(relative_path):
 def load_page(name):
     if name == "index":
         return get_url("assets/index.html")
+    elif name == "implant":
+        return get_url("assets/implant.html")
+    elif name == "braces":
+        return get_url("assets/braces.html")
     elif name == "second":
         return get_url("assets/sendnreceive.html")
     elif name == "search":
@@ -65,9 +69,10 @@ class API:
         name = data.get("name")
         phone_num = data.get("phone_num")
         doctor = data.get("doctor")
+        implant_total = data.get("implant_total",0)
 
         db = SessionLocal()
-        patient = Patient(name=name, phone_num=phone_num, doctor=doctor,creation_date=date.today())
+        patient = Patient(name=name, phone_num=phone_num, doctor=doctor,creation_date=date.today(),implant_total=implant_total)
         db.add(patient)
         db.commit()
         db.refresh(patient)
@@ -149,15 +154,15 @@ class API:
         db.close()
 
 
-    def createMeeting(self,data,time,id):
+    def createMeeting(self,data,time,id,meeting_type = "general"):
         data = dict(data)
-        #meeting_type = meeting_type
         info = data.get("info")
         date_obj = data.get("date")
         time = time
-        
+        meeting_type = meeting_type
+
         db = SessionLocal()
-        new_meeting = Meeting(info=info, date=datetime.strptime(date_obj, "%Y-%m-%d").date(), time=time)
+        new_meeting = Meeting(info=info, date=datetime.strptime(date_obj, "%Y-%m-%d").date(), time=time, meeting_type=meeting_type)
 
         patient = db.query(Patient).filter_by(id=id).first()
         patient.meetings.append(new_meeting)
@@ -226,9 +231,9 @@ class API:
         db.close()
         
 
-    def get_meetings(self):
+    def get_meetings(self,meeting_type = "general"):
             db = SessionLocal()
-            rows = (db.query(Meeting).options(joinedload(Meeting.patient)).all())
+            rows = (db.query(Meeting).options(joinedload(Meeting.patient)).filter(Meeting.meeting_type == meeting_type).all())
             db.close()
             return [
                 {

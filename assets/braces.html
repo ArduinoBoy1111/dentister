@@ -48,9 +48,9 @@
         <div class="sidebar">
             <img src="logo.png" style="width: 70%;margin-top: 5%;" alt="">
             <ul>
-                <li class="current_page"><button  style=" text-align: center;width: 100%;"  onclick="changeView('index')">جميع الحجوزات</button></li>
+                <li ><button  style=" text-align: center;width: 100%;"  onclick="changeView('index')">جميع الحجوزات</button></li>
                 <li ><button  style=" text-align: center;width: 100%;"  onclick="changeView('implant')">الزراعة</button></li>
-                <li ><button  style=" text-align: center;width: 100%;"  onclick="changeView('braces')">التقويم</button></li>
+                <li class="current_page"><button  style=" text-align: center;width: 100%;"  onclick="changeView('braces')">التقويم</button></li>
                 <li ><button style="font-size: 22px; text-align: center;width: 100%;" onclick="changeView('second')">الارسال و اللاستقبال</button></li>
                 <li><button style=" font-size: 22px;text-align: center;width: 100%;"  onclick="changeView('search')">البحث</button></li>
                 
@@ -423,9 +423,9 @@
 
                         const form = document.getElementById('meeting-form');
                         const formData = new FormData(form);
-                        const data = Object.fromEntries(formData)
+                        const data = Object.fromEntries(formData);
 
-                        window.pywebview.api.createMeeting(data,time,selected_patient.id).then(() => {
+                        window.pywebview.api.createMeeting(data,time,selected_patient.id,"braces").then(() => {
                             refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
                             closeform('meeting-form');
                         });
@@ -453,14 +453,14 @@
         }
 
         window.addEventListener('pywebviewready',async function() {
-            meetings = await window.pywebview.api.get_meetings();
+            meetings = await window.pywebview.api.get_meetings("braces");
             patients = await window.pywebview.api.get_patients();
             listPatients();
             update_list(new Date(year, month - 1, day));
         });
 
         async function refreshMeetings(date) {
-            meetings = await window.pywebview.api.get_meetings(); // fetch latest data
+            meetings = await window.pywebview.api.get_meetings("braces"); // fetch latest data
             patients = await window.pywebview.api.get_patients();
             listPatients();
             update_list(date); // update DOM
