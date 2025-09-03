@@ -1,1 +1,0 @@
-data.get("treat_type")
