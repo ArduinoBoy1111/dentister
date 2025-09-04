@@ -480,14 +480,16 @@
                 meetingDiv.dir = 'rtl';
                 meetingDiv.className = 'meeting-card';
                 
-                meetingDiv.onclick = () => {
-                    window.pywebview.api.set_current_patient(meeting.patient.id, 0);
-                    window.pywebview.api.navigate('patient');
-                }
+                
 
                 upper_div = document.createElement('div');
                 upper_div.className = 'upper-div';
                 meetingDiv.appendChild(upper_div);
+
+                upper_div.onclick = () => {
+                    window.pywebview.api.set_current_patient(meeting.patient.id, 0);
+                    window.pywebview.api.navigate('patient');
+                }
 
                 lower_div = document.createElement('div');
                 lower_div.className = 'lower-div';

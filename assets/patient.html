@@ -63,7 +63,12 @@
                     <label  for="info">المعلومات</label>
                     <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="2" ></textarea>
                 </div>
-
+                
+                <div class="form-group">
+                    <label for="date">التاريخ</label>
+                    <input type="date" name="date" id="date" placeholder="ادخل التاريخ" >
+                </div>
+                
                 <div class="form-group" style="margin-top:4%;width: 50%;">
                     <label  for="info">الوقت</label>
                     
@@ -73,7 +78,6 @@
                     </div>
                 </div>
 
-                <input type="date" name="date" id="date" hidden value="" required>
             </div>
 
 
@@ -127,6 +131,7 @@
 
                     editButton.onclick = () => {
                         document.getElementById('info').value = meeting.info;
+                        document.getElementById('date').value = meeting.date;
                         if (meeting.time==1){
                             switchToDay();
                         }
@@ -146,7 +151,7 @@
                         <div class="meeting_info_area">
                             <p>${meeting.info}</p>
                             <p>${time_word}</p>
-                            <p style="font-size: 1.3em;">${meeting.date}</p>
+                            <p style="font-size: 0.85em;">${meeting.date.replace(/-/g, '/')}</p>
                         </div>
                         <div class="btns_area">
                             
@@ -390,16 +395,11 @@
                 // empty for now
             }
             else {
-                const dateInput = document.getElementById('date');
-                const monthPadded = String(month).padStart(2, '0');
-                const dayPadded = String(day).padStart(2, '0');
-                dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
-                
                 const form = document.getElementById('meeting-form');
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData)
-                window.pywebview.api.editMeeting(edit_id, data,time,selected_patient.id).then(() => {
-                    refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
+                window.pywebview.api.editMeeting(edit_id, data,time,patient.id).then(() => {
+                    refresh_data();
                     closeform('meeting-form');
                     
                 });
