@@ -13,8 +13,8 @@ from sqlalchemy.orm import joinedload
 Base.metadata.create_all(bind=engine)
 
 
-
-
+current_patient_id = 1
+page_to_load = 0
 # --- Path helpers ---
 def resource_path(relative_path):
     """Get absolute path to resource (works in dev and in PyInstaller exe)."""
@@ -39,6 +39,8 @@ def load_page(name):
         return get_url("assets/sendnreceive.html")
     elif name == "search":
         return get_url("assets/search.html")
+    elif name == "patient":
+        return get_url("assets/patient.html")
     return get_url("assets/404.html")
 
 
@@ -267,10 +269,57 @@ class API:
                 }
                 for m in rows
                 ]
-        
-    
-        
-    
+
+    def load_patient(self):
+        db = SessionLocal()
+        try:
+            p = db.query(Patient).filter_by(id=current_patient_id).first()
+            if not p:
+                return None
+
+            print(f"Loaded patient: {p.name} , id: {p.id}")
+
+            return {
+                "id": p.id,
+                "page_to_load": page_to_load,
+                "name": p.name,
+                "doctor": p.doctor,
+                "phone_num": p.phone_num,
+                "creation_date": p.creation_date.isoformat() if p.creation_date else None,
+                "treat_type": p.treat_type,
+                "transfer_state": p.transfer_state,
+                "implant_total": p.implant_total or 0,
+                "implant_current": p.implant_current or 0,
+                "implant_state": p.implant_state,
+                "meetings": [
+                    {
+                        "id": m.id,
+                        "meeting_type": m.meeting_type,
+                        "info": m.info,
+                        "date": m.date.isoformat() if m.date else None,
+                        "time": m.time,
+                    }
+                    for m in p.meetings
+                ],
+                "transfers": [
+                    {
+                        "id": t.id,
+                        "transfer_type": t.transfer_type,
+                        "date": t.date.isoformat() if t.date else None,
+                        "clinic_name": t.clinic_name,
+                    }
+                    for t in p.transfers
+                ],
+            }
+        finally:
+            db.close()
+
+    def set_current_patient(self, pid, page):
+        global current_patient_id, page_to_load
+        current_patient_id = pid
+        page_to_load = page
+        print(f"Set current patient to ID: {current_patient_id}, page_to_load: {page_to_load}")
+
 def on_loaded():
     # This will maximize the window after creation
     webview.windows[0].maximize()

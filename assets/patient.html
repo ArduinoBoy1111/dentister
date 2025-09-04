@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dentister</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="patient.css">
+    <link rel="icon" type="image/png" href="logo.png">
+</head>
+<body>
+    <main style="display: flex;width: 100%;height: 100vh;">
+
+        <div class="patient-card-area">
+            <div class="info_card">
+                <div class="right_div">
+                    <div class="base_info">
+                        <p class="name_p">سجاد صفاء سعدون</p>
+                        <p>رقم الهاتف: 07740629002</p>
+                        <p>الطبيب المشرف : د. علي الربيعي</p>
+                    </div>
+
+                </div>
+                <div class="left_div">
+                    <div class="tabs_area">
+                        <div class="tab active-tab">الحجوزات</div>
+                        <div class="tab">الارسال و اللاستقبال</div>
+                        <div class="tab">الزراعة</div>
+                        <div class="tab">التقويم</div>
+                    </div>
+                    <div class="tab_info_area">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <img src="logo.png" style="width: 70%;margin-top: 5%;" alt="">
+            <ul>
+                <li ><button  style=" text-align: center;width: 100%;"  onclick="changeView('index')">جميع الحجوزات</button></li>
+                <li ><button  style=" text-align: center;width: 100%;"  onclick="changeView('implant')">الزراعة</button></li>
+                <li ><button  style=" text-align: center;width: 100%;"  onclick="changeView('braces')">التقويم</button></li>
+                <li ><button style="font-size: 22px; text-align: center;width: 100%;" onclick="changeView('second')">الارسال و اللاستقبال</button></li>
+                <li><button style=" font-size: 22px;text-align: center;width: 100%;"  onclick="changeView('search')">البحث</button></li>
+            </ul>
+
+        </div>
+
+        <div id="success_card" class="success_card"> ! تمت إضافة الجلسة بنجاح </div>
+    </main>
+    
+    <form action="" hidden class="form" id="meeting-form">
+        <div class="form-card">
+            <div style="width: 100%;">
+                <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                    <div class="flex-line"></div>
+                    <h1 >تعديل الجلسة</h1>
+                    <div class="flex-line"></div>
+                </div>
+
+                <div class="form-group">
+                    <label  for="info">المعلومات</label>
+                    <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="2" ></textarea>
+                </div>
+
+                <div class="form-group" style="margin-top:4%;width: 50%;">
+                    <label  for="info">الوقت</label>
+                    
+                    <div style="margin-left:4%;">
+                        <button type="button" id="day_button" onclick="switchToDay()" class="time-button ">صباحاً</button>
+                        <button type="button" id="night_button" onclick="switchToNight()" class="time-button active">مساءً</button>
+                    </div>
+                </div>
+
+                <input type="date" name="date" id="date" hidden value="" required>
+            </div>
+
+
+
+            <div class="buttons-area" style="justify-content: center; align-items: center;">
+                <button type="button" class="ok-button" onclick="submitform('create_meeting')">موافق</button>
+                <button type="button" class="cancel-button" onclick="closeform('meeting-form',false)">إلغاء</button>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        let patient = null;
+        let time = null;
+        let editing = false;
+        let edit_id = null;
+
+        function changeView(view) {
+            window.pywebview.api.navigate(view);
+        }
+
+        function showMeetings(){
+            //set the active tab class to the appropirate one and remove form others
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+            tabs[0].classList.add('active-tab');
+
+            // changes the tab_info_area content to show meetings with their info 
+
+            const tabInfoArea = document.querySelector('.tab_info_area');
+            tabInfoArea.innerHTML = "";
+            patient.meetings.forEach(meeting => {
+                if(meeting.meeting_type == "general"){
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
+
+                    
+                    deleteButton.className = 'delete-button';
+                    deleteButton.onclick = () => {
+                        window.pywebview.api.deleteMeeting(meeting.id).then(() => {
+                            refresh_data();
+                        });
+                    };
+                    const editButton = document.createElement('button');
+                    editButton.innerHTML = '<svg viewBox="0 0 24.00 24.00" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M3.5362 5.29854C3.861 5.23721 4.19511 5.34035 4.42884 5.57407L6.90007 8.0453C7.21718 8.36241 7.73131 8.36241 8.04842 8.0453C8.36553 7.7282 8.36553 7.21406 8.04842 6.89695L5.57841 4.42694C5.34457 4.1931 5.24146 3.85877 5.30297 3.53383C5.36449 3.2089 5.58266 2.93539 5.8858 2.8032C8.06696 1.85206 10.7034 2.26698 12.4903 4.05384C13.9041 5.46765 14.4588 7.41411 14.1581 9.24419L21.0366 16.1227C22.3936 17.4796 22.3936 19.6797 21.0366 21.0367C19.6796 22.3936 17.4796 22.3936 16.1226 21.0367L9.24405 14.1581C7.41401 14.4588 5.46762 13.904 4.05384 12.4903C2.26556 10.702 1.85139 8.06276 2.80548 5.88058C2.93789 5.57772 3.2114 5.35986 3.5362 5.29854ZM4.30644 8.2801C4.30858 9.29283 4.69632 10.3043 5.46805 11.076C6.50688 12.1149 7.97927 12.4581 9.30695 12.1009C9.6523 12.008 10.021 12.1066 10.2739 12.3595L17.5368 19.6225C18.1127 20.1984 19.0465 20.1984 19.6224 19.6225C20.1983 19.0466 20.1983 18.1128 19.6224 17.5369L12.3595 10.274C12.1066 10.0211 12.008 9.65241 12.1009 9.30705C12.4582 7.97934 12.1149 6.50691 11.076 5.46805C10.3059 4.69791 9.29699 4.31018 8.28635 4.30645L9.46264 5.48274C10.5608 6.58089 10.5608 8.36136 9.46264 9.45952C8.36448 10.5577 6.58401 10.5577 5.48586 9.45952L4.30644 8.2801Z" fill="#ffffff"></path> </g></svg>';
+
+                    editButton.className = 'edit-button';
+
+                    editButton.onclick = () => {
+                        document.getElementById('info').value = meeting.info;
+                        if (meeting.time==1){
+                            switchToDay();
+                        }
+                        else{
+                            switchToNight();
+                        }
+
+                        edit_id = meeting.id;
+                        editing = true;
+                        showform('meeting-form');
+                    };
+
+                    let time_word = meeting.time == 1 ? "صباحاً" : "مساءً";
+                    const meetingDiv = document.createElement('div');
+                    meetingDiv.classList.add('meeting');
+                    meetingDiv.innerHTML = `
+                        <div class="meeting_info_area">
+                            <p>${meeting.info}</p>
+                            <p>${time_word}</p>
+                            <p style="font-size: 1.3em;">${meeting.date}</p>
+                        </div>
+                        <div class="btns_area">
+                            
+                        </div>
+                    `;
+                    meetingDiv.querySelector('.btns_area').appendChild(editButton);
+                    meetingDiv.querySelector('.btns_area').appendChild(deleteButton);
+                    tabInfoArea.appendChild(meetingDiv);
+                }
+            });
+
+        }
+        function showSendnReceive(){
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+            tabs[1].classList.add('active-tab');
+        }
+        function showImplant(){
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+            tabs[2].classList.add('active-tab');
+        }
+        function showBraces(){
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+            tabs[3].classList.add('active-tab');
+        }
+
+        window.addEventListener('pywebviewready', async function() {
+            patient = await window.pywebview.api.load_patient();
+            const infoCard = document.querySelector('.info_card');
+            if (patient) {
+
+                
+
+                infoCard.innerHTML = "";
+
+                const rightDiv = document.createElement('div');
+                rightDiv.classList.add('right_div');
+
+                const baseInfo = document.createElement('div');
+                baseInfo.classList.add('base_info');
+
+                let doctor  = "لا يوجد طبيب مشرف";
+                if (patient.doctor=="0") {
+                    doctor = "د.احمد رؤوف";
+                }
+                else if (patient.doctor=="1") {
+                    doctor = "د.علي الربيعي";
+                }
+                else if (patient.doctor=="2") {
+                    doctor = "د.محمد جاسم";
+                }
+                
+
+                baseInfo.innerHTML = `
+                    <p class="name_p">${patient.name}</p>
+                    <p>رقم الهاتف: ${patient.phone_num}</p>
+                    <p>الطبيب المشرف : ${doctor}</p>
+                `;
+                rightDiv.appendChild(baseInfo);
+
+                const leftDiv = document.createElement('div');
+                leftDiv.classList.add('left_div');
+
+                const tabsArea = document.createElement('div');
+                tabsArea.classList.add('tabs_area');
+                tabsArea.innerHTML = `
+                    <div class="tab active-tab">الحجوزات</div>
+                    <div class="tab">الارسال و اللاستقبال</div>
+                    <div class="tab">الزراعة</div>
+                    <div class="tab">التقويم</div>
+                `;
+                leftDiv.appendChild(tabsArea);
+
+                const tabInfoArea = document.createElement('div');
+                tabInfoArea.classList.add('tab_info_area');
+                leftDiv.appendChild(tabInfoArea);
+
+                infoCard.appendChild(rightDiv);
+                infoCard.appendChild(leftDiv);
+
+                if(patient.page_to_load == 0){
+                    showMeetings();
+                }
+                else if(patient.page_to_load == 1){
+                    showSendnReceive();
+                }
+                else if(patient.page_to_load == 2){
+                    showImplant();
+                }
+                else if(patient.page_to_load == 3){
+                    showBraces();
+                }
+
+            } else {
+                infoCard.innerHTML = `<p>لا يوجد بيانات لهذا المريض</p>`;
+            }
+        });
+
+        async function refresh_data(){
+            patient = await window.pywebview.api.load_patient();
+            const infoCard = document.querySelector('.info_card');
+            if (patient) {
+
+                
+
+                infoCard.innerHTML = "";
+
+                const rightDiv = document.createElement('div');
+                rightDiv.classList.add('right_div');
+
+                const baseInfo = document.createElement('div');
+                baseInfo.classList.add('base_info');
+
+                let doctor  = "لا يوجد طبيب مشرف";
+                if (patient.doctor=="0") {
+                    doctor = "د.احمد رؤوف";
+                }
+                else if (patient.doctor=="1") {
+                    doctor = "د.علي الربيعي";
+                }
+                else if (patient.doctor=="2") {
+                    doctor = "د.محمد جاسم";
+                }
+                
+
+                baseInfo.innerHTML = `
+                    <p class="name_p">${patient.name}</p>
+                    <p>رقم الهاتف: ${patient.phone_num}</p>
+                    <p>الطبيب المشرف : ${doctor}</p>
+                `;
+                rightDiv.appendChild(baseInfo);
+
+                const leftDiv = document.createElement('div');
+                leftDiv.classList.add('left_div');
+
+                const tabsArea = document.createElement('div');
+                tabsArea.classList.add('tabs_area');
+                tabsArea.innerHTML = `
+                    <div class="tab active-tab">الحجوزات</div>
+                    <div class="tab">الارسال و اللاستقبال</div>
+                    <div class="tab">الزراعة</div>
+                    <div class="tab">التقويم</div>
+                `;
+                leftDiv.appendChild(tabsArea);
+
+                const tabInfoArea = document.createElement('div');
+                tabInfoArea.classList.add('tab_info_area');
+                leftDiv.appendChild(tabInfoArea);
+
+                infoCard.appendChild(rightDiv);
+                infoCard.appendChild(leftDiv);
+
+                if(patient.page_to_load == 0){
+                    showMeetings();
+                }
+                else if(patient.page_to_load == 1){
+                    showSendnReceive();
+                }
+                else if(patient.page_to_load == 2){
+                    showImplant();
+                }
+                else if(patient.page_to_load == 3){
+                    showBraces();
+                }
+
+            } else {
+                infoCard.innerHTML = `<p>لا يوجد بيانات لهذا المريض</p>`;
+            }
+        }
+        
+        function flashOnce(el) {
+            // make it flex instantly
+            el.style.display = "flex";
+            el.style.opacity = "1";
+
+            // force reflow to apply instant show
+            void el.offsetWidth;
+
+            // re-enable fade
+            el.style.transition = "opacity 0.6s ease-in-out";
+
+            // after 1s, start fade out
+            setTimeout(() => {
+                el.style.opacity = "0";
+
+                // when fade ends, hide fully
+                el.addEventListener("transitionend", function handler() {
+                if (el.style.opacity === "0") {
+                    el.style.display = "none";
+                }
+                el.removeEventListener("transitionend", handler);
+                });
+            }, 900);
+        }
+
+        function showform(form_id,instant = false){
+            form = document.getElementById(form_id);
+            form.hidden = false;
+            if (!instant) {
+                form.style.opacity = 0;
+                form.style.transition = '0.15s ease-in-out';
+                requestAnimationFrame(() => {
+                form.style.opacity = 1;
+                });
+            }
+            else{
+                opacity = 1;
+            }
+        }
+        
+        function closeform(form_id,success = true){
+            const form = document.getElementById(form_id);
+            form.reset();
+            form.hidden  = true;
+            unselect_patient();
+            if(success){
+                const card = document.getElementById("success_card");
+                if(form_id=="meeting-form"){
+                    card.innerText = " ! تمت تعديل الجلسة بنجاح ";
+                }
+                else{
+                    card.innerText = " ! تمت تعديل معلومات المريض بنجاح ";
+                }
+                flashOnce();    
+            }
+            
+        
+        }
+
+        async function submitform(type) {
+            
+            if (!editing){
+                // empty for now
+            }
+            else {
+                const dateInput = document.getElementById('date');
+                const monthPadded = String(month).padStart(2, '0');
+                const dayPadded = String(day).padStart(2, '0');
+                dateInput.value = `${year}-${monthPadded}-${dayPadded}`;
+                
+                const form = document.getElementById('meeting-form');
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData)
+                window.pywebview.api.editMeeting(edit_id, data,time,selected_patient.id).then(() => {
+                    refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
+                    closeform('meeting-form');
+                    
+                });
+            }
+            
+            
+        }
+
+        function switchToDay(){
+            time = 1;
+            document.getElementById("day_button").classList.add('active');
+            document.getElementById("night_button").classList.remove('active');            
+        }
+        function switchToNight(){
+            time = 0;
+            document.getElementById("day_button").classList.remove('active');
+            document.getElementById("night_button").classList.add('active');          
+        }
+        
+    </script>
+</body>
+</html>
