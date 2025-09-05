@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="Dentister Logo" width="180">
+  <img src="assets/logo.png" alt="Dentister Logo" width="180">
 </p>
 
 # Dentister - Dental Clinic Management System
