@@ -20,8 +20,7 @@ main {
 }
 
 .sidebar {
-    width: 15vw;
-    
+    width: 15vw !important;
     background-color: var(--teal);
     color: white;
     padding: 0px;
@@ -229,11 +228,9 @@ input:focus {
 }
 .form-group input,select {
     height: 30px;
-    width: 80% !important;
+    width: 75% !important;
 }
-.form-group select{
-    width: 81.5% !important;
-}
+
 .form-group label {
     width: 20%;
     text-align: right;
@@ -771,7 +768,7 @@ input:focus {
     justify-content: space-between;
     align-items: center;
     border: 1px solid #ccc;
-    width: 80%;
+    width: 75%;
     border-radius: 4px;
     resize: none;
     padding: 0 6px;
