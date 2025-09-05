@@ -362,6 +362,21 @@ class API:
         finally:
             db.close()
 
+    def addAmount(self,amount,pid):
+        # get the iimplant_current and adds the amount on it then refresh the patient
+        db = SessionLocal()
+        try:
+            p = db.query(Patient).filter_by(id=pid).first()
+            if not p:
+                return None
+
+            p.implant_current += float(amount)
+            db.commit()
+            db.refresh(p)
+            return p.implant_current
+        finally:
+            db.close()
+
 def on_loaded():
     # This will maximize the window after creation
     webview.windows[0].maximize()
