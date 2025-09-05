@@ -174,7 +174,7 @@ class API:
             patient.meetings.append(new_meeting)
             if patient.implant_total == 0:
                 implant_total = data.get("implant_total")
-                if implant_total and implant_total > 0:
+                if implant_total and float(implant_total) > 0:
                     patient.implant_total = implant_total
 
         db.commit()
@@ -242,7 +242,35 @@ class API:
         db.refresh(new_transfer)
         db.refresh(patient)
         db.close()
+
+    def deleteTransfer(self, transfer_id):
+        db = SessionLocal()
+        transfer = db.query(Transfer).filter_by(id=transfer_id).first()
+        if transfer:
+            db.delete(transfer)
+            db.commit()
+        db.close()
+
+    def editTransfer(self, transfer_type, transfer_id, data):
+        data = dict(data)
+        transfer_type = transfer_type == "1"
+        clinic_name = data.get("clinic_name")
+        date_obj = data.get("date")
+
+        db = SessionLocal()
+        transfer = db.query(Transfer).filter_by(id=transfer_id).first()
+        if not transfer:
+            db.close()
+            return None  # or raise an exception
         
+        # Update fields
+        transfer.transfer_type = transfer_type
+        transfer.clinic_name = clinic_name
+        transfer.date = datetime.strptime(date_obj, "%Y-%m-%d").date()
+
+        db.commit()
+        db.refresh(transfer)
+        db.close()
 
     def get_meetings(self,meeting_type = "general"):
             db = SessionLocal()
@@ -319,6 +347,20 @@ class API:
         current_patient_id = pid
         page_to_load = page
         print(f"Set current patient to ID: {current_patient_id}, page_to_load: {page_to_load}")
+
+    def setImplantAmount(self, amount, pid):
+        db = SessionLocal()
+        try:
+            p = db.query(Patient).filter_by(id=pid).first()
+            if not p:
+                return None
+
+            p.implant_total = amount
+            db.commit()
+            db.refresh(p)
+            return p.implant_total
+        finally:
+            db.close()
 
 def on_loaded():
     # This will maximize the window after creation

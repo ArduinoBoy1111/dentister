@@ -66,6 +66,67 @@
         </div>
     </form>
 
+    <form action="" hidden class="form" id="set-implant-price-form">
+        <div class="form-card">
+            <div style="width: 100%;">
+                <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                    <div class="flex-line"></div>
+                    <h1 >تحديد سعر الزراعة</h1>
+                    <div class="flex-line"></div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="implant_total">سعر الزراعة</label>
+                    <input type="number" name="implant_total" id="implant_total placeholder="ادخل سعر الزراعة" >
+                </div>
+
+            </div>
+
+            <div class="buttons-area" style="justify-content: center; align-items: center;">
+                <button type="button"  class="ok-button" onclick="submitSetImplantPriceForm()">موافق</button>
+                <button type="button" class="cancel-button" onclick="closeform('set-implant-price-form',false)">إلغاء</button>
+            </div>
+        </div>
+    </form>
+
+    <form action="" hidden class="form" id="transfer-form">
+        <div class="form-card">
+            <div style="width: 100%;">
+                <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                    <div class="flex-line"></div>
+                    <h1 >اضافة مريض</h1>
+                    <div class="flex-line"></div>
+                </div>
+    
+                <div class="form-group">
+                    <label  for="transfer_type">نوع الحالة</label>
+                    <select name="transfer_type" id="transfer_type">
+                        <option id="send" value="1">ارسال</option>
+                        <option id="receive" value="0">استقبال</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="clinic_name">المختبر</label>
+                    <input type="text" name="clinic_name" id="clinic_name" placeholder="ادخل اسم المختبر" >
+                </div>
+
+                <div class="form-group">
+                    <label for="date">التاريخ</label>
+                    <input type="date" name="date" id="t_date" placeholder="ادخل التاريخ" >
+                </div>
+            </div>
+
+
+
+            <div class="buttons-area" style="justify-content: center; align-items: center;">
+                <button type="button" class="ok-button" onclick="submitTransferForm()">موافق</button>
+                <button type="button" class="cancel-button" onclick="closeform('transfer-form', false)">إلغاء</button> <!-- success=false -->
+            </div>
+        </div>
+    </form>
+
     <script>
         let patient = null;
         let page_to_load = -1;
@@ -174,7 +235,6 @@
         function showSendnReceive(){
             page_to_load = 1;
             renderTabs(1);
-            // Add your send/receive tab logic here
             const tabInfoArea = document.querySelector('.tab_info_area');
             tabInfoArea.innerHTML = "";
             patient.transfers.forEach(transfer => {
@@ -182,7 +242,7 @@
                 deleteButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
                 deleteButton.className = 'delete-button';
                 deleteButton.onclick = () => {
-                    window.pywebview.api.deleteMeeting(transfer.id).then(() => {
+                    window.pywebview.api.deleteTransfer(transfer.id).then(() => {
                         refresh_data();
                     });
                 };
@@ -190,18 +250,19 @@
                 editButton.innerHTML = '<svg viewBox="0 0 24.00 24.00" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M3.5362 5.29854C3.861 5.23721 4.19511 5.34035 4.42884 5.57407L6.90007 8.0453C7.21718 8.36241 7.73131 8.36241 8.04842 8.0453C8.36553 7.7282 8.36553 7.21406 8.04842 6.89695L5.57841 4.42694C5.34457 4.1931 5.24146 3.85877 5.30297 3.53383C5.36449 3.2089 5.58266 2.93539 5.8858 2.8032C8.06696 1.85206 10.7034 2.26698 12.4903 4.05384C13.9041 5.46765 14.4588 7.41411 14.1581 9.24419L21.0366 16.1227C22.3936 17.4796 22.3936 19.6797 21.0366 21.0367C19.6796 22.3936 17.4796 22.3936 16.1226 21.0367L9.24405 14.1581C7.41401 14.4588 5.46762 13.904 4.05384 12.4903C2.26556 10.702 1.85139 8.06276 2.80548 5.88058C2.93789 5.57772 3.2114 5.35986 3.5362 5.29854ZM4.30644 8.2801C4.30858 9.29283 4.69632 10.3043 5.46805 11.076C6.50688 12.1149 7.97927 12.4581 9.30695 12.1009C9.6523 12.008 10.021 12.1066 10.2739 12.3595L17.5368 19.6225C18.1127 20.1984 19.0465 20.1984 19.6224 19.6225C20.1983 19.0466 20.1983 18.1128 19.6224 17.5369L12.3595 10.274C12.1066 10.0211 12.008 9.65241 12.1009 9.30705C12.4582 7.97934 12.1149 6.50691 11.076 5.46805C10.3059 4.69791 9.29699 4.31018 8.28635 4.30645L9.46264 5.48274C10.5608 6.58089 10.5608 8.36136 9.46264 9.45952C8.36448 10.5577 6.58401 10.5577 5.48586 9.45952L4.30644 8.2801Z" fill="#ffffff"></path> </g></svg>';
                 editButton.className = 'edit-button';
                 editButton.onclick = () => {
-                    document.getElementById('info').value = transfer.info;
-                    document.getElementById('date').value = transfer.date;
-                    if (meeting.time==1){
-                        switchToDay();
+                    if (transfer.transfer_type == 1){
+                        document.getElementById('transfer_type').value = '1';
                     }
                     else{
-                        switchToNight();
+                        document.getElementById('transfer_type').value = '0';
                     }
+                    document.getElementById('clinic_name').value = transfer.clinic_name;
+                    document.getElementById('t_date').value = transfer.date;
                     edit_id = transfer.id;
                     editing = true;
                     showform('transfer-form');
                 };
+
                 let type_word = transfer.transfer_type == 1 ? "ارسال" : "استقبال";
                 const meetingDiv = document.createElement('div');   
                 meetingDiv.classList.add('meeting');
@@ -216,21 +277,20 @@
                 meetingDiv.querySelector('.btns_area').appendChild(editButton);
                 meetingDiv.querySelector('.btns_area').appendChild(deleteButton);
                 tabInfoArea.appendChild(meetingDiv);
-        });
-            meeting_type = "implant";
+            });
             const addMeetingBtn = document.createElement('button');
             addMeetingBtn.className = 'add-button';
             addMeetingBtn.textContent = '+';
             addMeetingBtn.style.margin = '24px auto 0 auto';
             addMeetingBtn.style.display = 'block';
             addMeetingBtn.onclick = () => {
-                document.getElementById('meeting-form').reset();
-                document.getElementById('info').value = '';
-                document.getElementById('date').value = '';
-                switchToNight();
+                document.getElementById('transfer-form').reset();
+                document.getElementById('transfer_type').value = '';
+                document.getElementById('clinic_name').value = '';
+                document.getElementById('t_date').value = '';
                 editing = false;
                 edit_id = null;
-                showform('meeting-form');
+                showform('transfer-form');
             };
             tabInfoArea.appendChild(addMeetingBtn);
         }
@@ -298,6 +358,20 @@
                 showform('meeting-form');
             };
             tabInfoArea.appendChild(addMeetingBtn);
+            
+            if(patient.implant_total == 0 ){
+                const control_area = document.getElementById('control_area');
+
+                control_area.innerHTML = "";
+                notify_p = document.createElement('p');
+                notify_p.textContent = "لا يوجد مبلغ محدد لعملية الزراعة بعد , هل تريد تحديد مبلغ ؟";
+                ok_button = document.createElement('button');
+                ok_button.textContent = "نعم";
+                ok_button.onclick = () => {
+                    showform('set-implant-price-form');
+                };
+                control_area.appendChild(notify_p);
+            }
         }
 
         function showBraces(){
@@ -407,7 +481,10 @@
                 leftDiv.appendChild(tabsArea);
                 const tabInfoArea = document.createElement('div');
                 tabInfoArea.classList.add('tab_info_area');
+                const control_area = document.createElement('div');
+                control_area.classList.add('control_area');
                 leftDiv.appendChild(tabInfoArea);
+                leftDiv.appendChild(control_area);
                 infoCard.appendChild(rightDiv);
                 infoCard.appendChild(leftDiv);
 
@@ -452,6 +529,9 @@
         }
 
         function showform(form_id,instant = false){
+            if(form_id=="transfer-form"){
+                document.getElementById('transfer_type').value = '1';
+            }
             form = document.getElementById(form_id);
             form.hidden = false;
             if (!instant) {
@@ -498,6 +578,33 @@
             }
         }
 
+        function submitTransferForm() {
+            const form = document.getElementById('transfer-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            if (!editing) {
+
+                window.pywebview.api.createTransfer(
+                    data.transfer_type,
+                    data,
+                    patient.id
+                ).then(() => {
+                    refresh_data();
+                    closeform('transfer-form');
+                });
+            } else {
+                window.pywebview.api.editTransfer(
+                    data.transfer_type,
+                    edit_id,
+                    data,
+                ).then(() => {
+                    refresh_data();
+                    closeform('transfer-form');
+                });
+            }
+        }
+
         function switchToDay(){
             time = 1;
             document.getElementById("day_button").classList.add('active');
@@ -507,6 +614,17 @@
             time = 0;
             document.getElementById("day_button").classList.remove('active');
             document.getElementById("night_button").classList.add('active');          
+        }
+
+        async function submitSetImplantPriceForm(){
+            // get the amount from the input filed and pass it to a pywebview func called setImplantAmount
+            const form = document.getElementById('set-implant-price-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            await window.pywebview.api.setImplantAmount(data.implant_total, patient.id);
+            await refresh_data();
+            closeform('set-implant-price-form');
         }
         
     </script>
