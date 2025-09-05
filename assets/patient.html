@@ -27,11 +27,22 @@
         </div>
 
         <div id="success_card" class="success_card"> ! تمت إضافة الجلسة بنجاح </div>
-        <div class="warning-card">
-            <p id="warning-message" style="font-size: 20px;"></p>
+        
+        
+        
+        <div id="reset-warning" class="warning-card">
+            <p id="reset-warning-message" style="font-size: 20px;"></p>
             <div class="buttons-area" style="justify-content: center; align-items: center;">
-                <button class="ok-button" onclick="addRemainingAmount()">نعم</button>
-                <button class="cancel-button" onclick="hideWarning()">لا</button>
+                <button class="ok-button" onclick="resetAmounts()">نعم</button>
+                <button class="cancel-button" onclick="hideResetWarning()">لا</button>
+            </div>
+        </div>
+
+        <div id="treatment-warning" class="warning-card">
+            <p id="treatment-warning-message" style="font-size: 20px;">هل أنت متأكد أنك تريد حذف الحالة لهذا المريض ؟</p>
+            <div class="buttons-area" style="justify-content: center; align-items: center;">
+                <button class="ok-button" onclick="resetTreatment()">نعم</button>
+                <button class="cancel-button" onclick="hideTreatmentWarning()">لا</button>
             </div>
         </div>
     </main>
@@ -84,8 +95,8 @@
 
 
                 <div class="form-group">
-                    <label for="implant_total">سعر الزراعة</label>
-                    <input type="number" name="implant_total" id="implant_total placeholder="ادخل سعر الزراعة" >
+                    <label for="implant_total">المبلغ</label>
+                    <input type="number" name="implant_total" id="implant_total" placeholder="ادخل المبلغ" >
                 </div>
 
             </div>
@@ -93,6 +104,36 @@
             <div class="buttons-area" style="justify-content: center; align-items: center;">
                 <button type="button"  class="ok-button" onclick="submitSetImplantPriceForm()">موافق</button>
                 <button type="button" class="cancel-button" onclick="closeform('set-implant-price-form',false)">إلغاء</button>
+            </div>
+        </div>
+    </form>
+
+    <form action="" hidden class="form" id="set-treatment-type-form">
+        <div class="form-card">
+            <div style="width: 100%;">
+                <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                    <div class="flex-line"></div>
+                    <h1 >تحديد نوع الحالة</h1>
+                    <div class="flex-line"></div>
+                </div>
+
+
+                <div class="form-group">
+                    <label  for="treat_type">نوع الحالة</label>
+                    <select name="treat_type" id="treat_type">
+                        <option value="تغليف">تغليف</option>
+                        <option value="ابتسامة">ابتسامة</option>
+                        <option value="زراعة">زراعة</option>
+                        <option value="متحرك">متحرك</option>
+                        <option value="اخرى">اخرى</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="buttons-area" style="justify-content: center; align-items: center;">
+                <button type="button"  class="ok-button" onclick="submitSetTreatmentTypeForm()">موافق</button>
+                <button type="button" class="cancel-button" onclick="closeform('set-treatment-type-form',false)">إلغاء</button>
             </div>
         </div>
     </form>
@@ -245,6 +286,8 @@
                     tabInfoArea.appendChild(meetingDiv);
                 }
             });
+            const control_area = document.getElementById('control_area');
+            control_area.innerHTML = "";
             meeting_type = "general";
             const addMeetingBtn = document.createElement('button');
             addMeetingBtn.className = 'add-button';
@@ -324,6 +367,84 @@
                 showform('transfer-form');
             };
             tabInfoArea.appendChild(addMeetingBtn);
+            const control_area = document.getElementById('control_area');
+            control_area.innerHTML = "";
+            if(patient.treat_type == "none"){
+                
+                control_area.style.justifyContent = "center";
+                notify_p = document.createElement('p');
+                notify_p.textContent = "لا توجد حالة محددة لهذا المريض , هل تريد تحديد حالة ؟";
+                ok_button = document.createElement('button');
+                ok_button.textContent = "نعم";
+                ok_button.className = "ok-button";
+                notify_p.className = "notify_p";
+                ok_button.onclick = () => {
+                    showform('set-treatment-type-form');
+                };
+                control_area.appendChild(notify_p);
+                control_area.appendChild(ok_button);
+
+            }
+            else{
+                if(!patient.implant_state){
+                    control_area.style.justifyContent = "space-between";
+                    const right_div = document.createElement('div');
+                    right_div.className = 'right_control_div';
+
+                    const treat_type = document.createElement('div');
+                    treat_type.className = 'total-amount';
+                    treat_type.innerText = ` نوع الحالة : ${patient.treat_type}`;
+                    right_div.appendChild(treat_type);
+
+
+                    control_area.appendChild(right_div);
+
+                    const left_div = document.createElement('div');
+                    left_div.className = 'left_control_div';
+
+                    const done_button = document.createElement('button');
+                    done_button.textContent = "اتمام";
+                    done_button.className = "done-button";
+                    done_button.onclick = () => {
+                        doneifyPatient();
+                    };
+                    left_div.appendChild(done_button);
+
+                    control_area.appendChild(left_div);
+
+                }
+                else{
+                    control_area.style.justifyContent = "space-between";
+                    const right_div = document.createElement('div');
+                    right_div.className = 'right_control_div';
+
+                    const treat_type = document.createElement('div');
+                    treat_type.className = 'total-amount';
+                    treat_type.innerText = ` نوع الحالة : ${patient.treat_type}`;
+                    right_div.appendChild(treat_type);
+
+
+                    control_area.appendChild(right_div);
+
+                    const left_div = document.createElement('div');
+                    left_div.className = 'left_control_div';
+
+                    const done_div = document.createElement('div');
+                    done_div.className = "done-div";
+                    done_div.textContent = "مكتمل";
+                    left_div.appendChild(done_div);
+
+                    const reset = document.createElement('button');
+                    reset.textContent = "حذف الحالة";
+                    reset.className = "reset-button";
+                    reset.onclick = () => {
+                        showTreatmentWarning();
+                    };
+                    left_div.appendChild(reset);
+
+                    control_area.appendChild(left_div);
+                }
+            }
         }
 
         function showImplant(){
@@ -389,11 +510,10 @@
                 showform('meeting-form');
             };
             tabInfoArea.appendChild(addMeetingBtn);
-            
+            const control_area = document.getElementById('control_area');
+            control_area.innerHTML = "";
             if(patient.implant_total == 0 ){
-                const control_area = document.getElementById('control_area');
-
-                control_area.innerHTML = "";
+                
                 control_area.style.justifyContent = "center";
                 notify_p = document.createElement('p');
                 notify_p.textContent = "لا يوجد مبلغ محدد لعملية الزراعة بعد , هل تريد تحديد مبلغ ؟";
@@ -409,76 +529,87 @@
 
             }
             else{
-                control_area.style.justifyContent = "space-between";
-                const right_div = document.createElement('div');
-                right_div.className = 'right_control_div';
+                if(patient.implant_total!=patient.implant_current){
+                    control_area.style.justifyContent = "space-between";
+                    const right_div = document.createElement('div');
+                    right_div.className = 'right_control_div';
 
-                const formatNumber = n => n !== undefined && n !== null ? n.toLocaleString('en-US') : '0';
+                    const formatNumber = n => n !== undefined && n !== null ? n.toLocaleString('en-US') : '0';
 
-                const total_amount = document.createElement('div');
-                total_amount.className = 'total-amount';
-                total_amount.innerText = ` المبلغ الكلي : ${formatNumber(patient.implant_total)}`;
-                right_div.appendChild(total_amount);
+                    const total_amount = document.createElement('div');
+                    total_amount.className = 'total-amount';
+                    total_amount.innerText = ` المبلغ الكلي : ${formatNumber(patient.implant_total)}`;
+                    right_div.appendChild(total_amount);
 
-                const current_amount = document.createElement('div');
-                current_amount.className = 'current-amount';
-                current_amount.innerText = `المبلغ الحالي : ${formatNumber(patient.implant_current)}`;
-                right_div.appendChild(current_amount);
-                
-                const remaining_amount = document.createElement('div');
-                remaining_amount.className = 'remaining-amount';
-                remaining_amount.innerText = `المبلغ المتبقي : ${formatNumber(patient.implant_total - patient.implant_current)}`;
-                right_div.appendChild(remaining_amount);
+                    const current_amount = document.createElement('div');
+                    current_amount.className = 'current-amount';
+                    current_amount.innerText = `المبلغ الحالي : ${formatNumber(patient.implant_current)}`;
+                    right_div.appendChild(current_amount);
+                    
+                    const remaining_amount = document.createElement('div');
+                    remaining_amount.className = 'remaining-amount';
+                    remaining_amount.innerText = `المبلغ المتبقي : ${formatNumber(patient.implant_total - patient.implant_current)}`;
+                    right_div.appendChild(remaining_amount);
 
-                control_area.appendChild(right_div);
+                    control_area.appendChild(right_div);
 
-                const left_div = document.createElement('div');
-                left_div.className = 'left_control_div';
+                    const left_div = document.createElement('div');
+                    left_div.className = 'left_control_div';
 
-                const add_amount_button = document.createElement('button');
-                add_amount_button.textContent = "إضافة مبلغ";
-                add_amount_button.className = "add-amount-button";
-                add_amount_button.onclick = () => {
-                    showform('add-implant-amount-form');
-                };
-                left_div.appendChild(add_amount_button);
+                    const add_amount_button = document.createElement('button');
+                    add_amount_button.textContent = "إضافة مبلغ";
+                    add_amount_button.className = "add-amount-button";
+                    add_amount_button.onclick = () => {
+                        showform('add-implant-amount-form');
+                    };
+                    left_div.appendChild(add_amount_button);
 
-                const add_remaining_amount = document.createElement('button');
-                add_remaining_amount.textContent = "إضافة مبلغ متبقي";
-                add_remaining_amount.className = "add-remaining-amount-button";
-                add_remaining_amount.onclick = () => {
-                    const remaining_amount = formatNumber(patient.implant_total - patient.implant_current);
-                    document.getElementById('warning-message').textContent = `هل انت متأكد من إضافة المبلغ المتبقي (${remaining_amount}) ؟`;
-                    showWarning();
-                };
-                left_div.appendChild(add_remaining_amount);
+                    control_area.appendChild(left_div);
 
-                control_area.appendChild(left_div);
+                }
+                else{
+                    control_area.style.justifyContent = "space-between";
+                    const right_div = document.createElement('div');
+                    right_div.className = 'right_control_div';
 
-                
+                    const formatNumber = n => n !== undefined && n !== null ? n.toLocaleString('en-US') : '0';
 
+                    const total_amount = document.createElement('div');
+                    total_amount.className = 'total-amount';
+                    total_amount.innerText = ` المبلغ الكلي : ${formatNumber(patient.implant_total)}`;
+                    right_div.appendChild(total_amount);
 
-                //const progressBar = document.createElement('div');
-                //progressBar.className = 'progress-bar';
+                    const current_amount = document.createElement('div');
+                    current_amount.className = 'current-amount';
+                    current_amount.innerText = `المبلغ الحالي : ${formatNumber(patient.implant_current)}`;
+                    right_div.appendChild(current_amount);
+                    
+                    const remaining_amount = document.createElement('div');
+                    remaining_amount.className = 'remaining-amount';
+                    remaining_amount.innerText = `المبلغ المتبقي : ${formatNumber(patient.implant_total - patient.implant_current)}`;
+                    right_div.appendChild(remaining_amount);
 
-                //const prog_amount = document.createElement('p');
-                //progressBar.appendChild(prog_amount);
+                    control_area.appendChild(right_div);
 
-                //const prog_content = document.createElement('div');
-                //prog_content.className = 'progress-content';
-                //const percentage = (patient.implant_current / patient.implant_total) * 100;
-                //prog_content.style.width = `${percentage}%`;
-                //const prog_inclosure = document.createElement('div');
-                //prog_inclosure.className = 'progress-inclosure';
-                
-                //prog_inclosure.appendChild(prog_content);
-                //progressBar.appendChild(prog_inclosure);
+                    const left_div = document.createElement('div');
+                    left_div.className = 'left_control_div';
 
-                
+                    const done_div = document.createElement('div');
+                    done_div.className = "done-div";
+                    done_div.textContent = "مكتمل";
+                    left_div.appendChild(done_div);
 
-                //control_area.appendChild(progressBar);
+                    const reset = document.createElement('button');
+                    reset.textContent = "حذف المبالغ المسجلة";
+                    reset.className = "reset-button";
+                    reset.onclick = () => {
+                        document.getElementById('reset-warning-message').textContent = `هل انت متأكد من حذف جميع المبالغ المسجلة ؟`;
+                        showResetWarning();
+                    };
+                    left_div.appendChild(reset);
 
-
+                    control_area.appendChild(left_div);
+                }
             }
         }
 
@@ -545,6 +676,8 @@
                 showform('meeting-form');
             };
             tabInfoArea.appendChild(addMeetingBtn);
+            const control_area = document.getElementById('control_area');
+            control_area.innerHTML = "";
         }
 
         window.addEventListener('pywebviewready', async function() {
@@ -735,6 +868,17 @@
             await refresh_data();
             closeform('set-implant-price-form');
         }
+
+        async function submitSetTreatmentTypeForm(){
+            // get the amount from the input filed and pass it to a pywebview func called setImplantAmount
+            const form = document.getElementById('set-treatment-type-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            await window.pywebview.api.setTreatmentType(data.treat_type, patient.id);
+            await refresh_data();
+            closeform('set-treatment-type-form');
+        }
         
         
         async function addAmount(){
@@ -747,22 +891,41 @@
             await refresh_data();
             closeform('add-implant-amount-form');
         }
-        function showWarning() {
-            const warningCard = document.querySelector('.warning-card');
+
+        function showResetWarning() {
+            const warningCard = document.getElementById('reset-warning');
             warningCard.style.display = 'flex';
         }
-        function hideWarning() {
-            const warningCard = document.querySelector('.warning-card');
+        function hideResetWarning() {
+            const warningCard = document.getElementById('reset-warning');
             warningCard.style.display = 'none';
         }
-        async function addRemainingAmount(){
-            // get the amount from the input filed and pass it to a pywebview func called setImplantAmount
-            await window.pywebview.api.addAmount(patient.implant_total - patient.implant_current, patient.id);
-            await refresh_data();
-            hideWarning();
+        function showTreatmentWarning() {
+            const warningCard = document.getElementById('treatment-warning');
+            warningCard.style.display = 'flex';
         }
-        
-        
+        function hideTreatmentWarning() {
+            const warningCard = document.getElementById('treatment-warning');
+            warningCard.style.display = 'none';
+        }
+        function resetAmounts(){
+            window.pywebview.api.resetAmounts(patient.id).then(() => {
+                refresh_data();
+                hideResetWarning();
+            });
+        }
+        function doneifyPatient(){
+            window.pywebview.api.doneifyPatient(patient.id).then(() => {
+                refresh_data();
+            });
+        }
+        function resetTreatment(){
+            window.pywebview.api.resetTreatment(patient.id).then(() => {
+                refresh_data();
+                hideTreatmentWarning();
+            });
+        }
+
     </script>
 </body>
 </html>

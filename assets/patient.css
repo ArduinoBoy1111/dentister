@@ -105,6 +105,7 @@
     transition: 0.1s ease-in-out;
     flex-wrap: wrap;
     gap: 16px;
+    position: relative;
 }
 
 .tab{
@@ -178,7 +179,7 @@
     justify-content: start;
     flex-wrap: wrap;
     width: 35%;
-    height: 95%;
+    height: 90%;
 }
 .left_control_div{
     display: flex;
@@ -276,3 +277,38 @@
     }
 }
 
+.done-div{
+    height: 30%;
+    width: fit-content;
+    padding: 4px 20px ;
+    background: rgb(109, 255, 109);
+    border-radius: 8px;
+    color: #006000; 
+    position: relative;
+    top: 10%;
+    left: 10%;
+}
+
+.control_area:hover .reset-button {
+    opacity: 1;
+}
+
+.reset-button{
+    height: 25%;
+    width: fit-content;
+    padding: 2px 10px ;
+    background: rgb(255, 109, 109);
+    border-radius: 8px;
+    color: #600000;
+    transform: scale(1);
+    transition: 0.2s ease-in-out;
+    border: none;
+    margin-left: 4%;
+    font-size: 1.1em;
+    opacity: 0;
+}
+
+.reset-button:hover{
+    transform: scale(1.05);
+    transition: 0.2s ease-in-out;
+}

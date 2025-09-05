@@ -377,6 +377,65 @@ class API:
         finally:
             db.close()
 
+    def resetAmounts(self, pid):
+        db = SessionLocal()
+        try:
+            p = db.query(Patient).filter_by(id=pid).first()
+            if not p:
+                return None
+
+            p.implant_current = 0
+            p.implant_total = 0
+            p.implant_state = False
+            db.commit()
+            db.refresh(p)
+            return p.implant_current
+        finally:
+            db.close()
+
+    def setTreatmentType(self, treat_type, pid):
+        db = SessionLocal()
+        try:
+            p = db.query(Patient).filter_by(id=pid).first()
+            if not p:
+                return None
+
+            p.treat_type = treat_type
+            db.commit()
+            db.refresh(p)
+            return p.treat_type
+        finally:
+            db.close()
+
+    def doneifyPatient(self, pid):
+        db = SessionLocal()
+        try:
+            p = db.query(Patient).filter_by(id=pid).first()
+            if not p:
+                return None
+
+            p.implant_state = True
+            db.commit()
+            db.refresh(p)
+            return p.implant_state
+        finally:
+            db.close()
+
+    def resetTreatment(self, pid):
+        db = SessionLocal()
+        try:
+            p = db.query(Patient).filter_by(id=pid).first()
+            if not p:
+                return None
+
+            p.treat_type = None
+            p.implant_state = False
+            db.commit()
+            db.refresh(p)
+            return p.treat_type
+        finally:
+            db.close()
+
 def on_loaded():
     # This will maximize the window after creation
     webview.windows[0].maximize()
