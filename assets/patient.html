@@ -45,6 +45,14 @@
                 <button class="cancel-button" onclick="hideTreatmentWarning()">لا</button>
             </div>
         </div>
+
+        <div id="delete-patient-form" class="warning-card">
+            <p id="delete-patient-message" style="font-size: 20px;">هل أنت متأكد أنك تريد حذف هذا المريض ؟</p>
+            <div class="buttons-area" style="justify-content: center; align-items: center;">
+                <button class="ok-button" onclick="deletePatient()">نعم</button>
+                <button class="cancel-button" onclick="hideDeleteWarning()">لا</button>
+            </div>
+        </div>
     </main>
     
     <form action="" hidden class="form" id="meeting-form">
@@ -80,6 +88,55 @@
             <div class="buttons-area" style="justify-content: center; align-items: center;">
                 <button type="button" id="submit_button" class="ok-button">موافق</button>
                 <button type="button" class="cancel-button" onclick="closeform('meeting-form',false)">إلغاء</button>
+            </div>
+        </div>
+    </form>
+
+    <form action="" hidden class="form" id="edit-patient-form">
+        <div class="form-card">
+            <div style="width: 100%;">
+                <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
+                    <div class="flex-line"></div>
+                    <h1 >تعديل معلومات المريض</h1>
+                    <div class="flex-line"></div>
+                </div>
+
+                <div class="form-group">
+                    <label  for="name">الاسم</label>
+                    <input type="text" name="name" id="name" placeholder="ادخل الاسم" >
+                </div>
+                <div class="form-group">
+                    <label for="phone_num">رقم الهاتف</label>
+                    <input type="text" name="phone_num" id="phone_num" placeholder="ادخل رقم الهاتف" >
+                </div>
+
+
+                <div id="implant_total_group" class="form-group">
+                    <label for="implant_total">مبلغ الزراعة</label>
+                    <input type="number" name="implant_total" id="implant_total" placeholder="ادخل المبلغ الكلي" >
+                </div>
+
+                <div id="implant_current_group" class="form-group">
+                    <label for="implant_current">مبلغ المدخل</label>
+                    <input type="number" name="implant_current" id="implant_current" placeholder="ادخل المبلغ المدخل" >
+                </div>
+
+                <div id="treat_type_group" class="form-group">
+                    <label  for="treat_type">نوع الحالة</label>
+                    <select name="treat_type" id="treat_type">
+                        <option value="تغليف">تغليف</option>
+                        <option value="ابتسامة">ابتسامة</option>
+                        <option value="زراعة">زراعة</option>
+                        <option value="متحرك">متحرك</option>
+                        <option value="اخرى">اخرى</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="buttons-area" style="justify-content: center; align-items: center;">
+                <button type="button" onclick="submitEditPatientForm()" class="ok-button">موافق</button>
+                <button type="button" class="cancel-button" onclick="closeform('edit-patient-form',false)">إلغاء</button>
             </div>
         </div>
     </form>
@@ -288,6 +345,7 @@
             });
             const control_area = document.getElementById('control_area');
             control_area.innerHTML = "";
+            control_area.style.height = "12%";
             meeting_type = "general";
             const addMeetingBtn = document.createElement('button');
             addMeetingBtn.className = 'add-button';
@@ -369,6 +427,7 @@
             tabInfoArea.appendChild(addMeetingBtn);
             const control_area = document.getElementById('control_area');
             control_area.innerHTML = "";
+            control_area.style.height = "12%";
             if(patient.treat_type == "none"){
                 
                 control_area.style.justifyContent = "center";
@@ -389,7 +448,7 @@
                 if(!patient.implant_state){
                     control_area.style.justifyContent = "space-between";
                     const right_div = document.createElement('div');
-                    right_div.className = 'right_control_div';
+                    right_div.className = 'right_control_div_custom';
 
                     const treat_type = document.createElement('div');
                     treat_type.className = 'total-amount';
@@ -416,7 +475,7 @@
                 else{
                     control_area.style.justifyContent = "space-between";
                     const right_div = document.createElement('div');
-                    right_div.className = 'right_control_div';
+                    right_div.className = 'right_control_div_custom';
 
                     const treat_type = document.createElement('div');
                     treat_type.className = 'total-amount';
@@ -512,6 +571,7 @@
             tabInfoArea.appendChild(addMeetingBtn);
             const control_area = document.getElementById('control_area');
             control_area.innerHTML = "";
+            control_area.style.height = "12%";
             if(patient.implant_total == 0 ){
                 
                 control_area.style.justifyContent = "center";
@@ -678,6 +738,7 @@
             tabInfoArea.appendChild(addMeetingBtn);
             const control_area = document.getElementById('control_area');
             control_area.innerHTML = "";
+            control_area.style.height = "12%";
         }
 
         window.addEventListener('pywebviewready', async function() {
@@ -712,7 +773,60 @@
                     <p class="name_p">${patient.name}</p>
                     <p>رقم الهاتف: ${patient.phone_num}</p>
                     <p>الطبيب المشرف : ${doctor}</p>
+                    
+                    
                 `;
+
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'buttons_div';
+
+                patient_edit_button = document.createElement('button');
+                patient_edit_button.className = 'patient-edit-button';
+                patient_edit_button.textContent = 'تعديل معلومات المريض';
+
+                patient_edit_button.onclick = () => {
+                    // Open edit patient form
+                    showform('edit-patient-form');
+
+                    document.getElementById('name').value = patient.name;
+                    document.getElementById('phone_num').value = patient.phone_num;
+
+                    if(patient.treat_type!="none"){
+                        document.getElementById('treat_type').value = patient.treat_type;
+                        document.getElementById('treat_type_group').style.display = 'block';
+                    }
+                    else {
+                        document.getElementById('treat_type').value = '';
+                        document.getElementById('treat_type_group').style.display = 'none';
+                    }
+                    if(patient.implant_total!=0){
+                        document.getElementById('implant_total').value = patient.implant_total;
+                        document.getElementById('implant_total_group').style.display = 'block';
+                        document.getElementById('implant_current_group').style.display = 'block';
+                        document.getElementById('implant_current').value = patient.implant_current;
+                    }
+                    else {
+                        document.getElementById('implant_total').value = '';
+                        document.getElementById('implant_total_group').style.display = 'none';
+                        document.getElementById('implant_current_group').style.display = 'none';
+                        document.getElementById('implant_current').value = '';
+                    }
+                    
+                    
+                };
+                buttonsDiv.appendChild(patient_edit_button);
+
+                patient_delete_button = document.createElement('button');
+                patient_delete_button.className = 'patient-delete-button';
+                patient_delete_button.textContent = 'حذف المريض';
+
+                patient_delete_button.onclick = () => {
+                    // Open delete patient confirmation
+                    showDeleteWarning();
+                };
+                buttonsDiv.appendChild(patient_delete_button);
+
+                baseInfo.appendChild(buttonsDiv);
                 rightDiv.appendChild(baseInfo);
 
                 const leftDiv = document.createElement('div');
@@ -908,6 +1022,14 @@
             const warningCard = document.getElementById('treatment-warning');
             warningCard.style.display = 'none';
         }
+        function showDeleteWarning() {
+            const warningCard = document.getElementById('delete-patient-form');
+            warningCard.style.display = 'flex';
+        }
+        function hideDeleteWarning() {
+            const warningCard = document.getElementById('delete-patient-form');
+            warningCard.style.display = 'none';
+        }
         function resetAmounts(){
             window.pywebview.api.resetAmounts(patient.id).then(() => {
                 refresh_data();
@@ -926,6 +1048,22 @@
             });
         }
 
+        function submitEditPatientForm(){
+            const form = document.getElementById('edit-patient-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            window.pywebview.api.editPatient(data, patient.id).then(() => {
+                refresh_data();
+                closeform('edit-patient-form');
+            });
+        }
+        function deletePatient(){
+            window.pywebview.api.deletePatient(patient.id).then(() => {
+                hideDeleteWarning();
+                changeView('index');
+            });
+        }
     </script>
 </body>
 </html>

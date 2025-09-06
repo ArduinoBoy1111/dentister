@@ -141,7 +141,47 @@ class API:
             "doctor": patient.doctor,
             "creation_date": patient.creation_date.isoformat()
         }
-    
+
+    def editPatient(self,data,pid):
+        data = dict(data)
+        name = data.get("name")
+        phone_num = data.get("phone_num")
+        implant_total = data.get("implant_total")
+        implant_current = data.get("implant_current")
+        treat_type = data.get("treat_type")
+
+        db = SessionLocal()
+        patient = db.query(Patient).filter(Patient.id == pid).first()
+        if not patient:
+            db.close()
+            return None
+
+        patient.name = name
+        patient.phone_num = phone_num
+        if treat_type and treat_type!="":
+            patient.treat_type = treat_type
+
+        if implant_total and implant_total!="":
+            patient.implant_total = implant_total
+
+        if implant_current and implant_current!="":
+            patient.implant_current = implant_current
+
+        db.commit()
+        db.refresh(patient)
+        db.close()
+
+    def deletePatient(self, pid):
+        db = SessionLocal()
+        # Delete all meetings for this patient
+        db.query(Meeting).filter(Meeting.patient_id == int(pid)).delete()
+        # Delete all transfers for this patient
+        db.query(Transfer).filter(Transfer.patient_id == int(pid)).delete()
+        # Delete the patient itself
+        db.query(Patient).filter(Patient.id == int(pid)).delete()
+        db.commit()
+        db.close()
+        
     def deleteMeeting(self, id):
         db = SessionLocal()
         db.query(Meeting).filter(Meeting.id == int(id)).delete()
@@ -428,7 +468,7 @@ class API:
             if not p:
                 return None
 
-            p.treat_type = None
+            p.treat_type = "none"
             p.implant_state = False
             db.commit()
             db.refresh(p)
