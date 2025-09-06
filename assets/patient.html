@@ -60,7 +60,7 @@
             <div style="width: 100%;">
                 <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
                     <div class="flex-line"></div>
-                    <h1 >تعديل الجلسة</h1>
+                    <h1 id="form-name">تعديل الجلسة</h1>
                     <div class="flex-line"></div>
                 </div>
 
@@ -113,7 +113,7 @@
 
                 <div id="implant_total_group" class="form-group">
                     <label for="implant_total">مبلغ الزراعة</label>
-                    <input type="number" name="implant_total" id="implant_total" placeholder="ادخل المبلغ الكلي" >
+                    <input  type="number" name="implant_total" id="implant_total" placeholder="ادخل المبلغ الكلي" >
                 </div>
 
                 <div id="implant_current_group" class="form-group">
@@ -224,7 +224,7 @@
             <div style="width: 100%;">
                 <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
                     <div class="flex-line"></div>
-                    <h1 >اضافة مريض</h1>
+                    <h1 >اضافة ارسال/استقبال</h1>
                     <div class="flex-line"></div>
                 </div>
     
@@ -325,6 +325,7 @@
                         }
                         edit_id = meeting.id;
                         editing = true;
+                        document.getElementById('form-name').innerText = "تعديل الجلسة";
                         showform('meeting-form');
                     };
                     let time_word = meeting.time == 1 ? "صباحاً" : "مساءً";
@@ -353,6 +354,7 @@
             addMeetingBtn.style.margin = '24px auto 0 auto';
             addMeetingBtn.style.display = 'block';
             addMeetingBtn.onclick = () => {
+                document.getElementById('form-name').innerText = "اضافة جلسة";
                 document.getElementById('meeting-form').reset();
                 document.getElementById('info').value = '';
                 document.getElementById('date').value = '';
@@ -535,6 +537,7 @@
                         }
                         edit_id = meeting.id;
                         editing = true;
+                        document.getElementById('form-name').innerText = "تعديل الجلسة";
                         showform('meeting-form');
                     };
                     let time_word = meeting.time == 1 ? "صباحاً" : "مساءً";
@@ -560,6 +563,7 @@
             addMeetingBtn.style.margin = '24px auto 0 auto';
             addMeetingBtn.style.display = 'block';
             addMeetingBtn.onclick = () => {
+                document.getElementById('form-name').innerText = "اضافة جلسة";
                 document.getElementById('meeting-form').reset();
                 document.getElementById('info').value = '';
                 document.getElementById('date').value = '';
@@ -702,6 +706,7 @@
                         }
                         edit_id = meeting.id;
                         editing = true;
+                        document.getElementById('form-name').innerText = "تعديل الجلسة";
                         showform('meeting-form');
                     };
                     let time_word = meeting.time == 1 ? "صباحاً" : "مساءً";
@@ -727,6 +732,7 @@
             addMeetingBtn.style.margin = '24px auto 0 auto';
             addMeetingBtn.style.display = 'block';
             addMeetingBtn.onclick = () => {
+                document.getElementById('form-name').innerText = "اضافة جلسة";
                 document.getElementById('meeting-form').reset();
                 document.getElementById('info').value = '';
                 document.getElementById('date').value = '';
@@ -793,7 +799,7 @@
 
                     if(patient.treat_type!="none"){
                         document.getElementById('treat_type').value = patient.treat_type;
-                        document.getElementById('treat_type_group').style.display = 'block';
+                        document.getElementById('treat_type_group').style.display = 'flex';
                     }
                     else {
                         document.getElementById('treat_type').value = '';
@@ -801,8 +807,8 @@
                     }
                     if(patient.implant_total!=0){
                         document.getElementById('implant_total').value = patient.implant_total;
-                        document.getElementById('implant_total_group').style.display = 'block';
-                        document.getElementById('implant_current_group').style.display = 'block';
+                        document.getElementById('implant_total_group').style.display = 'flex';
+                        document.getElementById('implant_current_group').style.display = 'flex';
                         document.getElementById('implant_current').value = patient.implant_current;
                     }
                     else {

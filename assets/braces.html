@@ -108,7 +108,7 @@
                     <!--##########################-->
                     <div class="form-group">
                         <label  for="search ">المريض</label>
-                        <input  style="width: 75% !important;" oninput="listPatients()" onfocus="listPatients()" id="search" name="search" type="text">
+                        <input  oninput="listPatients()" onfocus="listPatients()" id="search" name="search" type="text">
                         <div style="display: none;" id="current_patient" class="selected_patient">
                             <p id="current_patient_name"></p>
                             <p id="current_patient_number"></p>
@@ -151,42 +151,7 @@
             </div>
         </div>
 
-        <form hidden action=""  class="form" style="height: 45%;" id="mini-form">
-            <div class="form-card">
-                <div style="width: 100%;">
-                    <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
-                        <div class="flex-line"></div>
-                        <h1 >اضافة مريض</h1>
-                        <div class="flex-line"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label  for="info">المعلومات</label>
-                        <textarea name="info" id="info2" placeholder="ادخل المعلومات" rows="4" ></textarea>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top:4%;width: 50%;">
-                        <label>الوقت</label>
-                        
-                        <div style="margin-left:4%;">
-                            <button id="mini_day_button" onclick="switchToDay()" class="time-button ">صباحاً</button>
-                            <button id="mini_night_button" onclick="switchToNight()" class="time-button active">مساءً</button>
-                        </div>
-                    </div>
-                    
-
-                    <input type="date" name="date" id="date" hidden value="" required>
-                </div>
-
-
-
-                <div class="buttons-area" style="justify-content: center; align-items: center;">
-                    <button type="button" class="ok-button" onclick="completeTransfer()">موافق</button>
-                    <button type="button" class="cancel-button" onclick="closeform(true,false)">إلغاء</button>
-                </div>
-            </div>
-        </form>
-
+        
         <div id="success_card" class="success_card"> ! تمت إضافة الجلسة بنجاح </div>
         <div id="no_patient_card" class="no_patient_card">يرجى ادخال المريض اولاً </div>
         
