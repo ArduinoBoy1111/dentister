@@ -340,16 +340,7 @@
         function showform(form_id,instant = false){
             form = document.getElementById(form_id);
             form.hidden = false;
-            if (!instant) {
-                form.style.opacity = 0;
-                form.style.transition = '0.15s ease-in-out';
-                requestAnimationFrame(() => {
-                form.style.opacity = 1;
-                });
-            }
-            else{
-                opacity = 1;
-            }
+            form.style.opacity = 1;
         }
         
         function closeform(form_id,success = true){
