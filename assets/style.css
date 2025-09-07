@@ -318,7 +318,7 @@ input:focus {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    height: 50%;
+    height: 100%;
 }
 .lower-div {
     display: flex;
@@ -541,17 +541,17 @@ input:focus {
 
 }
 .search_list {
-    width: 55%;
+    width: 100%;
     margin-top: 20px;
-    border: #1a1a1a 1px solid;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    height: 99%;
+    height: min-content;
     border-radius: 15px;
-    background-color: #fafafa;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: auto;
+    align-items: start;
+    overflow-y: auto;
+    gap: 1%;
+    flex-wrap: wrap;
+    padding-top: 1%;
+    padding-bottom: 1%;
 }
 .sidebar img{
     border: hsl(177, 100%,48%)  7px outset;
@@ -736,6 +736,10 @@ input:focus {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
+#search_2:focus{
+    transition: 0.2s ease-in-out;
+
+}
 .patient_div{
     display: flex;
     width: 99%;
@@ -811,3 +815,20 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0;
 }
 
+.search_patient_card{
+    width: 29% ;
+    height: 10vh !important;
+    min-height: 10vh !important;
+    border-radius: 12px;
+    border: 1px solid #272727;
+    background-color: rgb(255, 255, 255);
+    transition: 0.2s ease-in-out;
+    margin-bottom: 0.5%;
+    padding: 2px 12px;
+    overflow: hidden;
+}
+.search_patient_card:hover{
+    border: var(--teal) 1px solid;
+    transition: 0.2s ease-in-out;
+    cursor: pointer;
+}
