@@ -442,10 +442,14 @@
                 upper_div.className = 'upper-div';
                 meetingDiv.appendChild(upper_div);
 
-                upper_div.onclick = () => {
-                    window.pywebview.api.set_current_patient(meeting.patient.id, 0);
-                    window.pywebview.api.navigate('patient');
-                }
+                meetingDiv.addEventListener('click', (e) => {
+                // if click was inside the actions area, do nothing
+                if (e.target.closest('.patient-buttons-area')) return;
+
+                window.pywebview.api.set_current_patient(meeting.patient.id, 0);
+                window.pywebview.api.navigate('patient');
+                });
+
 
                 lower_div = document.createElement('div');
                 lower_div.className = 'lower-div';

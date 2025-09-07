@@ -301,6 +301,11 @@ input:focus {
     margin-bottom: 10px;
 
 }
+.meeting-card:hover {
+    background-color: #fffffce3;
+    transition: 0.2s ease-in-out;
+    scale: 102%;
+}
 .patient-card:has(.delete-button:hover){
     animation: nudge_low 0.5s ease-in-out infinite;
 }

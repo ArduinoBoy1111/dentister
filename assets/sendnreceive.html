@@ -311,6 +311,14 @@
                     const user_card = document.createElement("div");
                     user_card.className = "user_card";
 
+                    user_card.addEventListener('click', (e) => {
+                    // if click was inside the actions area, do nothing
+                    if (e.target.closest('.buttons-space')) return;
+
+                    window.pywebview.api.set_current_patient(u.id, 1);
+                    window.pywebview.api.navigate('patient');
+                    });
+
                     const upper_div = document.createElement("div");
                     upper_div.className = "upper-div";
 
