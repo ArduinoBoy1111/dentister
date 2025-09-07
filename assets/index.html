@@ -243,7 +243,6 @@
 
                         date.value = now_date; //date is being set 
 
-                        document.getElementById('mini-form').hidden = false;
                         document.getElementById('info2').value  = document.getElementById('info').value;
                         document.getElementById('info2').value  = document.getElementById('info').value;
                         
@@ -622,16 +621,14 @@
             time = 1;
             document.getElementById("day_button").classList.add('active');
             document.getElementById("night_button").classList.remove('active');
-            document.getElementById("mini_day_button").classList.add('active');
-            document.getElementById("mini_night_button").classList.remove('active');
+            
             
         }
         function switchToNight(){
             time = 0;
             document.getElementById("day_button").classList.remove('active');
             document.getElementById("night_button").classList.add('active');
-            document.getElementById("mini_day_button").classList.remove('active');
-            document.getElementById("mini_night_button").classList.add('active');
+
             
         }
         function completeTransfer(){
