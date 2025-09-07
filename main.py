@@ -2,12 +2,13 @@ import os
 import sys
 import urllib.parse
 import webview
-from datetime import datetime ,date
+from datetime import datetime, date, timedelta
 import subprocess
 from database import Base, engine, SessionLocal 
 from models import Patient, Transfer, Meeting
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
+import random
 
 # --- Database setup ---
 Base.metadata.create_all(bind=engine)
@@ -49,6 +50,23 @@ def _sort_meetings(iterable):
 def _sort_transfers(iterable):
     # newest date first, then newest id
     return sorted(iterable, key=lambda t: (t.date, t.id), reverse=True)
+
+
+def _rand_phone(existing: set) -> str:
+    """
+    Iraqi mobile numbers are 11 digits, starting with '07'.
+    Ensures uniqueness within this seeding session.
+    """
+    while True:
+        num = "07" + "".join(str(random.randint(0, 9)) for _ in range(9))
+        if num not in existing:
+            existing.add(num)
+            return num
+
+def _weighted_choice(items_with_weights):
+    items, weights = zip(*items_with_weights)
+    return random.choices(items, weights=weights, k=1)[0]
+
 
 # --- API for JS ---
 class API:
@@ -505,6 +523,144 @@ class API:
             return p.treat_type
         finally:
             db.close()
+            
+    def seed_demo(self, count: int = 50, seed: int | None = 42, clear: bool = False):
+        """
+        Generate demo data: `count` Patients with random Meetings and Transfers.
+        - Realistic Arabic names, clinics, notes.
+        - Dates spread across recent months/next weeks.
+        - Phone numbers Iraqi-style, unique within this run.
+        - Keeps your sorting logic working (dates are real Date objects).
+        
+        Call from JS: window.pywebview.api.seed_demo(50, 42, false)
+        """
+        if seed is not None:
+            random.seed(seed)
+
+        db = SessionLocal()
+        try:
+            if clear:
+                db.query(Meeting).delete()
+                db.query(Transfer).delete()
+                db.query(Patient).delete()
+                db.commit()
+
+            first_names = [
+                "حسن","حسين","علي","محمد","مهند","مصطفى","يوسف","كرار","مرتضى","أحمد",
+                "نور","فاطمة","زهراء","مريم","سارة","بتول","رقيّة","هدى","آمنة","زينب"
+            ]
+            last_names = [
+                "التميمي","الهاشمي","العطواني","الكعبي","الموسوي","الشمري","الجنابي",
+                "الدليمي","الطائي","السعدي","البياتي","الربيعي","الزيدي","الجبوري"
+            ]
+            doctors = ["د.احمد رؤوف", "د.مصطفى", "د.مرتضى", "all"]
+
+            # Seen in your data + common ones
+            treat_types = ["none", "زراعة", "متحرك", "تغليف", "ابتسامة"]
+            clinics = ["العيادة","الجوهرة","التراث","الأحلام","الالماس","العميد","الواقعة","الشفاء","المستقبل","الواحة"]
+
+            meeting_types = ["general", "implant", "braces"]
+            general_infos = ["حشوة","حشوة جذر","تنظيف","تبييض","قلع","قلع سن العقل","تصليح كسر","علاج لثة"]
+            implant_infos = ["زراعة","زراعة كاملة","تثبيت مسمار","تركيب دعامة","كشف لثة"]
+            braces_infos  = ["تقويم علوي","تقويم سفلي","تقويم علوي حديدي","تقويم سفلي حديدي","شد أسلاك","استبدال مطاط"]
+
+            # weights to make data look natural
+            treat_weights = {
+                "none": 40, "زراعة": 25, "متحرك": 15, "تغليف": 10, "ابتسامة": 10
+            }
+            meeting_type_weights = {
+                "general": 60, "implant": 25, "braces": 15
+            }
+
+            used_phones = set()
+            created_patients = 0
+            created_meetings = 0
+            created_transfers = 0
+
+            today = date.today()
+
+            for _ in range(count):
+                # --- Patient core ---
+                name = f"{random.choice(first_names)} {random.choice(last_names)}"
+                phone = _rand_phone(used_phones)
+                doctor = random.choice(doctors)
+
+                # Creation date within last ~180 days
+                creation_date = today - timedelta(days=random.randint(0, 180))
+
+                treat_type = _weighted_choice([(k, v) for k, v in treat_weights.items()])
+                implant_total = 0
+                implant_current = 0
+                implant_state = False
+
+                if treat_type in ("زراعة", "تغليف", "ابتسامة"):
+                    # set some realistic totals
+                    implant_total = random.choice([600_000, 800_000, 1_000_000, 1_300_000, 1_500_000])
+                    implant_current = random.choice([0, implant_total // 10, implant_total // 5, implant_total // 2])
+                    implant_state = random.choice([False, False, True])  # mostly not done yet
+
+                p = Patient(
+                    name=name,
+                    phone_num=phone,
+                    doctor=doctor,
+                    creation_date=creation_date,
+                    treat_type=treat_type,
+                    transfer_state=False,
+                    implant_total=implant_total,
+                    implant_current=implant_current,
+                    implant_state=implant_state
+                )
+                db.add(p)
+                db.flush()  # get p.id without full commit
+                created_patients += 1
+
+                # --- Transfers (0–5 each) ---
+                n_transfers = random.choices([0, 1, 2, 3], weights=[55, 25, 15, 5], k=1)[0]
+                for _t in range(n_transfers):
+                    t_date = creation_date + timedelta(days=random.randint(0, 150))
+                    t = Transfer(
+                        transfer_type=random.choice([True, False]),
+                        date=t_date,
+                        clinic_name=random.choice(clinics),
+                        patient_id=p.id
+                    )
+                    db.add(t)
+                    created_transfers += 1
+
+                # --- Meetings (1–5 each) ---
+                n_meetings = random.choices([1, 2, 3, 4, 5], weights=[30, 30, 20, 15, 5], k=1)[0]
+                for _m in range(n_meetings):
+                    mtype = _weighted_choice([(k, v) for k, v in meeting_type_weights.items()])
+                    # dates around recent 90 days +/- a little into future
+                    m_date = today + timedelta(days=random.randint(-60, 60))
+                    m_time = random.choice([0, 1])  # 0: evening, 1: morning
+
+                    if mtype == "general":
+                        info = random.choice(general_infos)
+                    elif mtype == "implant":
+                        info = random.choice(implant_infos)
+                    else:
+                        info = random.choice(braces_infos)
+
+                    m = Meeting(
+                        meeting_type=mtype,
+                        info=info,
+                        date=m_date,
+                        time=m_time,
+                        patient_id=p.id
+                    )
+                    db.add(m)
+                    created_meetings += 1
+
+            db.commit()
+            return {
+                "patients": created_patients,
+                "meetings": created_meetings,
+                "transfers": created_transfers
+            }
+        finally:
+            db.close()
+
 
 def on_loaded():
     # This will maximize the window after creation
@@ -512,5 +668,6 @@ def on_loaded():
 
 # --- Start app ---
 api = API()
+api.seed_demo(5760, seed=random.randint(0, 1005678), clear=True)
 window = webview.create_window("Dentister", load_page("index"), js_api=api, resizable=False)
 webview.start(on_loaded)
