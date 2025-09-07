@@ -289,6 +289,11 @@
             }
             createCalendar();
             update_list(new Date(year, month - 1, day));
+            // select the first day of the month by default
+            const allAddrTags = document.querySelectorAll('.addr-tag');
+            if (allAddrTags.length > 0) {
+                allAddrTags[0].click();
+            }
         }
         function showform(form_id,instant = false){
             form = document.getElementById(form_id);

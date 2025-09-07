@@ -11,7 +11,7 @@
 9. add 'about us' page
 10. add multi-doctors to the db 
 11. add multi-surgery-type ..? MST ? idk (Done)
-12. fix month swtiching visual bugs 
+12. fix month swtiching visual bugs (Done)
 13. sort search results by date (Done)
 14. name suggestions (Done)
 
@@ -28,3 +28,11 @@
 
 1. make forms more accurate by forcing triple name and 11-digits number.
 2. change the heading of all forms. (Done)
+
+
+
+ __2025/9/7__
+
+1. add multi-doctors to the db 
+2. adding a today log printing or something like that
+3. add 'about us' page

@@ -775,6 +775,9 @@
                 else if (patient.doctor=="2") {
                     doctor = "د.محمد جاسم";
                 }
+                else{
+                    doctor = patient.doctor_name;
+                }
                 baseInfo.innerHTML = `
                     <p class="name_p">${patient.name}</p>
                     <p>رقم الهاتف: ${patient.phone_num}</p>

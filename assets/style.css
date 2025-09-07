@@ -495,12 +495,14 @@ input:focus {
 .patient-num{
     width: 11%;
     height: 100% !important;
-    font-size: 18px !important;
+    font-size: 14px !important;
     color: #1a1a1a;
     position: relative;
-    top: -16px;
+    top: -18px;
     font-weight: bold;
     border-radius: 25%;
+    right: -2px;
+    direction: rtl;
 
 }
 .circle {
