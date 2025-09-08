@@ -77,7 +77,23 @@
                         <input type="number" name="phone_num" id="phone_num" placeholder="ادخل الرقم" required>
                     </div>
 
-                    
+                    <div class="form-group">
+                        <label>الطبيب</label>
+                        <div id="doctor_group" style="width:75%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                            <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" class="doc-check" data-val="0"> د.احمد
+                            </label>
+                            <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" class="doc-check" data-val="1"> د.مصطفى
+                            </label>
+                            <label style="display:flex;align-items:center;gap:6px;">
+                            <input type="checkbox" class="doc-check" data-val="2"> د.ضياء
+                            </label>
+                        </div>
+                        <!-- this is what will be submitted -->
+                        <input type="hidden" name="doctor" id="doctor_value" value="">
+                    </div>
+
                 </div>
 
 
@@ -805,7 +821,21 @@
             e.preventDefault();
             select_patient(patients[+card.dataset.idx]);
         });
+        function updateDoctorValue() {
+            const sel = Array.from(document.querySelectorAll('#doctor_group .doc-check:checked'))
+                .map(cb => cb.dataset.val)
+                .sort()                 // always in 0,1,2 order
+                .join('');
+            document.getElementById('doctor_value').value = sel;
+        }
 
+        // initialize listeners when the page is ready
+        window.addEventListener('pywebviewready', function () {
+            document.querySelectorAll('#doctor_group .doc-check')
+                .forEach(cb => cb.addEventListener('change', updateDoctorValue));
+            updateDoctorValue(); // set initial (empty) value
+        });
+        
     </script>
 </body>
 </html>

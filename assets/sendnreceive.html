@@ -53,13 +53,22 @@
                     </div>
 
                     <div class="form-group">
-                        <label  for="doctor">الطبيب</label>
-                        <select name="doctor" id="doctor">
-                            <option value="0">د.احمد رؤوف</option>
-                            <option value="1">د.مصطفى</option>
-                            <option value="2">د.مرتضى</option>
-                        </select>
+                    <label>الطبيب</label>
+                    <div id="doctor_group" style="width:75%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                        <label style="display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" class="doc-check" data-val="0"> د.احمد
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" class="doc-check" data-val="1"> د.مصطفى
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" class="doc-check" data-val="2"> د.ضياء
+                        </label>
                     </div>
+                    <!-- this is what will be submitted -->
+                    <input type="hidden" name="doctor" id="doctor_value" value="">
+                    </div>
+
 
                     <div class="form-group">
                         <label  for="treat_type">نوع الحالة</label>
@@ -245,7 +254,7 @@
         
         }
 
-         function submitform(id) {
+        async function submitform(id) {
             
             const form = document.getElementById(id);
                 const formData = new FormData(form);
@@ -253,19 +262,17 @@
 
                 if(id=="form"){
 
-                    window.pywebview.api.createTransferPatient(data).then(() => {
-                        // Clear form fields
-                        refreshPatients();
+                    await window.pywebview.api.createTransferPatient(data);
 
+                    await refreshPatients();
 
-                        const maxId = Math.max(...patients.map(p => p.id));
+                    const newest = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
 
-                        // get the patient object with that max id
-                        const highestIdPatient = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
-                        form.reset();
-                        switchToMeeting();
-                        select_patient(highestIdPatient);
-                    });
+                    form.reset();
+                    document.getElementById(id).hidden = true;
+                    showform('transfer-form', newest.id);
+                    select_patient(newest);
+                    return;
                 }
                 else if(id=="transfer-form"){
                     const state = document.getElementById("transfer_type").value;
@@ -568,6 +575,22 @@
             e.preventDefault();
             select_patient(patients[+card.dataset.idx]);
         });
+
+        function updateDoctorValue() {
+            const sel = Array.from(document.querySelectorAll('#doctor_group .doc-check:checked'))
+                .map(cb => cb.dataset.val)
+                .sort()                 // always in 0,1,2 order
+                .join('');
+            document.getElementById('doctor_value').value = sel;
+        }
+
+        // initialize listeners when the page is ready
+        window.addEventListener('pywebviewready', function () {
+            document.querySelectorAll('#doctor_group .doc-check')
+                .forEach(cb => cb.addEventListener('change', updateDoctorValue));
+            updateDoctorValue(); // set initial (empty) value
+        });
+
 
     </script>
 </body>

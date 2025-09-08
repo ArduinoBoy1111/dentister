@@ -765,23 +765,25 @@
                 rightDiv.classList.add('right_div');
                 const baseInfo = document.createElement('div');
                 baseInfo.classList.add('base_info');
-                let doctor  = "لا يوجد طبيب مشرف";
-                if (patient.doctor=="0") {
-                    doctor = "د.احمد رؤوف";
+                let doctor  = "";
+                if (patient.doctor.includes("0")) {
+                    
+                    doctor += " د.احمد و";
                 }
-                else if (patient.doctor=="1") {
-                    doctor = "د.علي الربيعي";
+                if (patient.doctor.includes("1")) {
+                    
+                    doctor += " د.مصطفى و";
                 }
-                else if (patient.doctor=="2") {
-                    doctor = "د.محمد جاسم";
+                if (patient.doctor.includes("2")) {
+                    
+                    doctor += " د.ضياء و";
                 }
-                else{
-                    doctor = patient.doctor_name;
-                }
+                let doctor_str = doctor.slice(0, -2);
+                
                 baseInfo.innerHTML = `
                     <p class="name_p">${patient.name}</p>
                     <p>رقم الهاتف: ${patient.phone_num}</p>
-                    <p>الطبيب المشرف : ${doctor}</p>
+                    <p>الطبيب المشرف : ${doctor_str}</p>
                     
                     
                 `;

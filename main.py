@@ -549,11 +549,15 @@ class API:
                 "حسن","حسين","علي","محمد","مهند","مصطفى","يوسف","كرار","مرتضى","أحمد",
                 "نور","فاطمة","زهراء","مريم","سارة","بتول","رقيّة","هدى","آمنة","زينب"
             ]
+            second_name = [
+                "حسن","حسين","علي","محمد","مهند","مصطفى","يوسف","كرار","مرتضى","أحمد",
+                "نور","فاطمة","زهراء","مريم","سارة","بتول","رقيّة","هدى","آمنة","زينب"
+            ]
             last_names = [
                 "التميمي","الهاشمي","العطواني","الكعبي","الموسوي","الشمري","الجنابي",
                 "الدليمي","الطائي","السعدي","البياتي","الربيعي","الزيدي","الجبوري"
             ]
-            doctors = ["د.احمد رؤوف", "د.مصطفى", "د.مرتضى", "all"]
+            doctors = ["0","0","1", "1","2", "2","01","02","12","012"]  # Seen in your data
 
             # Seen in your data + common ones
             treat_types = ["none", "زراعة", "متحرك", "تغليف", "ابتسامة"]
@@ -581,7 +585,7 @@ class API:
 
             for _ in range(count):
                 # --- Patient core ---
-                name = f"{random.choice(first_names)} {random.choice(last_names)}"
+                name = f"{random.choice(first_names)} {random.choice(second_name)} {random.choice(last_names)}"
                 phone = _rand_phone(used_phones)
                 doctor = random.choice(doctors)
 

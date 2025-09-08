@@ -8,7 +8,7 @@ class Patient(Base):
     # general features
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    doctor = Column(String, nullable=False,default="all")
+    doctor = Column(String, nullable=False,default="0")
     phone_num = Column(String, nullable=False)
     creation_date = Column(Date,nullable=False)
     
