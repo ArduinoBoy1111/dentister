@@ -15,7 +15,7 @@ Base.metadata.create_all(bind=engine)
 
 current_patient_id = 1
 page_to_load = 0
-current_doctor = "2"
+current_doctor = "0"
 
 # --- Path helpers ---
 def resource_path(relative_path):
@@ -638,7 +638,7 @@ class API:
                 for _m in range(n_meetings):
                     mtype = _weighted_choice([(k, v) for k, v in meeting_type_weights.items()])
                     # dates around recent 90 days +/- a little into future
-                    m_date = today + timedelta(days=random.randint(-60, 60))
+                    m_date = today + timedelta(days=random.randint(-120, 120))
                     m_time = random.choice([0, 1])  # 0: evening, 1: morning
 
                     if mtype == "general":
@@ -685,6 +685,6 @@ def on_loaded():
 
 # --- Start app ---
 api = API()
-#api.seed_demo(0, seed=random.randint(0, 1005678), clear=True)
+#api.seed_demo(1000, seed=random.randint(0, 1005678), clear=True)
 window = webview.create_window("Dentister", load_page("index"), js_api=api, resizable=False)
 webview.start(on_loaded)

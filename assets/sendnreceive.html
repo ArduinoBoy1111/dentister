@@ -156,12 +156,12 @@
                     
                     <div class="form-group">
                         <label for="clinic_name">المختبر</label>
-                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم المختبر" >
+                        <input type="text" name="clinic_name" id="name_1" placeholder="ادخل اسم المختبر" >
                     </div>
 
                     <div class="form-group">
                         <label for="date">التاريخ</label>
-                        <input type="date" name="date" id="date" placeholder="ادخل التاريخ" >
+                        <input type="date" name="date" id="date_1" placeholder="ادخل التاريخ" >
                     </div>
 
                     <div class="form-group">
@@ -197,12 +197,12 @@
 
                     <div class="form-group">
                         <label for="clinic_name">المختبر</label>
-                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم المختبر" >
+                        <input type="text" name="clinic_name" id="name_2" placeholder="ادخل اسم المختبر" >
                     </div>
 
                     <div class="form-group">
                         <label for="date">التاريخ</label>
-                        <input type="date" name="date" id="date" placeholder="ادخل التاريخ" >
+                        <input type="date" name="date" id="date_2" placeholder="ادخل التاريخ" >
                     </div>
 
                 </div>
@@ -227,12 +227,12 @@
 
                     <div class="form-group">
                         <label for="clinic_name">المختبر</label>
-                        <input type="text" name="clinic_name" id="name" placeholder="ادخل اسم المختبر" >
+                        <input type="text" name="clinic_name" id="name_3" placeholder="ادخل اسم المختبر" >
                     </div>
 
                     <div class="form-group">
                         <label for="date">التاريخ</label>
-                        <input type="date" name="date" id="date" placeholder="ادخل التاريخ" >
+                        <input type="date" name="date" id="date_3" placeholder="ادخل التاريخ" >
                     </div>
 
                 </div>
@@ -245,7 +245,7 @@
                 </div>
             </div>
         </form>
-
+        <div id="missing_data" class="missing_data"></div>
     </main>
     
     <script>
@@ -280,7 +280,6 @@
                 else{
                     card.innerText = " ! تمت إضافة المريض بنجاح ";
                 }
-                flashOnce();    
             }
             
         
@@ -294,42 +293,98 @@
 
                 if(id=="form"){
 
-                    await window.pywebview.api.createTransferPatient(data);
+                    let name = document.getElementById("name").value.trim();
+                    let phone_num= document.getElementById("phone_num").value.trim();
+                    let current_doctor = document.getElementById("doctor_value").value.trim();
 
-                    await refreshPatients();
+                    if(name == "" || (name.split(" ").length - 1) < 2){
+                        showError("يرجى ادخال الاسم الثلاثي");
+                    }
+                    else if(phone_num == ""){
+                        showError("يرجى ادخال رقم الهاتف");
+                    }
+                    else if(phone_num.length != 11){
+                        showError("يرجى ادخال رقم الهاتف بشكل صحيح");
+                    }
+                    else if(current_doctor == ""){
+                        showError("يرجى اختيار الطبيب المشرف");
+                    }
+                    else{
+                        await window.pywebview.api.createTransferPatient(data);
 
-                    const newest = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
+                        await refreshPatients();
 
-                    form.reset();
-                    document.getElementById(id).hidden = true;
-                    showform('transfer-form', newest.id);
-                    select_patient(newest);
-                    return;
+                        const newest = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
+
+                        form.reset();
+                        document.getElementById(id).hidden = true;
+                        showform('transfer-form', newest.id);
+                        select_patient(newest);
+                        return; 
+                    }
+                    
                 }
                 else if(id=="transfer-form"){
-                    const state = document.getElementById("transfer_type").value;
-                    window.pywebview.api.createTransfer(state,data,selected_patient.id).then(() => {
-                        // Clear form fields
-                        refreshPatients();
-                        form.reset();
-                        closeform(id);
-                    });
+                    let clinic_name = document.getElementById("name_1").value.trim();
+                    let date = document.getElementById("date_1").value.trim();
+                    if(selected_patient==null){
+                        showError("يرجى ادخال المريض");
+                    }
+                    else if(clinic_name == ""){
+                        showError("يرجى ادخال اسم العيادة");
+                    }
+                    else if(date == ""){
+                        showError("يرجى ادخال التاريخ");
+                    }
+                    else{
+                        const state = document.getElementById("transfer_type").value;
+                        window.pywebview.api.createTransfer(state,data,selected_patient.id).then(() => {
+                            // Clear form fields
+                            refreshPatients();
+                            form.reset();
+                            closeform(id);
+                        });
+                    }
+                    
                 }
                 else if(id=="send-form"){
-                    window.pywebview.api.createTransfer("1",data,BTS_patient_id).then(() => {
-                        // Clear form fields
-                        refreshPatients();
-                        form.reset();
-                        closeform(id);
-                    });
+                    let clinic_name = document.getElementById("name_2").value.trim();
+                    let date = document.getElementById("date_2").value.trim();
+
+                    if(clinic_name == ""){
+                        showError("يرجى ادخال اسم العيادة");
+                    }
+                    else if(date == ""){
+                        showError("يرجى ادخال التاريخ");
+                    }
+                    else{
+                        window.pywebview.api.createTransfer("1",data,BTS_patient_id).then(() => {
+                            // Clear form fields
+                            refreshPatients();
+                            form.reset();
+                            closeform(id);
+                        });
+                    }
+                    
                 }
                 else{
-                    window.pywebview.api.createTransfer("0",data,BTS_patient_id).then(() => {
-                        // Clear form fields
-                        refreshPatients();
-                        form.reset();
-                        closeform(id);
-                    });
+                    let clinic_name = document.getElementById("name_3").value.trim();
+                    let date = document.getElementById("date_3").value.trim();
+
+                    if(clinic_name == ""){
+                        showError("يرجى ادخال اسم العيادة");
+                    }
+                    else if(date == ""){
+                        showError("يرجى ادخال التاريخ");
+                    }
+                    else{
+                        window.pywebview.api.createTransfer("0",data,BTS_patient_id).then(() => {
+                            // Clear form fields
+                            refreshPatients();
+                            form.reset();
+                            closeform(id);
+                        });
+                    }
                 }
             
             
@@ -683,6 +738,36 @@
         await refreshPatients();
         refreshDoctor();
         hideDoctorsList();
+    }
+    function flashOnce(id) {
+        // make it flex instantly
+        const el = document.getElementById(id);
+        el.style.display = "flex";
+        el.style.opacity = "1";
+
+        // force reflow to apply instant show
+        void el.offsetWidth;
+
+        // re-enable fade
+        el.style.transition = "opacity 0.6s ease-in-out";
+
+        // after 1s, start fade out
+        setTimeout(() => {
+            el.style.opacity = "0";
+
+            // when fade ends, hide fully
+            el.addEventListener("transitionend", function handler() {
+            if (el.style.opacity === "0") {
+                el.style.display = "none";
+            }
+            el.removeEventListener("transitionend", handler);
+            });
+        }, 900);
+    }
+    function showError(msg){
+        const card = document.getElementById("missing_data");
+        card.innerText = msg;
+        flashOnce("missing_data");
     }
     </script>
 </body>

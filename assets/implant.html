@@ -213,7 +213,7 @@
 
         <div id="success_card" class="success_card"> ! تمت إضافة الجلسة بنجاح </div>
         <div id="no_patient_card" class="no_patient_card">يرجى ادخال المريض اولاً </div>
-        
+        <div id="missing_data" class="missing_data"></div>
     </main>
     
     <script>
@@ -370,7 +370,7 @@
                 else{
                     card.innerText = " ! تمت إضافة المريض بنجاح ";
                 }
-                flashOnce();    
+                
             }
             
         
@@ -381,8 +381,9 @@
             }
         });
 
-        function flashOnce(el) {
+        function flashOnce(id) {
         // make it flex instantly
+        el = document.getElementById(id);
         el.style.display = "flex";
         el.style.opacity = "1";
 
@@ -412,25 +413,51 @@
 
                 if (type=="create_patient") {
 
-                    const form = document.getElementById('form');
-                    const formData = new FormData(form);
-                    const data = Object.fromEntries(formData);
-                    await window.pywebview.api.createPatient(data);
+                    let name = document.getElementById("name").value.trim();
+                    let phone_num= document.getElementById("phone_num").value.trim();
+                    let current_doctor = document.getElementById("doctor_value").value.trim();
+                    let implant_total = document.getElementById("implant_total").value.trim();
 
-                    await refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
+                    if(name == "" || (name.split(" ").length - 1) < 2){
+                        showError("يرجى ادخال الاسم الثلاثي");
+                    }
+                    else if(phone_num == ""){
+                        showError("يرجى ادخال رقم الهاتف");
+                    }
+                    else if(phone_num.length != 11){
+                        showError("يرجى ادخال رقم الهاتف بشكل صحيح");
+                    }
+                    else if(current_doctor == ""){
+                        showError("يرجى اختيار الطبيب المشرف");
+                    }
+                    else if (implant_total == "" || implant_total < 1){
+                        showError("يرجى ادخال مبلغ الزراعة")
+                    }
+                    else {
+                        const form = document.getElementById('form');
+                        const formData = new FormData(form);
+                        const data = Object.fromEntries(formData);
+                        await window.pywebview.api.createPatient(data);
 
-                    const maxId = Math.max(...patients.map(p => p.id));
+                        await refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
 
-                    // get the patient object with that max id
-                    const highestIdPatient = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
-                    switchToMeeting();
-                    select_patient(highestIdPatient);
+                        const maxId = Math.max(...patients.map(p => p.id));
+
+                        // get the patient object with that max id
+                        const highestIdPatient = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
+                        switchToMeeting();
+                        select_patient(highestIdPatient);
+                    }
                     
                     
                 }
                 else if (type=="create_meeting"){
+                    let implant_total = document.getElementById("implant_total_2").value.trim();
                     if(selected_patient==null){
-                        flashOnce(no_patient_card);
+                        flashOnce("no_patient_card");
+                    }
+                    else if(implant_total == "" || implant_total < 1){
+                        showError("يرجى ادخال مبلغ الزراعة")
                     }
                     else{
                         const dateInput = document.getElementById('date');
@@ -952,6 +979,11 @@
         await refreshMeetings(new Date(year, month - 1, day));
         refreshDoctor();
         hideDoctorsList();
+    }
+    function showError(msg){
+        const card = document.getElementById("missing_data");
+        card.innerText = msg;
+        flashOnce("missing_data");
     }
     </script>
 </body>
