@@ -861,11 +861,15 @@ input[type=number]::-webkit-outer-spin-button {
     cursor: pointer;
 }
 .doctor_select_area{
-    width: 100%;
+    position: absolute;
+    bottom: -2vh;
+    right: 0;
+    width: 15vw;
     aspect-ratio: 1/1 !important;
     display: flex;
     justify-content: center;
     align-items: center;
+    
 }
 .doctor_button{
     height: 65%;
@@ -910,18 +914,19 @@ input[type=number]::-webkit-outer-spin-button {
 
 }
 .doctor_name{
+    margin: 0 ;
     margin-top: 3%;
+    
     font-size: 20px;
 }
 .doctor_btn_group{
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-direction: column !important;
     transition: 0.2s ease-in-out !important;
-
 }
 .doctor_btn_group:hover{
     scale: 1.05;

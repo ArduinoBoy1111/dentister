@@ -15,6 +15,7 @@ Base.metadata.create_all(bind=engine)
 
 current_patient_id = 1
 page_to_load = 0
+current_doctor = "2"
 
 # --- Path helpers ---
 def resource_path(relative_path):
@@ -67,6 +68,10 @@ def _weighted_choice(items_with_weights):
     items, weights = zip(*items_with_weights)
     return random.choices(items, weights=weights, k=1)[0]
 
+def _apply_doctor_filter(q):
+    if current_doctor and current_doctor != "-1":
+        return q.filter(Patient.doctor.isnot(None)).filter(Patient.doctor.contains(current_doctor))
+    return q
 
 # --- API for JS ---
 class API:
@@ -136,11 +141,9 @@ class API:
     def get_patients(self):
         db = SessionLocal()
         try:
-            rows = (
-                db.query(Patient)
-                  .order_by(desc(Patient.creation_date))
-                  .all()
-            )
+            q = db.query(Patient)
+            q = _apply_doctor_filter(q)
+            rows = q.order_by(desc(Patient.creation_date)).all()
             return [
                 {
                     "id": p.id,
@@ -348,39 +351,38 @@ class API:
 
     def get_meetings(self, meeting_type="general"):
         db = SessionLocal()
-        rows = (
-            db.query(Meeting)
-              .options(joinedload(Meeting.patient))
-              .filter(Meeting.meeting_type == meeting_type)
-              .order_by(
-                  desc(Meeting.date),
-                  desc(Meeting.time),
-                  desc(Meeting.id)
-              )
-              .all()
-        )
-        db.close()
-        return [
-            {
-                "id": m.id,
-                "meeting_type": m.meeting_type,
-                "info": m.info,
-                "date": m.date.isoformat(),
-                "time": m.time,
-                "patient": {
-                    "id": m.patient.id,
-                    "name": m.patient.name,
-                    "doctor": m.patient.doctor,
-                    "phone_num": m.patient.phone_num,
-                    "treat_type": m.patient.treat_type,
-                    "transfer_state": m.patient.transfer_state,
-                    "implant_total": m.patient.implant_total or 0,
-                    "implant_current": m.patient.implant_current or 0,
-                    "implant_state": m.patient.implant_state,
-                },
-            }
-            for m in rows
-        ]
+        try:
+            q = (
+                db.query(Meeting)
+                .options(joinedload(Meeting.patient))
+                .join(Patient, Meeting.patient_id == Patient.id)
+                .filter(Meeting.meeting_type == meeting_type)
+            )
+            q = _apply_doctor_filter(q)
+            rows = q.order_by(desc(Meeting.date), desc(Meeting.time), desc(Meeting.id)).all()
+            return [
+                {
+                    "id": m.id,
+                    "meeting_type": m.meeting_type,
+                    "info": m.info,
+                    "date": m.date.isoformat(),
+                    "time": m.time,
+                    "patient": {
+                        "id": m.patient.id,
+                        "name": m.patient.name,
+                        "doctor": m.patient.doctor,
+                        "phone_num": m.patient.phone_num,
+                        "treat_type": m.patient.treat_type,
+                        "transfer_state": m.patient.transfer_state,
+                        "implant_total": m.patient.implant_total or 0,
+                        "implant_current": m.patient.implant_current or 0,
+                        "implant_state": m.patient.implant_state,
+                    },
+                }
+                for m in rows
+            ]
+        finally:
+            db.close()
 
     def load_patient(self):
         db = SessionLocal()
@@ -664,6 +666,17 @@ class API:
             }
         finally:
             db.close()
+            
+    def changeCurrentDoctor(self, doctor):
+        global current_doctor
+        current_doctor = doctor
+        print(f"Changed current doctor to: {current_doctor}")
+        return current_doctor
+    
+    def getCurrentDoctor(self):
+        global current_doctor
+        print(f"Current doctor is: {current_doctor}")
+        return current_doctor
 
 
 def on_loaded():
