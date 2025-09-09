@@ -685,6 +685,6 @@ def on_loaded():
 
 # --- Start app ---
 api = API()
-#api.seed_demo(400, seed=random.randint(0, 1005678), clear=True)
+#api.seed_demo(0, seed=random.randint(0, 1005678), clear=True)
 window = webview.create_window("Dentister", load_page("index"), js_api=api, resizable=False)
 webview.start(on_loaded)
