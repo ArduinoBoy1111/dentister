@@ -559,7 +559,7 @@ class API:
                 "التميمي","الهاشمي","العطواني","الكعبي","الموسوي","الشمري","الجنابي",
                 "الدليمي","الطائي","السعدي","البياتي","الربيعي","الزيدي","الجبوري"
             ]
-            doctors = ["0","0","1", "1","2", "2","01","02","12","012"]  # Seen in your data
+            doctors = ["0","0","1", "1","2", "2"]  # Seen in your data ,"01","02","12","012"
 
             # Seen in your data + common ones
             treat_types = ["none", "زراعة", "متحرك", "تغليف", "ابتسامة"]
@@ -685,6 +685,6 @@ def on_loaded():
 
 # --- Start app ---
 api = API()
-api.seed_demo(400, seed=random.randint(0, 1005678), clear=True)
+#api.seed_demo(400, seed=random.randint(0, 1005678), clear=True)
 window = webview.create_window("Dentister", load_page("index"), js_api=api, resizable=False)
 webview.start(on_loaded)

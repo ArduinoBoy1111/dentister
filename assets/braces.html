@@ -459,6 +459,7 @@
         window.addEventListener('pywebviewready',async function() {
             meetings = await window.pywebview.api.get_meetings("braces");
             patients = await window.pywebview.api.get_patients();
+            doctor = await window.pywebview.api.getCurrentDoctor();
             listPatients();
             refreshDoctor();
             update_list(new Date(year, month - 1, day));

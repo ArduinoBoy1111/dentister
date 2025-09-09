@@ -80,6 +80,7 @@
 
         window.addEventListener('pywebviewready',async function() {
             patients = await window.pywebview.api.get_patients();
+            doctor = await window.pywebview.api.getCurrentDoctor();
             refreshDoctor();
             refreshData();
         });
@@ -249,9 +250,10 @@
         async function selectDoctor(id){
         await window.pywebview.api.changeCurrentDoctor(id);
         doctor = String(id);
-        await refreshData(new Date(year, month - 1, day));
         refreshDoctor();
         hideDoctorsList();
+        patients = await window.pywebview.api.get_patients();
+        await refreshData();
     }
     </script>
 </body>

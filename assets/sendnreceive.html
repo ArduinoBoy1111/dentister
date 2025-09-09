@@ -336,11 +336,13 @@
         }
 
         window.addEventListener('pywebviewready',async function() {
+            doctor = await window.pywebview.api.getCurrentDoctor();
             refreshDoctor();
             refreshPatients();
         });
 
         async function refreshPatients() {
+            doctor = await window.pywebview.api.getCurrentDoctor();
             patients = await window.pywebview.api.get_patients();
             const cards_area = document.getElementById("cards_area");
             cards_area.innerHTML = "";
@@ -678,7 +680,7 @@
         async function selectDoctor(id){
         await window.pywebview.api.changeCurrentDoctor(id);
         doctor = String(id);
-        await refreshPatients(new Date(year, month - 1, day));
+        await refreshPatients();
         refreshDoctor();
         hideDoctorsList();
     }
