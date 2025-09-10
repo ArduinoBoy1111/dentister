@@ -938,7 +938,6 @@ input[type=number]::-webkit-outer-spin-button {
     top: 15%;
     left: 50%;
     translate: -50% -50%;
-    width: 25%;
     height: 12%;
     background-color: rgb(255, 152, 152) ;
     border-radius: 15px;
@@ -952,6 +951,7 @@ input[type=number]::-webkit-outer-spin-button {
     justify-content: center;
     align-items: center;
     z-index: 15;
+    padding: 6px 5%;
 }
 .loading_screen{
     position: absolute;

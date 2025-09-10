@@ -314,8 +314,8 @@
                         showError("يرجى اختيار الطبيب المشرف");
                     }
                     else{
+                        const chosen_doctor = document.getElementById("doctor_value").value;
                         await window.pywebview.api.createTransferPatient(data);
-
                         await refreshPatients();
 
                         const newest = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
@@ -323,7 +323,14 @@
                         form.reset();
                         document.getElementById(id).hidden = true;
                         showform('transfer-form', newest.id);
-                        select_patient(newest);
+
+                        if(chosen_doctor.includes(doctor)){
+                            select_patient(newest);
+                        }
+                        else{
+                            showError("لقد تم انشاء مريض لطبيب اخر , للعثور على المريض يرجى تغيير الطبيب الحالي",3.8)
+                        }
+                        
                         return; 
                     }
                     
@@ -749,41 +756,50 @@
         refreshDoctor();
         hideDoctorsList();
     }
-    function flashOnce(id) {
-        // make it flex instantly
-        const el = document.getElementById(id);
-        el.style.display = "flex";
-        el.style.opacity = "1";
+    function flashOnce(id,time=1) {
+            // make it flex instantly
+            const el = document.getElementById(id);
+            el.style.display = "flex";
+            el.style.opacity = "1";
 
-        // force reflow to apply instant show
-        void el.offsetWidth;
+            // force reflow to apply instant show
+            void el.offsetWidth;
 
-        // re-enable fade
-        el.style.transition = "opacity 0.6s ease-in-out";
+            // re-enable fade
+            el.style.transition = "opacity 0.6s ease-in-out";
 
-        // after 1s, start fade out
-        setTimeout(() => {
-            el.style.opacity = "0";
+            // after 1s, start fade out
+            setTimeout(() => {
+                el.style.opacity = "0";
 
-            // when fade ends, hide fully
-            el.addEventListener("transitionend", function handler() {
-            if (el.style.opacity === "0") {
-                el.style.display = "none";
-            }
-            el.removeEventListener("transitionend", handler);
-            });
-        }, 900);
-    }
-    function showError(msg){
+                // when fade ends, hide fully
+                el.addEventListener("transitionend", function handler() {
+                if (el.style.opacity === "0") {
+                    el.style.display = "none";
+                }
+                el.removeEventListener("transitionend", handler);
+                });
+            }, time*1000);
+        }
+    function showError(msg,time=1){
         const card = document.getElementById("missing_data");
         card.innerText = msg;
-        flashOnce("missing_data");
+        flashOnce("missing_data",time);
     }
-    function onPatientsLoadStart(){
-        document.getElementById("loading_screen").style.display = "flex";
+    let loadingTimer = null;
 
+    function onPatientsLoadStart() {
+        // set a delayed trigger
+        loadingTimer = setTimeout(() => {
+            document.getElementById("loading_screen").style.display = "flex";
+        }, 300); // threshold = 0.1s
     }
-    function onPatientsLoadEnd(){
+
+    function onPatientsLoadEnd() {
+        // cancel if still waiting
+        clearTimeout(loadingTimer);
+        loadingTimer = null;
+        // hide if it was shown
         document.getElementById("loading_screen").style.display = "none";
     } 
     </script>

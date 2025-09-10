@@ -913,21 +913,30 @@
             }
         }
         
-        function flashOnce(id) {
-            el = document.getElementById(id);
+        function flashOnce(id,time=1) {
+            // make it flex instantly
+            const el = document.getElementById(id);
             el.style.display = "flex";
             el.style.opacity = "1";
+
+            // force reflow to apply instant show
             void el.offsetWidth;
+
+            // re-enable fade
             el.style.transition = "opacity 0.6s ease-in-out";
+
+            // after 1s, start fade out
             setTimeout(() => {
                 el.style.opacity = "0";
+
+                // when fade ends, hide fully
                 el.addEventListener("transitionend", function handler() {
-                    if (el.style.opacity === "0") {
-                        el.style.display = "none";
-                    }
-                    el.removeEventListener("transitionend", handler);
+                if (el.style.opacity === "0") {
+                    el.style.display = "none";
+                }
+                el.removeEventListener("transitionend", handler);
                 });
-            }, 900);
+            }, time*1000);
         }
 
         function showform(form_id,instant = false){
@@ -1216,10 +1225,10 @@
         refreshDoctor();
         hideDoctorsList();
     }
-    function showError(msg){
+    function showError(msg,time=1.5){
         const card = document.getElementById("missing_data");
         card.innerText = msg;
-        flashOnce("missing_data");
+        flashOnce("missing_data",time);
     }
     </script>
 </body>

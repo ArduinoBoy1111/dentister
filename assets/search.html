@@ -273,11 +273,20 @@
         }
         
     }
-    function onPatientsLoadStart(){
-        document.getElementById("loading_screen").style.display = "flex";
+    let loadingTimer = null;
 
+    function onPatientsLoadStart() {
+        // set a delayed trigger
+        loadingTimer = setTimeout(() => {
+            document.getElementById("loading_screen").style.display = "flex";
+        }, 300); // threshold = 0.1s
     }
-    function onPatientsLoadEnd(){
+
+    function onPatientsLoadEnd() {
+        // cancel if still waiting
+        clearTimeout(loadingTimer);
+        loadingTimer = null;
+        // hide if it was shown
         document.getElementById("loading_screen").style.display = "none";
     } 
     </script>

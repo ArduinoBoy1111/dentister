@@ -385,30 +385,30 @@
             }
         });
 
-        function flashOnce(id) {
-        // make it flex instantly
-        el = document.getElementById(id);
-        el.style.display = "flex";
-        el.style.opacity = "1";
+        function flashOnce(id,time=1) {
+            // make it flex instantly
+            const el = document.getElementById(id);
+            el.style.display = "flex";
+            el.style.opacity = "1";
 
-        // force reflow to apply instant show
-        void el.offsetWidth;
+            // force reflow to apply instant show
+            void el.offsetWidth;
 
-        // re-enable fade
-        el.style.transition = "opacity 0.6s ease-in-out";
+            // re-enable fade
+            el.style.transition = "opacity 0.6s ease-in-out";
 
-        // after 1s, start fade out
-        setTimeout(() => {
-            el.style.opacity = "0";
+            // after 1s, start fade out
+            setTimeout(() => {
+                el.style.opacity = "0";
 
-            // when fade ends, hide fully
-            el.addEventListener("transitionend", function handler() {
-            if (el.style.opacity === "0") {
-                el.style.display = "none";
-            }
-            el.removeEventListener("transitionend", handler);
-            });
-        }, 900);
+                // when fade ends, hide fully
+                el.addEventListener("transitionend", function handler() {
+                if (el.style.opacity === "0") {
+                    el.style.display = "none";
+                }
+                el.removeEventListener("transitionend", handler);
+                });
+            }, time*1000);
         }
 
         async function submitform(type) {
@@ -441,6 +441,7 @@
                         const form = document.getElementById('form');
                         const formData = new FormData(form);
                         const data = Object.fromEntries(formData);
+                        const chosen_doctor = document.getElementById("doctor_value").value;
                         await window.pywebview.api.createPatient(data);
 
                         await refreshMeetings(new Date(year, month - 1, day)); // update list without reloading
@@ -450,7 +451,13 @@
                         // get the patient object with that max id
                         const highestIdPatient = patients.reduce((a, b) => (a.id > b.id ? a : b), patients[0]);
                         switchToMeeting();
-                        select_patient(highestIdPatient);
+                        if(chosen_doctor.includes(doctor)){
+                            select_patient(highestIdPatient);
+                        }
+                        else{
+                            showError("لقد تم انشاء مريض لطبيب اخر , للعثور على المريض يرجى تغيير الطبيب الحالي",3.8)
+                        }
+                    
                     }
                     
                     
@@ -998,16 +1005,25 @@
         refreshDoctor();
         hideDoctorsList();
     }
-    function showError(msg){
+    function showError(msg,time=1.5){
         const card = document.getElementById("missing_data");
         card.innerText = msg;
-        flashOnce("missing_data");
+        flashOnce("missing_data",time);
     }
-    function onPatientsLoadStart(){
-        document.getElementById("loading_screen").style.display = "flex";
+    let loadingTimer = null;
 
+    function onPatientsLoadStart() {
+        // set a delayed trigger
+        loadingTimer = setTimeout(() => {
+            document.getElementById("loading_screen").style.display = "flex";
+        }, 300); // threshold = 0.1s
     }
-    function onPatientsLoadEnd(){
+
+    function onPatientsLoadEnd() {
+        // cancel if still waiting
+        clearTimeout(loadingTimer);
+        loadingTimer = null;
+        // hide if it was shown
         document.getElementById("loading_screen").style.display = "none";
     } 
     </script>
