@@ -183,7 +183,7 @@
 
                 <div class="form-group">
                     <label for="implant_total">المبلغ</label>
-                    <input type="number" name="implant_total" id="implant_total" placeholder="ادخل المبلغ" >
+                    <input type="number" name="implant_total" id="implant_total_2" placeholder="ادخل المبلغ" >
                 </div>
 
             </div>
@@ -285,6 +285,7 @@
             </div>
         </div>
     </form>
+    <div id="missing_data" class="missing_data"></div>
 
     <script>
         let patient = null;
@@ -912,7 +913,8 @@
             }
         }
         
-        function flashOnce(el) {
+        function flashOnce(id) {
+            el = document.getElementById(id);
             el.style.display = "flex";
             el.style.opacity = "1";
             void el.offsetWidth;
@@ -949,7 +951,7 @@
                 else{
                     card.innerText = " ! تمت تعديل معلومات المريض بنجاح ";
                 }
-                flashOnce(card);    
+                flashOnce("success_card");    
             }
         }
 
@@ -957,15 +959,27 @@
             const form = document.getElementById('meeting-form');
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
-
+            let date = document.getElementById("date").value.trim();
             if (!editing) {
-                await window.pywebview.api.createMeeting(data, time, patient.id, type);
-                await refresh_data();
-                closeform('meeting-form');
+                if(date == ""){
+                    showError("يرجى ادخال التاريخ");
+                }
+                else{
+                    await window.pywebview.api.createMeeting(data, time, patient.id, type);
+                    await refresh_data();
+                    closeform('meeting-form');
+                }
+                
             } else {
-                await window.pywebview.api.editMeeting(edit_id, data, time, patient.id);
-                await refresh_data();
-                closeform('meeting-form');
+                if(date == ""){
+                    showError("يرجى ادخال التاريخ");
+                }
+                else{
+                    await window.pywebview.api.editMeeting(edit_id, data, time, patient.id);
+                    await refresh_data();
+                    closeform('meeting-form');
+                }
+                
             }
         }
 
@@ -973,19 +987,35 @@
             const form = document.getElementById('transfer-form');
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
-
+            let clinic_name = document.getElementById("clinic_name").value.trim();
+            let date = document.getElementById("t_date").value.trim();
             if (!editing) {
-
-                window.pywebview.api.createTransfer(
-                    data.transfer_type,
-                    data,
-                    patient.id
-                ).then(() => {
-                    refresh_data();
-                    closeform('transfer-form');
-                });
+                if(clinic_name == ""){
+                    showError("يرجى ادخال اسم العيادة");
+                }
+                else if(date == ""){
+                    showError("يرجى ادخال التاريخ");
+                }
+                else{
+                    window.pywebview.api.createTransfer(
+                        data.transfer_type,
+                        data,
+                        patient.id
+                    ).then(() => {
+                        refresh_data();
+                        closeform('transfer-form');
+                    });
+                }
+                
             } else {
-                window.pywebview.api.editTransfer(
+                if(clinic_name == ""){
+                    showError("يرجى ادخال اسم العيادة");
+                }
+                else if(date == ""){
+                    showError("يرجى ادخال التاريخ");
+                }
+                else{
+                    window.pywebview.api.editTransfer(
                     data.transfer_type,
                     edit_id,
                     data,
@@ -993,6 +1023,8 @@
                     refresh_data();
                     closeform('transfer-form');
                 });
+                }
+                
             }
         }
 
@@ -1012,10 +1044,18 @@
             const form = document.getElementById('set-implant-price-form');
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
+            
+            let implant_total = document.getElementById("implant_total_2").value.trim();
 
-            await window.pywebview.api.setImplantAmount(data.implant_total, patient.id);
-            await refresh_data();
-            closeform('set-implant-price-form');
+            if(implant_total==""){
+                showError("يرجى ادخال مبلغ الزراعة");
+            }
+            else{
+                await window.pywebview.api.setImplantAmount(data.implant_total, patient.id);
+                await refresh_data();
+                closeform('set-implant-price-form');
+            }
+            
         }
 
         async function submitSetTreatmentTypeForm(){
@@ -1036,9 +1076,16 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
 
-            await window.pywebview.api.addAmount(data.amount, patient.id);
-            await refresh_data();
-            closeform('add-implant-amount-form');
+            let amount = document.getElementById("amount").value.trim();
+            if(amount==""){
+                showError("يرجى ادخال مبلغ");
+            }
+            else{
+                
+                await window.pywebview.api.addAmount(data.amount, patient.id);
+                await refresh_data();
+                closeform('add-implant-amount-form');
+            }
         }
 
         function showResetWarning() {
@@ -1087,11 +1134,24 @@
             const form = document.getElementById('edit-patient-form');
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
-
-            window.pywebview.api.editPatient(data, patient.id).then(() => {
+            let name = document.getElementById("name").value.trim();
+            let phone_num= document.getElementById("phone_num").value.trim();
+            if(name == "" || (name.split(" ").length - 1) < 2){
+                showError("يرجى ادخال الاسم الثلاثي");
+            }
+            else if(phone_num == ""){
+                showError("يرجى ادخال رقم الهاتف");
+            }
+            else if(phone_num.length != 11){
+                showError("يرجى ادخال رقم الهاتف بشكل صحيح");
+            }
+            else{
+                window.pywebview.api.editPatient(data, patient.id).then(() => {
                 refresh_data();
                 closeform('edit-patient-form');
             });
+            }
+            
         }
         function deletePatient(){
             window.pywebview.api.deletePatient(patient.id).then(() => {
@@ -1155,6 +1215,11 @@
         await refreshMeetings(new Date(year, month - 1, day));
         refreshDoctor();
         hideDoctorsList();
+    }
+    function showError(msg){
+        const card = document.getElementById("missing_data");
+        card.innerText = msg;
+        flashOnce("missing_data");
     }
     </script>
 </body>
