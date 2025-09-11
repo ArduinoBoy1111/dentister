@@ -128,13 +128,6 @@
                         <input type="hidden" name="doctor" id="doctor_value" value="">
                     </div>
 
-                    <div class="form-group">
-                        <label for="implant_total">مبلغ الزراعة</label>
-                        <input type="number" name="implant_total" id="implant_total" placeholder="ادخل مبلغ الزراعة" required>
-                    </div>
-
-
-                    
                 </div>
 
 
@@ -173,20 +166,26 @@
                         <div class="suggestions_list" id="suggestions_list"></div>
                     </div>
                     
+                    <div class="form-group">
+                        <label  for="meeting_type_2">نوع الحالة</label>
+                        <select name="meeting_type_2" id="meeting_type_2">
+                            <option value="أشعة">أشعة</option>
+                            <option value="حشوة">حشوة</option>
+                            <option value="تركيب">تركيب</option>
+                            <option value="طبعة">طبعة</option>
+                            <option value="قلع">قلع</option>
+                            <option value="هيلنك">هيلنك</option>
+                            <option value="تحضير">تحضير</option>
+                        </select>
+                    </div>
 
                     <div class="form-group">
                         <label  for="info">المعلومات</label>
                         <textarea name="info" id="info" placeholder="ادخل المعلومات" rows="2" ></textarea>
                     </div>
-
-                    
-                    <div class="form-group">
-                        <label for="implant_total_2">مبلغ الزراعة</label>
-                        <input  type="number" name="implant_total" id="implant_total_2" placeholder="ادخل مبلغ الزراعة" required>
-                    </div>
-                    
+   
                     <div class="form-group" style="margin-top:4%;width: 50%;">
-                        <label  for="info">الوقت</label>
+                        <label  for="ifo">الوقت</label>
                         
                         <div style="margin-left:4%;">
                             <button type="button" id="day_button" onclick="switchToDay()" class="time-button ">صباحاً</button>
@@ -308,8 +307,8 @@
                         date.value = now_date; //date is being set 
 
                         
-                        document.getElementById('info2').value  = document.getElementById('info').value;
-                        document.getElementById('info2').value  = document.getElementById('info').value;
+                        //
+                        //
                         
                     }
                     day = i;
@@ -420,7 +419,7 @@
                     let name = document.getElementById("name").value.trim();
                     let phone_num= document.getElementById("phone_num").value.trim();
                     let current_doctor = document.getElementById("doctor_value").value.trim();
-                    let implant_total = document.getElementById("implant_total").value.trim();
+                    
 
                     if(name == "" || (name.split(" ").length - 1) < 2){
                         showError("يرجى ادخال الاسم الثلاثي");
@@ -433,9 +432,6 @@
                     }
                     else if(current_doctor == ""){
                         showError("يرجى اختيار الطبيب المشرف");
-                    }
-                    else if (implant_total == "" || implant_total < 1){
-                        showError("يرجى ادخال مبلغ الزراعة")
                     }
                     else {
                         const form = document.getElementById('form');
@@ -463,12 +459,9 @@
                     
                 }
                 else if (type=="create_meeting"){
-                    let implant_total = document.getElementById("implant_total_2").value.trim();
+
                     if(selected_patient==null){
                         flashOnce("no_patient_card");
-                    }
-                    else if(implant_total == "" || implant_total < 1){
-                        showError("يرجى ادخال مبلغ الزراعة")
                     }
                     else{
                         const dateInput = document.getElementById('date');
@@ -577,9 +570,9 @@
                 phone.style.fontSize = '16px';
                 upper_div.appendChild(phone);
 
-                const info = document.createElement('p');
-                info.textContent = `${meeting.info}`;
-                lower_div.appendChild(info);
+                const meeting_type_2 = document.createElement('p');
+                meeting_type_2.textContent = `${meeting.meeting_type_2}`;
+                lower_div.appendChild(meeting_type_2);
 
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>';
@@ -598,6 +591,7 @@
 
                 editButton.onclick = () => {
                     document.getElementById('info').value = meeting.info;
+                    document.getElementById('meeting_type_2').value = meeting.meeting_type_2;
                     if (meeting.time==1){
                         switchToDay();
                     }
@@ -622,18 +616,6 @@
                 add_meeting_button.innerHTML = '+';
                 add_meeting_button.className = 'meeting-button';
                 
-                //add_meeting_button.onclick = () => {
-                //    
-                //    const name = document.getElementById('name');
-                //    const phone_num = document.getElementById('phone_num');
-                //    const info = document.getElementById('info');
-
-                //    name.value = patient.name;
-                //    phone_num.value = patient.phone_num;
-                //    info.value = patient.info;
-                //    switchToAdding();
-                //}
-
                 const buttons_area = document.createElement('div');
                 buttons_area.className = 'patient-buttons-area';
                 lower_div.appendChild(buttons_area);
@@ -748,10 +730,7 @@
 
             
         }
-        function completeTransfer(){
-            document.getElementById("info").value  = document.getElementById("info2").value;
-            submitform(true);
-        }
+
         
         function switchToPatient(){
             unselect_patient();
@@ -793,16 +772,6 @@
             document.getElementById("current_patient_number").textContent = patient.phone_num;
             document.getElementById("search").style.display = "none";
             document.getElementById("suggestions_list").innerHTML = "";
-
-
-            if(selected_patient.implant_total==0){
-                document.getElementById("implant_total_2").disabled=false;
-                document.getElementById("implant_total_2").value  = "";
-            }
-            else{
-                document.getElementById("implant_total_2").value  = selected_patient.implant_total;
-                document.getElementById("implant_total_2").disabled = true;
-            }
         }
 
         function unselect_patient(){

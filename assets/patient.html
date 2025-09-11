@@ -140,17 +140,6 @@
                     <input type="text" name="phone_num" id="phone_num" placeholder="ادخل رقم الهاتف" >
                 </div>
 
-
-                <div id="implant_total_group" class="form-group">
-                    <label for="implant_total">مبلغ الزراعة</label>
-                    <input  type="number" name="implant_total" id="implant_total" placeholder="ادخل المبلغ الكلي" >
-                </div>
-
-                <div id="implant_current_group" class="form-group">
-                    <label for="implant_current">مبلغ المدخل</label>
-                    <input type="number" name="implant_current" id="implant_current" placeholder="ادخل المبلغ المدخل" >
-                </div>
-
                 <div id="treat_type_group" class="form-group">
                     <label  for="treat_type">نوع الحالة</label>
                     <select name="treat_type" id="treat_type">
@@ -162,35 +151,28 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label>الطبيب</label>
+                    <div id="doctor_group" style="width:75%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+                        <label style="display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" class="doc-check" data-val="0"> د.احمد
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" class="doc-check" data-val="1"> د.مصطفى
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;">
+                        <input type="checkbox" class="doc-check" data-val="2"> د.ضياء
+                        </label>
+                    </div>
+                    <!-- this is what will be submitted -->
+                    <input type="hidden" name="doctor" id="doctor_value" value="">
+                </div>
+
             </div>
 
             <div class="buttons-area" style="justify-content: center; align-items: center;">
                 <button type="button" onclick="submitEditPatientForm()" class="ok-button">موافق</button>
                 <button type="button" class="cancel-button" onclick="closeform('edit-patient-form',false)">إلغاء</button>
-            </div>
-        </div>
-    </form>
-
-    <form action="" hidden class="form" id="set-implant-price-form">
-        <div class="form-card">
-            <div style="width: 100%;">
-                <div style="display: flex;align-items: center;justify-content: center;width: 100%;">
-                    <div class="flex-line"></div>
-                    <h1 >تحديد سعر الزراعة</h1>
-                    <div class="flex-line"></div>
-                </div>
-
-
-                <div class="form-group">
-                    <label for="implant_total">المبلغ</label>
-                    <input type="number" name="implant_total" id="implant_total_2" placeholder="ادخل المبلغ" >
-                </div>
-
-            </div>
-
-            <div class="buttons-area" style="justify-content: center; align-items: center;">
-                <button type="button"  class="ok-button" onclick="submitSetImplantPriceForm()">موافق</button>
-                <button type="button" class="cancel-button" onclick="closeform('set-implant-price-form',false)">إلغاء</button>
             </div>
         </div>
     </form>
@@ -480,7 +462,7 @@
 
             }
             else{
-                if(!patient.implant_state){
+                if(!patient.transfer_state){
                     control_area.style.justifyContent = "space-between";
                     const right_div = document.createElement('div');
                     right_div.className = 'right_control_div_custom';
@@ -609,105 +591,7 @@
             const control_area = document.getElementById('control_area');
             control_area.innerHTML = "";
             control_area.style.height = "12%";
-            if(patient.implant_total == 0 ){
-                
-                control_area.style.justifyContent = "center";
-                notify_p = document.createElement('p');
-                notify_p.textContent = "لا يوجد مبلغ محدد لعملية الزراعة بعد , هل تريد تحديد مبلغ ؟";
-                ok_button = document.createElement('button');
-                ok_button.textContent = "نعم";
-                ok_button.className = "ok-button";
-                notify_p.className = "notify_p";
-                ok_button.onclick = () => {
-                    showform('set-implant-price-form');
-                };
-                control_area.appendChild(notify_p);
-                control_area.appendChild(ok_button);
-
-            }
-            else{
-                if(patient.implant_total!=patient.implant_current){
-                    control_area.style.justifyContent = "space-between";
-                    const right_div = document.createElement('div');
-                    right_div.className = 'right_control_div';
-
-                    const formatNumber = n => n !== undefined && n !== null ? n.toLocaleString('en-US') : '0';
-
-                    const total_amount = document.createElement('div');
-                    total_amount.className = 'total-amount';
-                    total_amount.innerText = ` المبلغ الكلي : ${formatNumber(patient.implant_total)}`;
-                    right_div.appendChild(total_amount);
-
-                    const current_amount = document.createElement('div');
-                    current_amount.className = 'current-amount';
-                    current_amount.innerText = `المبلغ الحالي : ${formatNumber(patient.implant_current)}`;
-                    right_div.appendChild(current_amount);
-                    
-                    const remaining_amount = document.createElement('div');
-                    remaining_amount.className = 'remaining-amount';
-                    remaining_amount.innerText = `المبلغ المتبقي : ${formatNumber(patient.implant_total - patient.implant_current)}`;
-                    right_div.appendChild(remaining_amount);
-
-                    control_area.appendChild(right_div);
-
-                    const left_div = document.createElement('div');
-                    left_div.className = 'left_control_div';
-
-                    const add_amount_button = document.createElement('button');
-                    add_amount_button.textContent = "إضافة مبلغ";
-                    add_amount_button.className = "add-amount-button";
-                    add_amount_button.onclick = () => {
-                        showform('add-implant-amount-form');
-                    };
-                    left_div.appendChild(add_amount_button);
-
-                    control_area.appendChild(left_div);
-
-                }
-                else{
-                    control_area.style.justifyContent = "space-between";
-                    const right_div = document.createElement('div');
-                    right_div.className = 'right_control_div';
-
-                    const formatNumber = n => n !== undefined && n !== null ? n.toLocaleString('en-US') : '0';
-
-                    const total_amount = document.createElement('div');
-                    total_amount.className = 'total-amount';
-                    total_amount.innerText = ` المبلغ الكلي : ${formatNumber(patient.implant_total)}`;
-                    right_div.appendChild(total_amount);
-
-                    const current_amount = document.createElement('div');
-                    current_amount.className = 'current-amount';
-                    current_amount.innerText = `المبلغ الحالي : ${formatNumber(patient.implant_current)}`;
-                    right_div.appendChild(current_amount);
-                    
-                    const remaining_amount = document.createElement('div');
-                    remaining_amount.className = 'remaining-amount';
-                    remaining_amount.innerText = `المبلغ المتبقي : ${formatNumber(patient.implant_total - patient.implant_current)}`;
-                    right_div.appendChild(remaining_amount);
-
-                    control_area.appendChild(right_div);
-
-                    const left_div = document.createElement('div');
-                    left_div.className = 'left_control_div';
-
-                    const done_div = document.createElement('div');
-                    done_div.className = "done-div";
-                    done_div.textContent = "مكتمل";
-                    left_div.appendChild(done_div);
-
-                    const reset = document.createElement('button');
-                    reset.textContent = "حذف المبالغ المسجلة";
-                    reset.className = "reset-button";
-                    reset.onclick = () => {
-                        document.getElementById('reset-warning-message').textContent = `هل انت متأكد من حذف جميع المبالغ المسجلة ؟`;
-                        showResetWarning();
-                    };
-                    left_div.appendChild(reset);
-
-                    control_area.appendChild(left_div);
-                }
-            }
+            
         }
 
         function showBraces(){
@@ -835,7 +719,7 @@
 
                     document.getElementById('name').value = patient.name;
                     document.getElementById('phone_num').value = patient.phone_num;
-
+                    setDocChecksFromString(patient.doctor);
                     if(patient.treat_type!="none"){
                         document.getElementById('treat_type').value = patient.treat_type;
                         document.getElementById('treat_type_group').style.display = 'flex';
@@ -844,18 +728,8 @@
                         document.getElementById('treat_type').value = '';
                         document.getElementById('treat_type_group').style.display = 'none';
                     }
-                    if(patient.implant_total!=0){
-                        document.getElementById('implant_total').value = patient.implant_total;
-                        document.getElementById('implant_total_group').style.display = 'flex';
-                        document.getElementById('implant_current_group').style.display = 'flex';
-                        document.getElementById('implant_current').value = patient.implant_current;
-                    }
-                    else {
-                        document.getElementById('implant_total').value = '';
-                        document.getElementById('implant_total_group').style.display = 'none';
-                        document.getElementById('implant_current_group').style.display = 'none';
-                        document.getElementById('implant_current').value = '';
-                    }
+                
+                    
                     
                     
                 };
@@ -1047,56 +921,6 @@
             document.getElementById("day_button").classList.remove('active');
             document.getElementById("night_button").classList.add('active');          
         }
-
-        async function submitSetImplantPriceForm(){
-            // get the amount from the input filed and pass it to a pywebview func called setImplantAmount
-            const form = document.getElementById('set-implant-price-form');
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-            
-            let implant_total = document.getElementById("implant_total_2").value.trim();
-
-            if(implant_total==""){
-                showError("يرجى ادخال مبلغ الزراعة");
-            }
-            else{
-                await window.pywebview.api.setImplantAmount(data.implant_total, patient.id);
-                await refresh_data();
-                closeform('set-implant-price-form');
-            }
-            
-        }
-
-        async function submitSetTreatmentTypeForm(){
-            // get the amount from the input filed and pass it to a pywebview func called setImplantAmount
-            const form = document.getElementById('set-treatment-type-form');
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-
-            await window.pywebview.api.setTreatmentType(data.treat_type, patient.id);
-            await refresh_data();
-            closeform('set-treatment-type-form');
-        }
-        
-        
-        async function addAmount(){
-            // get the amount from the input filed and pass it to a pywebview func called setImplantAmount
-            const form = document.getElementById('add-implant-amount-form');
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-
-            let amount = document.getElementById("amount").value.trim();
-            if(amount==""){
-                showError("يرجى ادخال مبلغ");
-            }
-            else{
-                
-                await window.pywebview.api.addAmount(data.amount, patient.id);
-                await refresh_data();
-                closeform('add-implant-amount-form');
-            }
-        }
-
         function showResetWarning() {
             const warningCard = document.getElementById('reset-warning');
             warningCard.style.display = 'flex';
@@ -1120,17 +944,6 @@
         function hideDeleteWarning() {
             const warningCard = document.getElementById('delete-patient-form');
             warningCard.style.display = 'none';
-        }
-        function resetAmounts(){
-            window.pywebview.api.resetAmounts(patient.id).then(() => {
-                refresh_data();
-                hideResetWarning();
-            });
-        }
-        function doneifyPatient(){
-            window.pywebview.api.doneifyPatient(patient.id).then(() => {
-                refresh_data();
-            });
         }
         function resetTreatment(){
             window.pywebview.api.resetTreatment(patient.id).then(() => {
@@ -1230,6 +1043,28 @@
         card.innerText = msg;
         flashOnce("missing_data",time);
     }
+    function updateDoctorValue() {
+        const sel = Array.from(document.querySelectorAll('#doctor_group .doc-check:checked'))
+            .map(cb => cb.dataset.val)
+            .sort()                 // always in 0,1,2 order
+            .join('');
+        document.getElementById('doctor_value').value = sel;
+    }
+
+    // initialize listeners when the page is ready
+    window.addEventListener('pywebviewready', function () {
+        document.querySelectorAll('#doctor_group .doc-check')
+            .forEach(cb => cb.addEventListener('change', updateDoctorValue));
+        updateDoctorValue(); // set initial (empty) value
+        refreshDoctor();
+    });
+    function setDocChecksFromString(val) {
+        const s = new Set((val || "").split(""));
+        document.querySelectorAll('#doctor_group .doc-check')
+            .forEach(cb => cb.checked = s.has(cb.dataset.val));
+        updateDoctorValue();
+    }
+
     </script>
 </body>
 </html>

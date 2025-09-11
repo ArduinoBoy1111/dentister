@@ -19,7 +19,13 @@ class Patient(Base):
         cascade="all, delete-orphan",
         passive_deletes=True
     )
-    
+    # implant features 
+    payments = relationship(
+        "Payment",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
     # transfers features
     transfers = relationship(
         "Transfer",
@@ -30,10 +36,6 @@ class Patient(Base):
     treat_type = Column(String, nullable=False,default="none")
     transfer_state = Column(Boolean, nullable=False,default=False) # is it done ?
     
-    # implant features 
-    implant_total = Column(Integer,default=0)
-    implant_current = Column(Integer,default=0)
-    implant_state = Column(Boolean, nullable=False,default=False)
    
    
    
@@ -44,6 +46,7 @@ class Meeting(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     meeting_type = Column(String,nullable=False,default="general")
+    meeting_type_2  = Column(String,nullable=False,default="لا يوجد")
     info = Column(String,nullable=True)
     date = Column(Date,nullable=False)
     time = Column(Boolean, nullable=False,default=False)
@@ -61,4 +64,14 @@ class Transfer(Base):
     
     patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
     patient = relationship("Patient", back_populates="transfers")
+
+class Payment(Base):
+    __tablename__ = "payments"
+    id = Column(Integer, primary_key=True, index=True)
+    
+    amount = Column(Integer,nullable=False)
+    date = Column(Date,nullable=False)
+    
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
+    patient = relationship("Patient", back_populates="payments")
 
