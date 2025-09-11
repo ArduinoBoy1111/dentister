@@ -284,14 +284,14 @@ input:focus {
 }
 .meeting-card{
     width: 90%;
-    height: 70px !important;
+    height: 70px ;
     background-color: #fffffca7;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    padding: 12px 10px;
     border: 2px solid #272727;
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     font-size: 24px;
     flex-direction: column;
@@ -318,11 +318,9 @@ input:focus {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    height: 50%;
+    height: 35px;
 }
-.third-div{
-    height: 33% !important;
-}
+
 .lower-div {
     display: flex;
     justify-content: space-between;
@@ -330,7 +328,7 @@ input:focus {
     width: 100%;
     font-size: 20px;
     color: #4b4b4b;
-    height: 50%;
+    height: 35px;
 }
 .patient-buttons-area {
     display: flex;
@@ -977,4 +975,47 @@ input[type=number]::-webkit-outer-spin-button {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+
+.info-button{
+    border: none;
+    background-color: transparent;
+    color: rgb(59, 59, 255);
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    font-size: 18px;
+}
+.info-button:hover{
+    font-size: 18.5px;
+    transition: 0.2s ease-in-out;
+}
+.hidden-button{
+    opacity: 0;
+}
+.shown{
+    height: 45px;
+    padding: 0 5px;
+    padding-top: 8px !important;
+    transition: 0.2s ease-in-out;
+    opacity: 1 !important;
+}
+.expanded{
+    height: 115px;
+    transition: 0.2s ease-in-out;
+}
+.info-div{
+    width: 100%;
+    height: 0;
+    padding: 0;
+    font-size: 18px;
+    transition: 0.2s ease-in-out;
+    opacity: 0;
+    
+}
+.meeting-card .info-button{
+    opacity: 0;
+}
+.meeting-card:hover .info-button {
+  opacity: 1;
 }

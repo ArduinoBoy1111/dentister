@@ -247,7 +247,8 @@ class API:
             return None
 
         # Update fields
-        meeting.meeting_type_2 = meeting_type_2
+        if meeting_type_2 and meeting_type_2 != "": 
+            meeting.meeting_type_2 = meeting_type_2
         meeting.info = info
         meeting.date = date_obj
         meeting.time = time

@@ -46,7 +46,7 @@ class Meeting(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     meeting_type = Column(String,nullable=False,default="general")
-    meeting_type_2  = Column(String,nullable=False,default="لا يوجد")
+    meeting_type_2  = Column(String,nullable=False,default="none")
     info = Column(String,nullable=True)
     date = Column(Date,nullable=False)
     time = Column(Boolean, nullable=False,default=False)
