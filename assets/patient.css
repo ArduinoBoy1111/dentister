@@ -132,25 +132,23 @@
 .meeting{
     display: flex;
     width: 85%;
-    height: 6vh;
+    height: 6vh !important;
     margin-top: 2%;
     border-radius: 12px;
     border : 1px solid #141414;
     align-items: center;
     transition:  0.3s ease-in-out;
-    overflow: hidden;
 }
 .meeting2{
     display: flex;
     width: 85%;
-    height: 6vh;
+    height: 6vh !important;
     margin-top: 2%;
     border-radius: 12px;
     border : 1px solid #141414;
     align-items: center;
     flex-direction: column;
     transition:  0.3s ease-in-out;
-    overflow: hidden;
 }
 .meeting2:hover{
     height: 10vh;
@@ -161,7 +159,7 @@
     align-items: center;
     width: 20%;
     justify-content: space-evenly;
-    height: 6vh;
+    height: 6vh !important;
     
 }
 .meeting_info_area{
@@ -171,11 +169,19 @@
     width: 80%;
     padding: 0 10px;
     font-size: 1.4em;
-    height: 6vh;
+    height: 6vh meeting_info_area;
 }
 .meeting_info_area p{
-    width: 33%;
+    width: 25%;
+    display: flex;
+    justify-content: center;
 }
+.meeting_info_area p:first-child{
+    width: 50%;
+    justify-content: start;
+}
+
+
 
 .add-amount-button,
 .add-remaining-amount-button {
