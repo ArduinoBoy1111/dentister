@@ -1062,7 +1062,7 @@
     }
     function showError(msg,time=1.5){
         const card = document.getElementById("missing_data");
-        card.innerText = msg;
+        card.innerHTML = msg;
         flashOnce("missing_data",time);
     }
     function updateDoctorValue() {

@@ -101,7 +101,7 @@ select{
 .phone_num{
     font-size: 16px;
 }
-.info-div{
+.info-div_2{
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -109,6 +109,6 @@ select{
     margin-bottom: 2%;
     
 }
-.info-div p {
+.info-div_2 p {
     margin: 0;
 }

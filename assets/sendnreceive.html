@@ -310,6 +310,9 @@
                     else if(phone_num.length != 11){
                         showError("يرجى ادخال رقم الهاتف بشكل صحيح");
                     }
+                    else if(!phone_num.startsWith("07")){
+                        showError("يرجى ادخال رقم الهاتف بشكل صحيح<br>07*********");
+                    }
                     else if(current_doctor == ""){
                         showError("يرجى اختيار الطبيب المشرف");
                     }
@@ -469,7 +472,7 @@
                     lower_div.className = "lower-div";
 
                     const info_div = document.createElement("div");
-                    info_div.className = "info-div";
+                    info_div.className = "info-div_2";
                     const send_p = document.createElement("p");
                     send_p.textContent = `الارسال : ${u.transfers.filter(t => t.transfer_type == 1).length  ?? "—"}`;
                     const recv_p = document.createElement("p");

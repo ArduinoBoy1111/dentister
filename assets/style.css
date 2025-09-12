@@ -852,6 +852,7 @@ input[type=number]::-webkit-outer-spin-button {
     margin-bottom: 0.5%;
     padding: 2px 12px;
     overflow: hidden;
+    padding-bottom: 8px;
 }
 .search_patient_card:hover{
     border: var(--teal) 1px solid;
@@ -1018,4 +1019,9 @@ input[type=number]::-webkit-outer-spin-button {
 }
 .meeting-card:hover .info-button {
   opacity: 1;
+}
+input[type="checkbox"]{
+    height: 18px;
+    width: 18px;
+    border-radius: 10%;
 }

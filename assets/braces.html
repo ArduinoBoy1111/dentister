@@ -414,6 +414,9 @@
                     else if(phone_num.length != 11){
                         showError("يرجى ادخال رقم الهاتف بشكل صحيح");
                     }
+                    else if(!phone_num.startsWith("07")){
+                        showError("يرجى ادخال رقم الهاتف بشكل صحيح<br>07*********");
+                    }
                     else if(current_doctor == ""){
                         showError("يرجى اختيار الطبيب المشرف");
                     }
@@ -955,7 +958,7 @@
     }
     function showError(msg,time=1.5){
         const card = document.getElementById("missing_data");
-        card.innerText = msg;
+        card.innerHTML = msg;
         flashOnce("missing_data",time);
     }
     let loadingTimer = null;
