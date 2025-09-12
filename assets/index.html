@@ -30,6 +30,18 @@
            </div>
            <div class="add-button-area">
                 <button class="add-button" onclick="showform('meeting-form')">+</button>
+
+                <button class="add-button multi" onclick="startMultiMeeting()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Back square -->
+                    <rect x="4" y="4" width="12" height="12" rx="2" ry="2"/>
+                    
+                    <!-- Front square -->
+                    <rect x="8" y="8" width="12" height="12" rx="2" ry="2"/>
+                    </svg>
+                </button>
+
                 <button class="delete-button" onclick="showWarning()"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg></button>
 
             </div>
@@ -198,7 +210,7 @@
 
 
                 <div class="buttons-area" style="justify-content: center; align-items: center;">
-                    <button type="button" class="ok-button" onclick="submitform('create_meeting')">موافق</button>
+                    <button type="button" id="meeting_submit_button" class="ok-button" onclick="submitform('create_meeting')">موافق</button>
                     <button type="button" class="cancel-button" onclick="closeform('meeting-form',false)">إلغاء</button>
                 </div>
             </div>
@@ -217,6 +229,13 @@
         <div id="success_card" class="success_card"> ! تمت إضافة الجلسة بنجاح </div>
         <div id="no_patient_card" class="no_patient_card">يرجى ادخال المريض اولاً </div>
         <div id="missing_data" class="missing_data"></div>
+        <div id="multi_adding_card" class="multi_adding_card">
+            <div>
+                <button id="meeting_submit_button_2" class="ok-button" onclick="submitMultiMeeting()">موافق</button>
+                <button class="cancel-button" onclick="endMultiMeeting()">الغاء</button>
+            </div>
+            <p>اختر الأيام المطلوبة لإضافة الجلسات</p>
+        </div>
         
     </main>
     
@@ -235,6 +254,9 @@
         let doctor = "0";
         today_header = document.getElementById('current_day_header');
 
+
+        let dates = [];
+        let multi_adding = false
         
         function changeView(view) {
             window.pywebview.api.navigate(view);
@@ -284,8 +306,14 @@
             if (el) el.classList.add('active');
         });
         }
-
         markTodayOnce();
+        if(multi_adding){
+            const allAddrTags = document.querySelectorAll('.addr-tag');
+            allAddrTags.forEach(square => {
+                square.classList.remove('active');
+            });
+        }
+        
         function createCalendar() {
             const daysInMonth = new Date(year, month, 0).getDate();
             document.querySelector('.display').innerHTML = ''; // Clear previous content
@@ -296,34 +324,57 @@
                const patient_num = document.createElement('div');
                addrtag.className = 'addr-tag';
                 
+               if(multi_adding){
+
+                const monthPadded = String(month).padStart(2, '0');
+                const dayPadded = String(i).padStart(2, '0');
+                if(dates.includes(`${year}-${monthPadded}-${dayPadded}`)){
+                    addrtag.classList.add('active');
+                }
+               }
+
                addrtag.onclick = () => {
-                    if (adding_meeting) {
-                        day = i;
+                    day = i;
+                    if (!multi_adding) {
+                        
                         const monthPadded = String(month).padStart(2, '0');
                         const dayPadded = String(day).padStart(2, '0');
-                        const now_date = new Date(`${year}-${monthPadded}-${dayPadded}`);
-
-                        const date = document.getElementById('date');
-
-                        date.value = now_date; //date is being set 
-
-                        //
-                        //
                         
+                        const now_date = new Date(`${year}-${monthPadded}-${dayPadded}`);
+                        const dayNameArabic = now_date.toLocaleDateString('ar-EG', options);
+                        today_header.innerHTML = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year + "<br>" + "(" + dayNameArabic + ")";
+                        update_list(new Date(year, month - 1, day));
+                        const allAddrTags = document.querySelectorAll('.addr-tag');
+                        allAddrTags.forEach(square => {
+                            square.classList.remove('active');
+                        });
+                        addrtag.classList.add('active');
                     }
-                    day = i;
-                    const monthPadded = String(month).padStart(2, '0');
-                    const dayPadded = String(day).padStart(2, '0');
+                    else{
+                        const monthPadded = String(month).padStart(2, '0');
+                        const dayPadded = String(day).padStart(2, '0');
+                        let index = dates.indexOf(`${year}-${monthPadded}-${dayPadded}`); 
+                        
+                        
+                        if(index !== -1){
+                            dates.splice(index,1);
+                            addrtag.classList.remove('active');
+
+                        }
+                        else{
+                            addrtag.classList.add('active');
+                            dates.push(`${year}-${monthPadded}-${dayPadded}`);
+                        }
+
+
+                        if(dates.length == 0){
+                            document.getElementById("meeting_submit_button_2").disabled = true;
+                        }
+                        else{
+                            document.getElementById("meeting_submit_button_2").disabled = false;
+                        }
+                    }
                     
-                    const now_date = new Date(`${year}-${monthPadded}-${dayPadded}`);
-                    const dayNameArabic = now_date.toLocaleDateString('ar-EG', options);
-                    today_header.innerHTML = "اليوم: " + day + "/" + monthNames[month - 1] + "/" + year + "<br>" + "(" + dayNameArabic + ")";
-                    update_list(new Date(year, month - 1, day));
-                    const allAddrTags = document.querySelectorAll('.addr-tag');
-                    allAddrTags.forEach(square => {
-                        square.classList.remove('active');
-                    });
-                    addrtag.classList.add('active');
 
                };
                addrtag.style.textDecoration = 'none';
@@ -336,9 +387,7 @@
                document.querySelector('.main-content-area .display').appendChild(addrtag);
                
            }
-           if(adding_meeting){
-            switchToAdding();
-           }
+           
             
         }
 
@@ -355,7 +404,7 @@
             update_list(new Date(year, month - 1, day));
             // select the first day of the month by default
             const allAddrTags = document.querySelectorAll('.addr-tag');
-            if (allAddrTags.length > 0) {
+            if (allAddrTags.length > 0 && !multi_adding) {
                 allAddrTags[0].click();
             }
         }
@@ -1032,6 +1081,63 @@
             div.classList.remove("shown");
         }, { once: true });
     }
+
+    let current_day = 1
+
+    function startMultiMeeting(){
+        current_day = day;
+        document.getElementById("meeting_submit_button_2").disabled = true;
+        const allAddrTags = document.querySelectorAll('.addr-tag');
+        allAddrTags.forEach(square => {
+            square.classList.remove('active');
+        });
+        multi_adding = true
+        document.getElementById("multi_adding_card").style.display = "flex";
+
+    }
+    function endMultiMeeting(){
+        multi_adding = false
+        document.getElementById("multi_adding_card").style.display = "none";
+        createCalendar();
+        const allAddrTags = document.querySelectorAll('.addr-tag');
+        if (allAddrTags.length > 0 && !multi_adding) {
+            allAddrTags[current_day-1].click();
+        }
+        dates = [];
+        const submit_button = document.getElementById("meeting_submit_button");
+        submit_button.onclick = () => {
+            submitform('create_meeting');
+        };
+    }
+    async function submitMultiMeeting() {
+        showform("meeting-form");
+        const submit_button = document.getElementById("meeting_submit_button");
+
+        submit_button.onclick = async () => {
+            if (selected_patient == null) {
+                flashOnce("no_patient_card");
+                return;
+            }
+
+            for (const date of dates) {
+                const dateInput = document.getElementById("date");
+                dateInput.value = date;
+
+                const form = document.getElementById("meeting-form");
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+
+                // Wait for each meeting creation before continuing
+                await window.pywebview.api.createMeeting(data, time, selected_patient.id);
+            }
+
+            // Only run these after all meetings are created
+            await refreshMeetings(new Date(year, month - 1, current_day));
+            closeform("meeting-form");
+            endMultiMeeting();
+        };
+    }
+
     </script>
 </body>
 </html>
